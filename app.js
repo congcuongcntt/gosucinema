@@ -66,22 +66,17 @@ const charLayout = document.querySelector('#character-layout');
 const portraitBox = document.querySelector('#portrait-box');
 const portraitImg = document.querySelector('#portrait');
 const portraitSeal = document.querySelector('#portrait-seal');
-const portraitModeBadge = document.querySelector('#portrait-mode-badge');
 const charZoomBtn = document.querySelector('#char-zoom-btn');
 const charInfo = document.querySelector('#character-info');
 const charViewBtns = [...document.querySelectorAll('.char-view-btn')];
-const charThumbBtns = [...document.querySelectorAll('.char-thumb')];
-const thumbAvatarImg = document.querySelector('#thumb-avatar');
-const thumbTurnaroundImg = document.querySelector('#thumb-turnaround');
-const thumbSheetImg = document.querySelector('#thumb-sheet');
 
 let currentCharIndex = 0;
 let charViewMode = 'avatar'; // 'avatar' | 'turnaround' | 'sheet'
 
 const charViewLabels = {
-  avatar: 'CHẾ ĐỘ: CHÂN DUNG (AVATAR)',
-  turnaround: 'CHẾ ĐỘ: FULL 3 MẶT (TRƯỚC · SAU · CẬN)',
-  sheet: 'CHẾ ĐỘ: BẢNG THIẾT KẾ CHI TIẾT 1836'
+  avatar: 'CHÂN DUNG (AVATAR)',
+  turnaround: 'FULL 3 MẶT (TRƯỚC · SAU · CẬN)',
+  sheet: 'BẢNG THIẾT KẾ CHI TIẾT 1836'
 };
 
 function getCharImageByMode(c, viewMode) {
@@ -97,50 +92,14 @@ function updateCharStage() {
   portraitImg.src = getCharImageByMode(c, charViewMode);
   portraitImg.alt = `${c[0]} — ${charViewLabels[charViewMode]}`;
   if (portraitSeal) portraitSeal.textContent = c[5];
-  if (portraitModeBadge) portraitModeBadge.textContent = charViewLabels[charViewMode];
-
-  if (thumbAvatarImg) thumbAvatarImg.src = c[2];
-  if (thumbTurnaroundImg) thumbTurnaroundImg.src = c[6];
-  if (thumbSheetImg) thumbSheetImg.src = c[7];
 
   charViewBtns.forEach(btn => {
     const active = btn.dataset.charView === charViewMode;
     btn.classList.toggle('active', active);
     btn.setAttribute('aria-pressed', String(active));
   });
-  charThumbBtns.forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.charView === charViewMode);
-  });
 
-  const nextToggleMode = charViewMode === 'turnaround' ? 'avatar' : 'turnaround';
-  const nextToggleText =
-    charViewMode === 'turnaround'
-      ? 'QUAY VỀ CHÂN DUNG (AVATAR)'
-      : 'XEM FULL 3 MẶT (TRƯỚC · SAU · CẬN)';
-
-  charInfo.innerHTML = `
-    <span class="small">${c[1]}</span>
-    <h3>${c[0]}</h3>
-    <p>${c[3]}</p>
-    <blockquote>${c[4]}</blockquote>
-    <div class="char-quick-actions">
-      <button type="button" class="char-action-pill primary" data-quick-view="${nextToggleMode}">
-        ${nextToggleText}
-      </button>
-      <button type="button" class="char-action-pill" data-quick-view="sheet">
-        BẢNG THIẾT KẾ 1836
-      </button>
-      <button type="button" class="char-action-pill" data-quick-zoom="true">
-        PHÓNG TO 4K ⤢
-      </button>
-    </div>
-  `;
-
-  charInfo.querySelectorAll('[data-quick-view]').forEach(btn => {
-    btn.onclick = () => setCharViewMode(btn.dataset.quickView);
-  });
-  const qZoom = charInfo.querySelector('[data-quick-zoom]');
-  if (qZoom) qZoom.onclick = () => openCharLightbox();
+  charInfo.innerHTML = `<span class="small">${c[1]}</span><h3>${c[0]}</h3><p>${c[3]}</p><blockquote>${c[4]}</blockquote>`;
 }
 
 function setCharViewMode(viewMode) {
@@ -149,10 +108,6 @@ function setCharViewMode(viewMode) {
 }
 
 charViewBtns.forEach(btn => {
-  btn.onclick = () => setCharViewMode(btn.dataset.charView);
-});
-
-charThumbBtns.forEach(btn => {
   btn.onclick = () => setCharViewMode(btn.dataset.charView);
 });
 

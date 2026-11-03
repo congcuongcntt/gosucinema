@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Cormorant+SC:wght@500;600;700&family=Spectral:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=2">
+  <link rel="stylesheet" href="style.css?v=3">
 </head>
 <body>
   <div class="horror-grain" aria-hidden="true"></div>
@@ -709,44 +709,24 @@
       <p class="eyebrow reveal">02 / NHỮNG KẺ BƯỚC ĐI TRONG ĐÊM DÀI</p>
       <div class="section-title">
         <h2>Mỗi số phận.<br><em>Một nghiệp chướng.</em></h2>
-        <p>Chọn hồ sơ nhân vật và chuyển đổi giữa <strong>Chân dung (Avatar)</strong>, <strong>Full 3 Mặt (Trước · Sau · Cận)</strong> hoặc <strong>Bảng Thiết Kế</strong>.</p>
+        <p>Chọn hồ sơ nhân vật để lật mở thân thế và chấp niệm.</p>
       </div>
       <div class="character-layout" id="character-layout">
         <div class="tabs" role="tablist" aria-label="Nhân vật"></div>
         <div class="portrait-stage">
-          <div class="char-view-switcher" role="group" aria-label="Chế độ xem tạo hình nhân vật">
-            <button type="button" class="char-view-btn active" data-char-view="avatar" aria-pressed="true">
-              <span class="cv-dot"></span>CHÂN DUNG (AVATAR)
-            </button>
-            <button type="button" class="char-view-btn" data-char-view="turnaround" aria-pressed="false">
-              <span class="cv-dot"></span>FULL 3 MẶT (TRƯỚC · SAU · CẬN)
-            </button>
-            <button type="button" class="char-view-btn" data-char-view="sheet" aria-pressed="false">
-              <span class="cv-dot"></span>BẢNG THIẾT KẾ CHI TIẾT
-            </button>
-          </div>
           <div class="portrait" id="portrait-box">
             <div class="portrait-frame-corner" aria-hidden="true"></div>
             <img id="portrait" src="assets/159.jpg" alt="Mót">
             <span class="portrait-seal" id="portrait-seal">命陰</span>
-            <span class="portrait-mode-badge" id="portrait-mode-badge">CHẾ ĐỘ: CHÂN DUNG</span>
-            <button type="button" class="portrait-zoom-btn" id="char-zoom-btn" aria-label="Phóng to tạo hình 4K">
-              XEM 4K TOÀN MÀN HÌNH ⤢
-            </button>
           </div>
-          <div class="char-view-thumbs" aria-label="Ảnh thu nhỏ các góc nhìn nhân vật">
-            <button type="button" class="char-thumb active" data-char-view="avatar">
-              <img id="thumb-avatar" src="assets/159.jpg" alt="Chân dung" loading="lazy">
-              <span>01 · Chân dung (Avatar)</span>
-            </button>
-            <button type="button" class="char-thumb" data-char-view="turnaround">
-              <img id="thumb-turnaround" src="assets/characters/mot-3view.webp" alt="Full 3 Mặt Trước Sau Cận" loading="lazy">
-              <span>02 · Full 3 Mặt (Trước · Sau · Cận)</span>
-            </button>
-            <button type="button" class="char-thumb" data-char-view="sheet">
-              <img id="thumb-sheet" src="assets/characters/mot-sheet.webp" alt="Bảng thiết kế chi tiết" loading="lazy">
-              <span>03 · Hồ Sơ Thiết Kế 1836</span>
-            </button>
+          <div class="char-view-links" role="group" aria-label="Chế độ xem tạo hình nhân vật">
+            <button type="button" class="char-view-btn active" data-char-view="avatar" aria-pressed="true">Chân dung</button>
+            <span class="char-link-sep" aria-hidden="true">/</span>
+            <button type="button" class="char-view-btn" data-char-view="turnaround" aria-pressed="false">Full 3 mặt</button>
+            <span class="char-link-sep" aria-hidden="true">/</span>
+            <button type="button" class="char-view-btn" data-char-view="sheet" aria-pressed="false">Bảng thiết kế</button>
+            <span class="char-link-sep" aria-hidden="true">·</span>
+            <button type="button" class="char-text-zoom" id="char-zoom-btn">Phóng to 4K ↗</button>
           </div>
         </div>
         <article id="character-info" aria-live="polite"></article>
@@ -1170,6 +1150,6 @@
     </div>
   </dialog>
 
-  <script src="app.js"></script>
+  <script src="app.js?v=3"></script>
 </body>
 </html>
