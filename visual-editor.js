@@ -254,7 +254,7 @@
       styleEl.textContent = '';
     }
 
-    [f.display, f.body, f.serifAlt, f.sc].forEach(val => {
+    [f.display, f.subhead, f.body, f.serifAlt, f.sc].forEach(val => {
       if (!val) return;
       const preset = GOOGLE_FONT_PRESETS.find(p => p.value === val);
       if (preset && preset.google) ensureGoogleFontLoaded(preset.google);
@@ -262,6 +262,9 @@
 
     if (f.display) root.style.setProperty('--font-display', f.display);
     else root.style.removeProperty('--font-display');
+
+    if (f.subhead) root.style.setProperty('--font-subhead', f.subhead);
+    else root.style.removeProperty('--font-subhead');
 
     if (f.body) {
       root.style.setProperty('--font-body', f.body);
@@ -1064,14 +1067,16 @@
   function openFontModal() {
     const modal = document.getElementById('ve-FontModal');
     const f = overrides.fonts || {};
+    renderCustomFontOptions();
     document.getElementById('ve-FontDisplaySelect').value = f.display || '';
+    const subSel = document.getElementById('ve-FontSubheadSelect');
+    if (subSel) subSel.value = f.subhead || '';
     document.getElementById('ve-FontBodySelect').value = f.body || '';
     document.getElementById('ve-FontScSelect').value = f.sc || '';
     document.getElementById('ve-FontScaleInput').value = f.scale || 100;
     document.getElementById('ve-FontScaleVal').textContent = `${f.scale || 100}%`;
     document.getElementById('ve-GoldColorInput').value = f.goldColor || '#dfc08a';
     document.getElementById('ve-CrimsonColorInput').value = f.crimsonColor || '#c93026';
-    renderCustomFontOptions();
     modal.classList.add('is-open');
   }
 
@@ -1079,6 +1084,7 @@
     const f = overrides.fonts || {};
     const selects = [
       document.getElementById('ve-FontDisplaySelect'),
+      document.getElementById('ve-FontSubheadSelect'),
       document.getElementById('ve-FontBodySelect'),
       document.getElementById('ve-FontScSelect')
     ];
@@ -1409,15 +1415,19 @@
           <input type="file" id="ve-FontFileInput" accept=".ttf,.otf,.woff,.woff2" hidden>
         </div>
         <div class="ve-field">
-          <label>1. FONT TIÊU ĐỀ LỚN (--font-display)</label>
+          <label>1. FONT TIÊU ĐỀ CHÍNH / POSTER LỚN (--font-display)</label>
           <select class="ve-select" id="ve-FontDisplaySelect">${fontOptionsHtml}</select>
         </div>
         <div class="ve-field">
-          <label>2. FONT NỘI DUNG ĐOẠN VĂN (--font-body)</label>
+          <label>2. FONT TIÊU ĐỀ PHỤ / THẺ CHI TIẾT (CÁC HỒI, TAB, SƠ ĐỒ — RÕ NÉT DỄ ĐỌC)</label>
+          <select class="ve-select" id="ve-FontSubheadSelect">${fontOptionsHtml}</select>
+        </div>
+        <div class="ve-field">
+          <label>3. FONT NỘI DUNG ĐOẠN VĂN (--font-body)</label>
           <select class="ve-select" id="ve-FontBodySelect">${fontOptionsHtml}</select>
         </div>
         <div class="ve-field">
-          <label>3. FONT NHÃN &amp; ĐIỀU HƯỚNG (--font-sc)</label>
+          <label>4. FONT NHÃN &amp; ĐIỀU HƯỚNG (--font-sc)</label>
           <select class="ve-select" id="ve-FontScSelect">${fontOptionsHtml}</select>
         </div>
         <div class="ve-row-2">
@@ -1613,6 +1623,8 @@
 
     const livePreviewFonts = () => {
       overrides.fonts.display = document.getElementById('ve-FontDisplaySelect').value;
+      const subSel = document.getElementById('ve-FontSubheadSelect');
+      if (subSel) overrides.fonts.subhead = subSel.value;
       overrides.fonts.body = document.getElementById('ve-FontBodySelect').value;
       overrides.fonts.sc = document.getElementById('ve-FontScSelect').value;
       overrides.fonts.scale = Number(document.getElementById('ve-FontScaleInput').value);
@@ -1621,9 +1633,11 @@
       saveLocalDraft();
     };
 
-    ['ve-FontDisplaySelect', 've-FontBodySelect', 've-FontScSelect', 've-FontScaleInput'].forEach(id => {
-      document.getElementById(id).addEventListener('input', livePreviewFonts);
-      document.getElementById(id).addEventListener('change', livePreviewFonts);
+    ['ve-FontDisplaySelect', 've-FontSubheadSelect', 've-FontBodySelect', 've-FontScSelect', 've-FontScaleInput'].forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.addEventListener('input', livePreviewFonts);
+      el.addEventListener('change', livePreviewFonts);
     });
 
     document.getElementById('ve-GoldColorInput').addEventListener('input', e => {
