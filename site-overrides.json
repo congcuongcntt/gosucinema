@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-03T10:56:00.906Z",
+  "updatedAt": "2026-11-03T11:00:59.275Z",
   "fonts": {
     "display": "'1FTV-VIP-Queen-of-Silence', serif",
     "body": "'Prata', Georgia, serif",
@@ -13,6 +13,14 @@
       {
         "name": "1FTV-VIP-Queen-of-Silence",
         "url": "assets/uploads/1793703338122-1FTV-VIP-Queen-of-Silence.ttf"
+      },
+      {
+        "name": "ASSASSIN",
+        "url": "assets/uploads/1793703494605-ASSASSIN_.TTF"
+      },
+      {
+        "name": "UVF-ASSASSIN",
+        "url": "assets/uploads/1793703567256-UVF-ASSASSIN.TTF"
       }
     ]
   },
