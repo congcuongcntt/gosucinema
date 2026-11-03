@@ -22,6 +22,27 @@
     </a>
     <nav aria-label="Điều hướng chính">
       <a href="#story">Khởi nguồn</a>
+      <div class="nav-dropdown">
+        <a href="#script" class="nav-drop-trigger" aria-expanded="false">Kịch bản <span>▾</span></a>
+        <div class="nav-drop-menu" role="menu">
+          <button type="button" data-script-jump="tab-opening">
+            <small>01 · MỞ ĐẦU &amp; HỒI ĐẦU</small>
+            <strong>Video Render Mở Đầu &amp; Làng Long Thọ</strong>
+          </button>
+          <button type="button" data-script-jump="tab-relations">
+            <small>02 · MẠNG LƯỚI NHÂN VẬT</small>
+            <strong>Sơ Đồ Quan Hệ &amp; 6 Thế Lực Lớn</strong>
+          </button>
+          <button type="button" data-script-jump="tab-timeline">
+            <small>03 · TRỤC THỜI GIAN</small>
+            <strong>Timeline Hành Trình (1818 → 1836 → Kết Cục)</strong>
+          </button>
+          <button type="button" data-script-jump="tab-next-acts">
+            <small>04 · ĐẠI TRUYỆN VỀ SAU</small>
+            <strong>Kịch Bản Thiên II, Thiên III &amp; Ngoại Truyện</strong>
+          </button>
+        </div>
+      </div>
       <a href="#characters">Nhân vật</a>
       <a href="#world">Bối cảnh</a>
       <a href="#relics">Tứ đại pháp khí</a>
@@ -36,6 +57,7 @@
     <div class="menu-backdrop-seal" aria-hidden="true">欽天監</div>
     <span class="eyebrow">GOSU CINEMA / HỒ SƠ DỊ SỰ NĂM BÍNH THÂN 1836</span>
     <a href="#story"><small>CHƯƠNG I</small> Khởi nguồn oán niệm</a>
+    <a href="#script"><small>HỒ SƠ KỊCH BẢN</small> Kịch bản · Sơ đồ · Timeline</a>
     <a href="#characters"><small>CHƯƠNG II</small> Hồ sơ nhân vật</a>
     <a href="#world"><small>CHƯƠNG III</small> Địa đồ linh dị</a>
     <a href="#relics"><small>CHƯƠNG IV</small> Tứ đại pháp khí</a>
@@ -88,6 +110,405 @@
         <p class="lead-drop">Năm Minh Mạng thứ 17 (1836). Làng Long Thọ ven bờ Nam sông Hương bỗng chìm trong chứng dịch bệnh kỳ quái: lúa trên đồng khô quắt rỉ khói đen, dân lành ho ra máu, còn trong chuồng hổ số 3 tại Đấu trường Hổ Quyền xuất hiện những cái xác mang vết cào mãnh thú cùng chùm năm chìa khóa sắt nhét chặt trong miệng.</p>
         <p>Thiếu niên mang <em>Mệnh Âm</em> <strong>Mót</strong> cùng sư huynh <strong>Đại Sơn</strong> thuộc nhánh mật <strong>Khâm Thiên Sứ</strong> lần theo dấu tà khí từ Điện Voi Ré đến mật thất trăm bộ da hổ. Nhưng càng đào sâu dưới ánh hào quang vương triều, họ càng nhận ra thứ đáng sợ hơn cả Đại Ma Hổ chính là khế ước máu của lòng người.</p>
         <span class="small">HÀNH TRÌNH ĐIỀU TRA GIỮA HAI CÕI ÂM — DƯƠNG · LẤY CẢM HỨNG TỪ DÃ SỬ VIỆT NAM</span>
+      </div>
+    </section>
+
+    <!-- MỤC MỚI: HỒ SƠ KỊCH BẢN, SƠ ĐỒ MỐI QUAN HỆ & TIMELINE HÀNH TRÌNH PHIM -->
+    <section id="script" class="script-hub section">
+      <div class="script-hub-header reveal">
+        <div class="talisman-crest" aria-hidden="true">
+          <span>卷宗</span>
+          <i></i>
+          <strong>HỒ SƠ KỊCH BẢN &amp; ĐẠI TRUYỆN 1836</strong>
+          <i></i>
+          <span>山河</span>
+        </div>
+        <p class="eyebrow">CẤU TRÚC TỰ SỰ · MẠNG LƯỚI NHÂN VẬT · TRỤC THỜI GIAN ĐIỆN ẢNH</p>
+        <h2>Kịch bản &amp; <em>Hành trình Sơn Hà.</em></h2>
+        <p class="script-hub-sub">Từ bản dựng điện ảnh mở màn khi Mót và Đại Sơn trở về làng Long Thọ đến đại cục ba Thiên giữa Khâm Thiên Giám, Thương Hội Vạn Kim và nhánh Huyền Uyên.</p>
+
+        <div class="script-tabs" role="tablist" aria-label="Danh mục hồ sơ kịch bản">
+          <button type="button" class="script-tab active" role="tab" aria-selected="true" data-script-tab="tab-opening">
+            <small>PHẦN 01</small>
+            <strong>Mở Đầu (Render) &amp; Hồi I Long Thọ</strong>
+          </button>
+          <button type="button" class="script-tab" role="tab" aria-selected="false" data-script-tab="tab-relations">
+            <small>PHẦN 02</small>
+            <strong>Sơ Đồ Quan Hệ &amp; 6 Thế Lực</strong>
+          </button>
+          <button type="button" class="script-tab" role="tab" aria-selected="false" data-script-tab="tab-timeline">
+            <small>PHẦN 03</small>
+            <strong>Timeline Hành Trình (1818 → 1837)</strong>
+          </button>
+          <button type="button" class="script-tab" role="tab" aria-selected="false" data-script-tab="tab-next-acts">
+            <small>PHẦN 04</small>
+            <strong>Kịch Bản Thiên II, III &amp; Ngoại Truyện</strong>
+          </button>
+        </div>
+      </div>
+
+      <!-- TAB 01: MỞ ĐẦU VIDEO RENDER & HỒI ĐẦU LÀNG LONG THỌ -->
+      <div class="script-panel active" id="tab-opening" role="tabpanel">
+        <div class="opening-render-showcase">
+          <div class="opening-video-box">
+            <video src="assets/scene1-render.mp4" poster="assets/still-frame/04.webp" autoplay muted loop playsinline controls></video>
+            <div class="video-badge">BẢN DỰNG MỞ ĐẦU · SCENE 01 RENDER</div>
+          </div>
+          <div class="opening-narrative">
+            <span class="small">MỞ ĐẦU PHIM · KHI MÓT &amp; ĐẠI SƠN TRỞ VỀ LÀNG LONG THỌ</span>
+            <h3>Mạch đất rỉ máu bên bờ Nam sông Hương</h3>
+            <p>Phim mở màn từ chính <strong>bản render đầu tiên</strong>: giữa năm Minh Mạng thứ 17 (1836), chỉ cách hoàng cung Phú Xuân bốn dặm, làng <strong>Long Thọ</strong> bỗng rơi vào đại dịch <em>Khí suy</em>. Lúa đang thì con gái khô quắt rỉ khói đen, dân lành ho ra máu, còn trong chuồng hổ số 3 tại Đấu trường Hổ Quyền xuất hiện xác gã Quản Chuồng Hổ bị xé xác và nhét nguyên chùm <strong>5 chiếc chìa khóa sắt</strong> vào miệng.</p>
+            <p>Hai huynh đệ Khâm Thiên Sứ — <strong>Mót</strong> và <strong>Đại Sơn</strong> — cưỡi ngựa trở về quê nhà Long Thọ điều tra. Từ cuộc khám nghiệm tử thi bằng kim bạc tại Điện Voi Ré đến đêm huyết chiến <strong>Đại Ma Hổ</strong>, thân thế thật sự của từng người lần lượt lộ diện:</p>
+            <div class="opening-beats">
+              <span>01 · Tiền truyện bẻ nanh hổ Hổ Quyền</span>
+              <span>02 · Kỵ mã trở về làng Long Thọ Khí suy</span>
+              <span>03 · Kim bạc hóa đen &amp; 5 chìa khóa sắt</span>
+              <span>04 · Nụ cười Kim Lan bắn 3 mũi tên</span>
+              <span>05 · Chưởng Cổ Phù cứu Đại Sơn</span>
+              <span>06 · Huyền Uyên trên bờ thành cao</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5 CĂN NGUYÊN NHÂN VẬT CỐT LÕI TẠI LONG THỌ -->
+        <div class="origin-cards-grid">
+          <article class="origin-card">
+            <span class="origin-tag">CĂN NGUYÊN 01 · CON NUÔI ÔNG AN</span>
+            <h4>Mót — Đứa trẻ trong chiếc bình vỡ Điện Voi Ré</h4>
+            <p>Đêm mưa bão năm 1818, <strong>Ông An</strong> (vị quan thanh liêm vừa cáo quan về quê dạy chữ) nghe tiếng khóc trong <strong>Điện Voi Ré</strong> và nhặt được đứa bé sơ sinh lăn ra từ chiếc bình gốm vỡ cùng nửa chiếc vòng ngọc, đặt tên là <strong>Mót</strong>. Ký ức về <em>“nắm xôi ấm”</em> ông An trao cho đứa bé ăn xin đêm mưa đã khắc vào lòng Mót lời thề: không để ai phải tuyệt vọng chờ một may mắn tình cờ.</p>
+          </article>
+
+          <article class="origin-card">
+            <span class="origin-tag">CĂN NGUYÊN 02 · SƯ HUYNH DẪN ĐƯỜNG</span>
+            <h4>Đại Sơn — Kiếm khách Hỏa Phù trọng nghĩa khí</h4>
+            <p>Chàng võ quan Khâm Thiên Sứ 21 tuổi xuất thân từ gia đình nông dân nghèo, tính tình bộc trực, luôn đứng mũi chịu sào che chở đàn em. Đại Sơn là người phát hiện Mót mang <strong>Mệnh Âm</strong>, trao sổ tay dẫn dắt Mót vào nghề, và vì liều mình đỡ đòn cho Mót ở Hổ Quyền mà bị tà khí Ma Hổ xâm nhập trước khi được Cổ Phù trên tay Mót cứu tỉnh.</p>
+          </article>
+
+          <article class="origin-card">
+            <span class="origin-tag">CĂN NGUYÊN 03 · CON GÁI QUAN XẤU</span>
+            <h4>Kim Lan &amp; Lão Phú — Cái giá đau đớn của công lý</h4>
+            <p><strong>Kim Lan</strong> là tiểu thư 20 tuổi tài sắc (giỏi thơ phú, bắn 3 mũi tên chụm hồng tâm), mối rung động đầu đời của Mót, nhưng lại là con gái ruột của <strong>Lão Phú</strong> — tên quan tham địa phương. Vì sợ bị thanh tra tội ăn chặn thuế dân và muốn giữ suất cho con gái vào phủ Quận chúa, Lão Phú ký khế ước nộp <strong>100 bộ da hổ</strong> cho Vạn Kim. Khi Mót tố giác Lão Phú để cứu làng, ước mơ của Kim Lan sụp đổ ngay trước mắt cậu.</p>
+          </article>
+
+          <article class="origin-card">
+            <span class="origin-tag">CĂN NGUYÊN 04 · NỖI ĐAU MẤT CHA</span>
+            <h4>Linh (Huyền Uyên) — 18 năm mặc áo tang đen</h4>
+            <p>Thiếu nữ gánh lư hương khói đỏ đứng trên thành Hổ Quyền mang bi kịch đẫm máu từ năm 10 tuổi (1818): cha ruột cô chết oan trong vụ nổ phá hủy ma trận của cha Mót. Khi sát thủ Vạn Kim kề đao lên cổ, Linh phải nuốt ngược nước mắt, thề tiếp quản công trình điều khiển quỷ để giữ mạng. Cô mặc đồ đen đội tang cha suốt 18 năm và giữ nửa kia chiếc vòng tín vật của Mót.</p>
+          </article>
+        </div>
+
+        <!-- BỐ CỤC 6 HỒI CHƯƠNG I: LÀNG LONG THỌ -->
+        <div class="act1-breakdown">
+          <div class="act1-header">
+            <span class="small">BỐ CỤC KỊCH BẢN CHƯƠNG I · LÀNG LONG THỌ (DẪN NHẬP 1818 &amp; 6 HỒI CHÍNH)</span>
+            <p>Bấm vào từng hồi để xem diễn biến và trích đoạn thoại trọng tâm:</p>
+          </div>
+          <div class="act-accordions">
+            <details class="act-item" open>
+              <summary>
+                <span class="act-code">DẪN NHẬP · 1818</span>
+                <strong>Đứa Trẻ Trong Chiếc Bình Vỡ Tại Điện Voi Ré</strong>
+                <span class="act-place">ĐIỆN VOI RÉ · ĐÊM MƯA BÃO</span>
+              </summary>
+              <div class="act-body">
+                <p>Năm Gia Long thứ 17 (1818). Giữa sấm chớp giật liên hồi tại Long Châu Miếu (Điện Voi Ré), chiếc bình gốm lớn tự nứt vỡ. Đứa bé sơ sinh lăn ra nền gạch lạnh cùng nửa chiếc vòng ngọc khắc cổ văn và vệt Cổ Phù ẩn vào cánh tay. Ông An (47 tuổi) cởi áo tơi ấp đứa trẻ vào ngực: <em>“Người ta bỏ con, nhưng trời đất còn thương con, cho ta mót được con giữa đêm mưa này... Ta đặt tên con là Mót.”</em></p>
+              </div>
+            </details>
+
+            <details class="act-item">
+              <summary>
+                <span class="act-code">HỒI I · 1836</span>
+                <strong>Một Ngôi Nhà Cạnh Kinh Thành &amp; Giao Kèo Ở Bến Sông</strong>
+                <span class="act-place">NHÀ ÔNG AN · BẾN CHỢ · HỔ QUYỀN</span>
+              </summary>
+              <div class="act-body">
+                <p>18 năm sau, Ông An dạy học ở làng nhưng mang nỗi buồn về hai người con ruột (anh cả sa ngã thành tham quan bị ông từ mặt; anh hai Hương làm quan Án Sứ cô độc trên Kinh). Ngoài bến sông, Mót ra tay đỡ kiện hàng gốm cứu cha mẹ Cu Báu (đang ho rũ rượi vì Khí suy) và kết giao với công tử <strong>Khánh Vũ</strong>. Chiều hôm đó tại rừng thưa Hổ Quyền, Mót lần đầu nhìn thấy lũ Ma Hổ bằng mắt thường và vô thức phát sáng Cổ Phù trên tay cứu mạng <strong>Đại Sơn</strong>.</p>
+              </div>
+            </details>
+
+            <details class="act-item">
+              <summary>
+                <span class="act-code">HỒI II</span>
+                <strong>Những Điều Mắt Thường Không Thấy — Hai Chữ “Mệnh Âm”</strong>
+                <span class="act-place">NHÀ ÔNG AN · RỪNG VEN SÔNG HƯƠNG</span>
+              </summary>
+              <div class="act-body">
+                <p>Đại Sơn tiết lộ thân phận mật viện <strong>Khâm Thiên Sứ</strong> và giải thích việc Mót nhìn thấu linh thể là do bẩm sinh mang <strong>Mệnh Âm</strong>, đồng thời ngỏ ý tiến cử Mót lên Kinh. Ông An kịch liệt phản đối vì sợ quan trường lại cướp mất đứa con cuối cùng. Để cứu Đại Sơn bị hàn khí xâm nhập, Mót cầm sổ tay của Sơn vào rừng tìm thảo dược và lần đầu nhìn thấy thế giới linh dị quanh làng.</p>
+              </div>
+            </details>
+
+            <details class="act-item">
+              <summary>
+                <span class="act-code">HỒI III</span>
+                <strong>Vết Hổ Trên Vùng Đất Quen &amp; Mật Thất Trăm Bộ Da Hổ</strong>
+                <span class="act-place">BÃI SĂN · MẬT THẤT ĐIỆN VOI RÉ</span>
+              </summary>
+              <div class="act-body">
+                <p>Mót đổi chim trĩ lấy thuốc quý từ Khánh Vũ, cùng <strong>Kim Lan</strong> đi săn và phát hiện những chiếc rương gỗ rỉ máu. Đêm đó, đàn voi chiến quỳ rống bi thiết trước Điện Voi Ré. Mót lẻn vào mật thất sau điện thờ, phanh phui <strong>100 bộ da hổ đẫm máu</strong>, lệnh bài giả và khế ước của <strong>Lão Phú</strong> với Thương hội Vạn Kim. Dù Lão Phú quỳ lạy van xin vì tương lai của Kim Lan, Mót quyết định giao nộp tang vật để cứu dân làng — chấp nhận nhìn Kim Lan ôm mặt khóc trong tuyệt vọng.</p>
+              </div>
+            </details>
+
+            <details class="act-item">
+              <summary>
+                <span class="act-code">HỒI IV &amp; V</span>
+                <strong>Bi Kịch Người Cha Già &amp; Đại Chiến Đấu Trường Hổ Quyền</strong>
+                <span class="act-place">NHÀ ÔNG AN · LÒNG CHẢO HỔ QUYỀN</span>
+              </summary>
+              <div class="act-body">
+                <p>Ông An trút nỗi đau mất hai người con vì quan trường nhưng Mót vẫn quyết cùng Đại Sơn ra Hổ Quyền diệt <strong>Đại Ma Hổ</strong> để khơi thông mạch Địa. Giữa trận huyết chiến, Đại Sơn bị tà khí Ma Hổ nhập làm đỏ ngầu đôi mắt; Mót kết Ấn Quyết Tam Giác tung <strong>Chưởng Cổ Phù Kim Quang</strong> cứu tỉnh sư huynh và chém tan Đại Ma Hổ. Ngay sau đó, Cổ Phù trên tay Mót hóa đen (Hắc Ấn) phản phệ rút cạn sinh lực, dưới ánh nhìn lạnh lùng của <strong>Linh (Huyền Uyên)</strong> trên bờ thành.</p>
+              </div>
+            </details>
+
+            <details class="act-item">
+              <summary>
+                <span class="act-code">HỒI VI</span>
+                <strong>Bữa Cơm Cuối Với Cha &amp; Đoàn Thuyền Lên Kinh Phú Xuân</strong>
+                <span class="act-place">NHÀ ÔNG AN · BẾN SÔNG LONG THỌ</span>
+              </summary>
+              <div class="act-body">
+                <p>Để giải trừ Hắc Ấn trước khi mất mạng và thực hiện lý tưởng cứu người từ ký ức “nắm xôi đêm mưa”, Mót xin phép cha nuôi lên Kinh. Bên mâm cơm sáng giản dị, Ông An rơi nước mắt gật đầu, trao lại <strong>nửa chiếc vòng tín vật năm 1818</strong> với lời dặn: <em>“Chữa khỏi vết đen trên tay rồi nhớ về nhà ăn cơm với cha.”</em> Tại bến sông, Khánh Vũ hé lộ gia thế khổng lồ khi mời Mót và Đại Sơn lên đoàn đại thuyền buôn tiến về Phú Xuân.</p>
+              </div>
+            </details>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 02: SƠ ĐỒ MỐI QUAN HỆ TOÀN BỘ NHÂN VẬT & 6 THẾ LỰC -->
+      <div class="script-panel" id="tab-relations" role="tabpanel" hidden>
+        <div class="relation-map-container">
+          <div class="relation-header">
+            <span class="small">SƠ ĐỒ MẠNG LƯỚI NHÂN VẬT TRUNG TÂM · BẤM VÀO NHÂN VẬT ĐỂ XEM LIÊN KẾT</span>
+            <h3>Mạng lưới Ân Oán — Gia Tộc — Thế Lực</h3>
+          </div>
+
+          <div class="relation-diagram">
+            <!-- Trục trên: Gia đình Ông An & Chính nghĩa -->
+            <div class="rel-tier rel-tier-top">
+              <button type="button" class="rel-node faction-khamthien" data-node="ongan">
+                <span class="rel-role">CHA NUÔI · QUAN LIÊM VỀ HƯU</span>
+                <strong>Ông An (Cụ An)</strong>
+                <small>Nhặt Mót ở Điện Voi Ré (1818) · Dạy đạo “vì dân”</small>
+              </button>
+              <button type="button" class="rel-node faction-khamthien" data-node="huong">
+                <span class="rel-role">ANH HAI NUÔI · QUAN ÁN SỨ</span>
+                <strong>Hương (Anh Hai)</strong>
+                <small>“Pháp bất vị thân” · Hy sinh tại Kinh thành (Thiên II)</small>
+              </button>
+              <button type="button" class="rel-node faction-khamthien" data-node="daison">
+                <span class="rel-role">SƯ HUYNH · HỎA PHÙ KIẾM</span>
+                <strong>Đại Sơn (21 tuổi)</strong>
+                <small>Dẫn dắt &amp; chắn đòn cho Mót · Nặng gánh chữ Hiếu</small>
+              </button>
+            </div>
+
+            <!-- Trục giữa: MÓT (Tâm điểm) & 3 đối trọng tình cảm / định mệnh -->
+            <div class="rel-tier rel-tier-center">
+              <button type="button" class="rel-node faction-longtho" data-node="kimlan">
+                <span class="rel-role">NÀNG THƠ ĐẦU ĐỜI · CUNG TIỄN</span>
+                <strong>Kim Lan (20 tuổi)</strong>
+                <small>Con gái Lão Phú · Bi kịch giữa tình riêng &amp; công lý</small>
+              </button>
+
+              <button type="button" class="rel-node rel-node-core active" data-node="mot">
+                <span class="rel-seal">命陰</span>
+                <span class="rel-role">NHÂN VẬT TRUNG TÂM · KHÂM THIÊN SỨ</span>
+                <strong>MÓT (Huyền Quang · 18 tuổi)</strong>
+                <small>Mệnh Âm · Cổ Phù Phong Ấn · Giữ nửa vòng ngọc 1818</small>
+              </button>
+
+              <button type="button" class="rel-node faction-huyenuyen" data-node="linh">
+                <span class="rel-role">ĐỐI TRỌNG ĐỊNH MỆNH · HUYỀN UYÊN</span>
+                <strong>Linh (25 tuổi)</strong>
+                <small>Mất cha đêm 1818 · Giữ nửa vòng kia · Thù hóa Tri kỷ</small>
+              </button>
+            </div>
+
+            <!-- Trục dưới: Phản diện Làng Long Thọ & Trùm cuối Thương Hội Vạn Kim -->
+            <div class="rel-tier rel-tier-bottom">
+              <button type="button" class="rel-node faction-longtho" data-node="laophu">
+                <span class="rel-role">CHA RUỘT KIM LAN · QUAN XẤU</span>
+                <strong>Lão Phú &amp; Quản Chuồng Hổ</strong>
+                <small>Khế ước 100 da hổ · Bẻ nanh hổ sinh ra Đại Ma Hổ</small>
+              </button>
+              <button type="button" class="rel-node faction-vankim" data-node="khanhvu">
+                <span class="rel-role">BẠN THÂN → PHẢN DIỆN BI KỊCH</span>
+                <strong>Khánh Vũ (24 tuổi)</strong>
+                <small>Chiếc bình chứa Quỷ Xương Cuồng · Nuôi Mót để giết mình</small>
+              </button>
+              <button type="button" class="rel-node faction-vankim" data-node="hoitruong">
+                <span class="rel-role">TRÙM CUỐI · CHA RUỘT KHÁNH VŨ</span>
+                <strong>Hội Trưởng Vạn Kim</strong>
+                <small>Giam mẹ Vũ làm con tin · Thao túng ma trận Xương Cuồng</small>
+              </button>
+            </div>
+          </div>
+
+          <!-- Khung giải thích chi tiết mối quan hệ khi bấm vào từng nút -->
+          <div class="relation-detail-box" id="relation-detail-box" aria-live="polite">
+            <div class="rel-detail-head">
+              <span class="small" id="rel-detail-tag">TRỤC TRUNG TÂM · KHÂM THIÊN SỨ</span>
+              <h4 id="rel-detail-name">Mót (Huyền Quang) — Điểm giao của mọi ân oán năm 1818 &amp; 1836</h4>
+            </div>
+            <p id="rel-detail-desc">Con ruột của nữ Khâm Thiên Sứ và học giả Huyền Uyên phản tỉnh đêm mưa 1818; được Ông An nhặt trong chiếc bình gốm vỡ tại Điện Voi Ré. Mót kết nối tất cả các tuyến: là đệ tử sinh tử của Đại Sơn, em nuôi của Án Sứ Hương, mang vết thương lòng đầu đời với Kim Lan khi tố giác Lão Phú, chia sẻ hai nửa chiếc vòng định mệnh với Linh (Huyền Uyên), và là người duy nhất Khánh Vũ tin tưởng giao phó nhát kiếm giải thoát cuối cùng.</p>
+            <div class="rel-links-list" id="rel-detail-links">
+              <span><strong>Với Ông An &amp; Hương:</strong> Cha nuôi &amp; Anh hai nuôi dạy đạo làm người, làm quan vì dân.</span>
+              <span><strong>Với Đại Sơn:</strong> Sư huynh dẫn đường, vào sinh ra tử tại Hổ Quyền.</span>
+              <span><strong>Với Kim Lan:</strong> Mối tình đầu trong sáng dang dở vì tội ác của Lão Phú.</span>
+              <span><strong>Với Linh (Huyền Uyên):</strong> Từ kẻ thù sát phụ năm 1818 trở thành tri kỷ đồng hành sinh tử.</span>
+              <span><strong>Với Khánh Vũ:</strong> Tri kỷ bến sông nhưng phải tự tay kết liễu Vũ khi Quỷ Xương Cuồng thức tỉnh.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- BẢNG 6 THẾ LỰC LỚN & 5 PHÂN LOẠI LINH THỂ -->
+        <div class="factions-grid">
+          <div class="faction-card">
+            <span>THẾ LỰC 01 · TRIỀU ĐÌNH</span>
+            <h4>Khâm Thiên Giám &amp; Khâm Thiên Sứ</h4>
+            <p>Cơ quan thiên văn – lịch pháp triều Minh Mạng; bên dưới là nhánh mật <strong>Khâm Thiên Sứ</strong> điều tra, trấn yểm dị sự theo 4 phép <em>Giải · Diệt · Trấn · An</em>. Đại diện: <strong>Mót, Đại Sơn, Mẹ ruột Mót</strong>.</p>
+          </div>
+          <div class="faction-card">
+            <span>THẾ LỰC 02 · HỘI KÍN KIM TIỀN</span>
+            <h4>Thương Hội Vạn Kim</h4>
+            <p>Liên minh phú thương giàu nhất Đại Nam, dùng vàng bạc và khế ước máu thao túng quan lại, âm mưu khống chế đại cổ quỷ <strong>Xương Cuồng</strong>. Đại diện: <strong>Hội trưởng Vạn Kim, Khánh Vũ, Lão Phú</strong>.</p>
+          </div>
+          <div class="faction-card">
+            <span>THẾ LỰC 03 · HỌC GIẢ CẤM THUẬT</span>
+            <h4>Viện Bách Uyên &amp; Huyền Uyên</h4>
+            <p>Liên minh học giả nghiên cứu tự nhiên &amp; bí thuật; nhánh cực đoan <strong>Huyền Uyên</strong> đi sâu vào tà thuật điều khiển Vong – Ma – Quỷ. Đại diện: <strong>Linh (Huyền Uyên), Cha Linh, Cha Mót</strong>.</p>
+          </div>
+          <div class="faction-card">
+            <span>THẾ LỰC 04 · CƠ KHÍ PHÁP KHÍ</span>
+            <h4>Bách Tạo Đường</h4>
+            <p>Nhánh nghệ nhân kỹ nghệ – cơ khí độc lập tại Kinh thành &amp; thương cảng, chế tạo công cụ và pháp khí vật lý cho người không có Mệnh Âm tự vệ trước tà vật.</p>
+          </div>
+          <div class="faction-card">
+            <span>THẾ LỰC 05 · GIANG HỒ &amp; DÂN NGHÈO</span>
+            <h4>Vô Danh Xã Đoàn &amp; Ty Trảm Thiên</h4>
+            <p><strong>Vô Danh:</strong> Mạng lưới trẻ mồ côi, dân nghèo truyền tin khắp phố chợ. <strong>Ty Trảm Thiên:</strong> Nhóm hiệp khách hành xử ngoài vòng pháp luật, tự tay trừng trị tham quan.</p>
+          </div>
+          <div class="faction-card">
+            <span>THẾ LỰC 06 · TÀ GIÁO BIÊN VIỄN</span>
+            <h4>Quy Nguyên Giáo &amp; Ngũ Linh Thể</h4>
+            <p>Tà giáo cực đoan muốn đưa nhân gian về cõi hư vô, lợi dụng 5 tầng thực thể siêu nhiên: <strong>Vong</strong> (chấp niệm) · <strong>Ma</strong> (oán khí) · <strong>Quỷ</strong> (ác ý tàn sát) · <strong>Quái</strong> (dị thú) · <strong>Thần</strong> (bảo hộ).</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 03: TIMELINE HÀNH TRÌNH PHIM -->
+      <div class="script-panel" id="tab-timeline" role="tabpanel" hidden>
+        <div class="timeline-track">
+          <div class="timeline-node">
+            <div class="tl-year">1818 · GIA LONG THỨ 17</div>
+            <div class="tl-content">
+              <span class="small">ĐÊM MƯA BÃO · KHỞI NGUỒN MỌI ĐỊNH MỆNH</span>
+              <h4>Vụ nổ ma trận Huyền Uyên &amp; Đứa trẻ trong chiếc bình vỡ Điện Voi Ré</h4>
+              <p>Cha Mót (học giả Huyền Uyên) vì yêu mẹ Mót (nữ Khâm Thiên Sứ) nên phản tỉnh, kích nổ phá hủy ma trận điều khiển Quỷ Xương Cuồng của Vạn Kim. Cha mẹ Mót phong ấn năng lượng vào tay con, giấu Mót trong chiếc bình gốm tại <strong>Điện Voi Ré</strong> trước khi bị sát hại; <strong>Ông An</strong> nhặt Mót về nuôi. Cùng đêm đó, cha của <strong>Linh</strong> chết oan, cô bé Linh 10 tuổi phải nuốt máu thề phục vụ Vạn Kim để giữ mạng; còn <strong>Khánh Vũ</strong> đã bị chính cha ruột phong ấn Quỷ Xương Cuồng vào cơ thể từ lúc sơ sinh.</p>
+            </div>
+          </div>
+
+          <div class="timeline-node">
+            <div class="tl-year">1830 – 1835 · MINH MẠNG</div>
+            <div class="tl-content">
+              <span class="small">KIẾN THIẾT HỔ QUYỀN &amp; ĐÚC CỬU ĐỈNH</span>
+              <h4>Đấu trường gạch vồ Hổ Quyền &amp; Khế ước ngầm 100 bộ da hổ</h4>
+              <p>Triều đình xây dựng Đấu trường Hổ Quyền (1830) và khởi đúc Cửu Đỉnh (cuối 1835). Tại làng Long Thọ, <strong>Lão Phú</strong> vì sợ bị Án Sứ <strong>Hương</strong> thanh tra tội ăn chặn thuế dân và muốn giữ suất cho con gái <strong>Kim Lan</strong> vào phủ Quận chúa nên ký khế ước mật nộp 100 bộ da hổ cho Vạn Kim. Gã <strong>Quản Chuồng Hổ</strong> bẻ nanh, nhổ móng, đâm chết mãnh hổ trong chuồng số 3 — kết tụ thành <strong>Đại Ma Hổ</strong> làm nghẽn mạch Địa, gây dịch bệnh <em>Khí suy</em>.</p>
+            </div>
+          </div>
+
+          <div class="timeline-node">
+            <div class="tl-year">XUÂN – HẠ 1836 · MỞ ĐẦU PHIM</div>
+            <div class="tl-content">
+              <span class="small">CHƯƠNG I · ĐẠI ÁN LÀNG LONG THỌ &amp; HỔ QUYỀN</span>
+              <h4>Mót &amp; Đại Sơn điều tra dịch Khí suy — Phanh phui Lão Phú &amp; Trấn yểm Đại Ma Hổ</h4>
+              <p>Như trong <strong>bản video render đầu tiên</strong>: Mót và Đại Sơn cưỡi ngựa trở về Long Thọ, dùng kim bạc và La Bàn Tầm Khí khám nghiệm xác Quản Chuồng Hổ ngậm 5 chìa khóa sắt. Mót tìm ra mật thất trăm bộ da hổ ở Điện Voi Ré và tố giác Lão Phú (khiến ước mơ của Kim Lan tan vỡ). Đêm quyết chiến tại Hổ Quyền, Mót kích hoạt <strong>Cổ Phù Kim Quang</strong> cứu Đại Sơn và chém tan Đại Ma Hổ, nhưng bị <strong>Hắc Ấn</strong> phản phệ. Ông An trao nửa vòng ngọc năm 1818, tiễn Mót lên đoàn thuyền của Khánh Vũ về Kinh.</p>
+            </div>
+          </div>
+
+          <div class="timeline-node">
+            <div class="tl-year">THU – ĐÔNG 1836 · THIÊN II</div>
+            <div class="tl-content">
+              <span class="small">KINH THÀNH PHÚ XUÂN &amp; HÀNH TRÌNH 12 VÙNG ĐẤT CỬU ĐỈNH</span>
+              <h4>Gia nhập Khâm Thiên Sứ — Cái chết của Anh Hai Hương &amp; Sự rút lui của Đại Sơn</h4>
+              <p>Mót chính thức nhận ngọc lệnh <strong>欽天監</strong>. Anh hai <strong>Hương</strong> vì đơn độc vạch mặt danh sách đại quan nhận hối lộ của Vạn Kim nên bị sát hại ngay đêm trước buổi thiết triều, trối trăng lại ngọn đuốc công lý cho Mót. Gia đình <strong>Đại Sơn</strong> ở quê bị đe dọa khiến Sơn phải cáo quan về quê giữ chữ Hiếu. Mót cùng Khánh Vũ đi qua 12 vùng đất khắc trên Cửu Đỉnh (Thiên Mụ, Bao Vinh, Hải Vân Quan, Hội An, Cổ Loa...) truy tìm cách giải Hắc Ấn.</p>
+            </div>
+          </div>
+
+          <div class="timeline-node">
+            <div class="tl-year">ĐẦU NĂM 1837 · THIÊN III</div>
+            <div class="tl-content">
+              <span class="small">CAO TRÀO ĐỈNH THÁP VẠN KIM · QUỶ XƯƠNG CUỒNG THỨC TỈNH</span>
+              <h4>Hai nửa vòng ngọc khớp lại với Linh &amp; Cú lật mặt đẫm nước mắt của Khánh Vũ</h4>
+              <p>Tại phế tích Huyền Uyên, hai nửa chiếc vòng của <strong>Mót</strong> và <strong>Linh</strong> khớp lại, phơi bày sự thật đêm mưa 1818 và hóa giải hận thù 18 năm thành tình tri kỷ sinh tử. Nhưng ngay trước lõi Đại Ma Trận Vạn Kim, <strong>Khánh Vũ</strong> rơi nước mắt điểm vỡ Cổ Phù trên tay Mót để kích hoạt ma trận cứu người mẹ đang bị cha ruột giam trên đỉnh tháp. Vũ hóa thành <strong>Quỷ Xương Cuồng</strong> và cầu xin Mót tự tay kết liễu mình như lời hẹn ước từ ngày đầu gặp gỡ.</p>
+            </div>
+          </div>
+
+          <div class="timeline-node">
+            <div class="tl-year">MÙA THU NĂM SAU · VĨ THANH</div>
+            <div class="tl-content">
+              <span class="small">ĐẠI KẾT CỤC · BÔNG LÚA VÀNG TRĨU HẠT</span>
+              <h4>Trở về bến sông Long Thọ ăn bữa cơm chiều với Cha</h4>
+              <p>Sau khi đánh bại âm mưu của Hội trưởng Vạn Kim và giải cứu mẹ Khánh Vũ, mạch Khí toàn cõi thông suốt. Mùa thu năm sau, cánh đồng Long Thọ chín vàng rực rỡ. <strong>Kim Lan</strong> mở lớp dạy chữ cho trẻ nghèo bên hiên nhà <strong>Ông An</strong>. <strong>Mót</strong> cầm cành đào và chiếc vòng ngọc đã ghép tròn vẹn bước xuống bến đò, trở về ăn bữa cơm chiều đã hứa với cha nuôi.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 04: KỊCH BẢN CÁC HỒI TIẾP THEO (THIÊN II, THIÊN III, 2 NHÁNH KẾT & NGOẠI TRUYỆN) -->
+      <div class="script-panel" id="tab-next-acts" role="tabpanel" hidden>
+        <div class="next-acts-grid">
+          <article class="next-act-card">
+            <div class="next-act-meta">
+              <span>THIÊN THỨ HAI · KINH ĐÔ PHÚ XUÂN &amp; CỬU ĐỈNH</span>
+              <strong>Dưới Bóng Khâm Thiên Giám</strong>
+            </div>
+            <p>Rời bến sông Long Thọ lên Kinh thành Huế, Mót đối diện với <strong>ba quan điểm làm quan</strong> trái ngược: sự sắt đá tuyệt đối <em>“Pháp bất vị thân”</em> của anh hai <strong>Hương</strong>, sự thực tế của <strong>Đại Sơn</strong>, và lòng trắc ẩn của chính mình.</p>
+            <ul>
+              <li><strong>Bi kịch của Anh Hai Hương:</strong> Đêm trước buổi thiết triều vạch mặt các đại thần ăn tiền của Vạn Kim, Hương bị phục kích sát hại, nắm chặt cuốn sổ chứng cứ đẫm máu trong tay Mót: <em>“Đừng nói cho cha biết anh chết thế nào... Hãy cầm lấy ngọn đuốc của anh mà đi tiếp.”</em></li>
+              <li><strong>Ngả rẽ chữ Hiếu của Đại Sơn:</strong> Khi thế lực ngầm dò la về quê nhà đe dọa cha mẹ già, Đại Sơn buộc phải từ quan về quê giữ trọn đạo hiếu, hẹn ngày tái ngộ trong trận chiến cuối cùng.</li>
+              <li><strong>Hành trình 12 Vùng Đất &amp; 162 Mảng Chạm Cửu Đỉnh:</strong> Mót và Khánh Vũ đi qua Đồi Hà Khê – Chùa Thiên Mụ (năm 1836 chưa có tháp Phước Duyên), thương cảng Bao Vinh – Thanh Hà, Hải Vân Quan, Hội An – Thanh Chiêm, đến Thành Cổ Loa &amp; Sơn Tây.</li>
+            </ul>
+          </article>
+
+          <article class="next-act-card">
+            <div class="next-act-meta">
+              <span>THIÊN THỨ BA · ĐỈNH THÁP VẠN KIM</span>
+              <strong>Những Vết Nứt Dưới Sơn Hà</strong>
+            </div>
+            <p>Mọi vụ án nghẽn mạch Khí khắp Đại Nam đều dẫn về <strong>Đại Ma Trận Khống Chế Quỷ</strong> do Linh (Huyền Uyên) và Vạn Kim dựng lên:</p>
+            <ul>
+              <li><strong>Sự thật đêm mưa 1818 (Mót &amp; Linh):</strong> Hai nửa chiếc vòng ngọc khớp lại dưới mưa. Linh biết cha Mót phá hủy ma trận để cứu cả hai gia đình khỏi kiếp nô lệ Vạn Kim. Mót bất chấp làn khói đỏ cứa da thịt để bảo vệ Linh, biến thù hận 18 năm thành sợi dây tình cảm sinh tử.</li>
+              <li><strong>Cú lật mặt đã báo trước của Khánh Vũ:</strong> Để cứu người mẹ bị cha ruột giam trên đỉnh tháp, Vũ đẫm lệ điểm vỡ Cổ Phù trên tay Mót, rót năng lượng kích hoạt ma trận. Khi Quỷ Xương Cuồng nuốt chửng nửa gương mặt, Vũ mỉm cười trong nước mắt: <em>“Suốt bao tháng ngày qua ta đi cùng đệ, tặng thuốc cho đệ... chỉ là để nuôi cho đệ đủ mạnh đến ngày hôm nay! Cầm kiếm lên đi Mót... Giết ta đi, trước khi ta không còn là Khánh Vũ nữa!!”</em></li>
+              <li><strong>Lời trăng trối cuối cùng:</strong> Mót cùng Linh và Đại Sơn đánh tan Quỷ Xương Cuồng; Vũ thanh thản nhắm mắt trong tay Mót và gửi gắm tâm nguyện giải cứu người mẹ thích ngắm hoa đào bên sông Hương.</li>
+            </ul>
+          </article>
+
+          <article class="next-act-card">
+            <div class="next-act-meta">
+              <span>ĐẠI KẾT CỤC &amp; VĨ THANH</span>
+              <strong>Hai Nhánh Kết Mở &amp; Bông Lúa Vàng</strong>
+            </div>
+            <p>Trên đỉnh tháp cao nhất của Vạn Kim, kịch bản thiết kế <strong>2 nhánh kết cục</strong> linh hoạt cùng Vĩ thanh giàu cảm xúc:</p>
+            <ul>
+              <li><strong>Nhánh Kết 1 (Trọn vẹn Mùa 1 — Công lý thực thi):</strong> Mót xông lên đỉnh tháp phế truất Hội trưởng Vạn Kim, cứu mẹ già mù lòa của Khánh Vũ và giao toàn bộ bằng chứng tội ác cho triều đình Minh Mạng xét xử.</li>
+              <li><strong>Nhánh Kết 2 (Mở sang Phần 2 — Thế lực lớn):</strong> Giải cứu thành công mẹ Khánh Vũ nhưng Hội trưởng Vạn Kim rút lui qua mật đạo, lộ diện các thiếu chủ chính thất của Vạn Kim cho mùa tiếp theo.</li>
+              <li><strong>Vĩ Thanh “Lúa Vàng”:</strong> Lúa chín vàng ấm no đối lập với vàng kim loại tham tàn của Vạn Kim. Kim Lan tự đứng dậy mở lớp dạy chữ cho trẻ nghèo tại quê nhà; Mót trở về bến nước Long Thọ ăn bữa cơm chiều với Ông An.</li>
+            </ul>
+          </article>
+
+          <article class="next-act-card">
+            <div class="next-act-meta">
+              <span>HỆ THỐNG NGOẠI TRUYỆN · 80% TRẢI NGHIỆM VĂN HÓA</span>
+              <strong>2 Sidequests Lớn &amp; 12 Miniquests Dân Sinh</strong>
+            </div>
+            <p>Khắc họa chiều sâu văn hóa – lịch sử Phú Xuân 1836 ngay tại vùng đất Long Thọ:</p>
+            <ul>
+              <li><strong>Sidequest Lớn 1 — “Nghê Trộm Ngói”:</strong> Điều tra vụ mất trộm ngói men <em>Thanh lưu ly – Hoàng lưu ly</em> tại Tượng Cục Long Thọ, gặp linh vật <strong>Tiểu Nghê</strong> cô đơn canh giữ nền nhà quàn Chúa Nguyễn xưa trên đồi Long Thọ Cương và nung tặng nó một bức tượng Nghê lưu ly bầu bạn.</li>
+              <li><strong>Sidequest Lớn 2 — “Con Trai Nhà Làm Ngói”:</strong> Giải cứu chàng thợ gốm <strong>Tài</strong> bị <strong>Ma Lọ</strong> nuốt chửng bên bờ sông Hương vì áp lực khoa cử Thi Hương; khép lại bằng hình ảnh người mẹ ghép mảnh sứ vỡ thành chiếc bình mới — triết lý <em>Khảm sành sứ Huế</em>: <em>“Vỡ ra không phải là hỏng đi, mà là để ghép thành một thứ lớn hơn, đẹp đẽ hơn.”</em></li>
+              <li><strong>12 Miniquests Dân Sinh – Linh Dị:</strong> <em>Mộng Lớn Vạn Kim, Mật Thư Bách Uyên, Khách Lạ Ngoài Vườn (Vong cây mít), Thợ Săn Vọng Thành, Ác Bá Về Làng, Bóng Ma Hồ Voi Ré (Ma Da), Gà Lạc Quanh Thôn, Chén Rượu Làng Chuồn, Đổ Xúc Xắc Xăm Hường, Oán Dưới Lòng Sông (Quái Miết), Bánh Bèo Huế Biếu Ông An, Lửa Lạnh Nghĩa Trang (Ma Trơi)</em>.</li>
+            </ul>
+          </article>
+        </div>
       </div>
     </section>
 
