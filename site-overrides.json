@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-03T11:44:38.702Z",
+  "updatedAt": "2026-11-03T11:50:02.361Z",
   "fonts": {
     "display": "'1FTV-VIP-Queen-of-Silence', serif",
     "body": "'Prata', Georgia, serif",
@@ -37,7 +37,8 @@
     "hero.p.30": "“Ma quỷ không tự nhiên sinh ra để hủy diệt nhân gian — chính lòng tham, sự tàn nhẫn và nỗi oan khuất chưa được tháo gỡ của con người mới là mầm mống nuôi dưỡng tà vật.”",
     "hero.span.27": "SƠN HÀ",
     "hero.span.23": "MỘT TÁC PHẨM ĐIỆN ẢNH CỦA<br><strong>GOSU CINEMA</strong>",
-    "script.h3.51": "Mạng Lưới Ân Oán — Gia Tộc — Thế Lực"
+    "script.h3.51": "Mạng Lưới Ân Oán — Gia Tộc — Thế Lực",
+    "wide-image.h2.109": "Nghe vẻ ngè ve.<br><em>Nghe vè oán hổ.</em>"
   },
   "elementStyles": {
     "hero.span.28": {
@@ -82,7 +83,8 @@
     }
   },
   "images": {
-    "hero-bg-main": "assets/uploads/1793706265279-9.jpg"
+    "hero-bg-main": "assets/uploads/1793706265279-9.jpg",
+    "wide-image.img.2": "assets/uploads/1793706299387-Scene7_26_Toan_Canh_Voi_Chien_Tan_Cong_Nguoc_Quat_Voi_Va_Nga_Huc_Vang_Ho.webp"
   },
   "imageStyles": {},
   "videos": {
