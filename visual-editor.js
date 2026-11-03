@@ -6,15 +6,15 @@
 (function () {
   const STORAGE_KEY = 'gosu_visual_editor_overrides_v1';
   const GH_TOKEN_KEY = 'gosu_visual_editor_gh_token';
-  const ADMIN_UNLOCK_KEY = 'gosu_visual_editor_admin_unlocked';
-  const ADMIN_PIN_SHA256 = '5376566f087235a92debfc62f86ea370493e243f76f46addefbfaf581abd709b';
+  const ADMIN_UNLOCK_KEY = 'gosu_visual_editor_admin_v2';
+  const ADMIN_PIN_SHA256 = '110209820ed294dbd46c55eb4de674a18c39fefac7b6f5de480213eaf757ed34';
   const LOCAL_SYNC_URL = 'http://127.0.0.1:8765/api/publish';
   const LOCAL_STATUS_URL = 'http://127.0.0.1:8765/api/status';
 
-  let hasLocalBridge = location.hostname === '127.0.0.1' || location.hostname === 'localhost';
+  let hasLocalBridge = false;
 
   function isAdminUnlocked() {
-    return hasLocalBridge || localStorage.getItem(ADMIN_UNLOCK_KEY) === 'true';
+    return localStorage.getItem(ADMIN_UNLOCK_KEY) === ADMIN_PIN_SHA256;
   }
 
   async function sha256Hex(str) {
@@ -892,7 +892,7 @@
       if (!pin) return false;
       const digest = await sha256Hex(pin.trim());
       if (digest === ADMIN_PIN_SHA256) {
-        localStorage.setItem(ADMIN_UNLOCK_KEY, 'true');
+        localStorage.setItem(ADMIN_UNLOCK_KEY, ADMIN_PIN_SHA256);
         launcher.style.display = 'flex';
         return true;
       }
