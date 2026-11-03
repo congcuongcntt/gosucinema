@@ -7,15 +7,20 @@
   const STORAGE_KEY = 'gosu_visual_editor_overrides_v1';
   const GH_TOKEN_KEY = 'gosu_visual_editor_gh_token';
   const ADMIN_UNLOCK_KEY = 'gosu_visual_editor_admin_unlocked';
-  const ADMIN_PIN = 'gosu1836';
+  const ADMIN_PIN_SHA256 = '5376566f087235a92debfc62f86ea370493e243f76f46addefbfaf581abd709b';
   const LOCAL_SYNC_URL = 'http://127.0.0.1:8765/api/publish';
+  const LOCAL_STATUS_URL = 'http://127.0.0.1:8765/api/status';
 
-  function isLocalhost() {
-    return location.hostname === '127.0.0.1' || location.hostname === 'localhost';
-  }
+  let hasLocalBridge = location.hostname === '127.0.0.1' || location.hostname === 'localhost';
 
   function isAdminUnlocked() {
-    return isLocalhost() || localStorage.getItem(ADMIN_UNLOCK_KEY) === 'true';
+    return hasLocalBridge || localStorage.getItem(ADMIN_UNLOCK_KEY) === 'true';
+  }
+
+  async function sha256Hex(str) {
+    const buf = new TextEncoder().encode(str);
+    const hashBuf = await crypto.subtle.digest('SHA-256', buf);
+    return [...new Uint8Array(hashBuf)].map(b => b.toString(16).padStart(2, '0')).join('');
   }
 
   const GOOGLE_FONT_PRESETS = [
@@ -741,6 +746,7 @@
       <button type="button" class="ve-btn" id="ve-ImportBtn">⬆ NHẬP GÓI</button>
       <button type="button" class="ve-btn" id="ve-ResetBtn">↺ MẶC ĐỊNH</button>
       <button type="button" class="ve-btn ve-btn-primary" id="ve-PublishBtn">☁ LƯU LÊN WEB</button>
+      <button type="button" class="ve-btn" id="ve-LockAdminBtn" title="Khóa quyền Admin trên trình duyệt này">🔒 KHÓA</button>
       <button type="button" class="ve-btn ve-btn-Exit" id="ve-ExitBtn">✕ ĐÓNG</button>
       <input type="file" id="ve-ImportFileInput" accept=".json" hidden>
     `;
@@ -880,29 +886,29 @@
     document.body.appendChild(pubModal);
 
     // Wire up Events
-    function requestAdminPin() {
+    async function requestAdminPin() {
       if (isAdminUnlocked()) return true;
-      const pin = prompt('Nhập mã PIN Admin để mở Trình Sửa Web:');
-      if (pin && pin.trim() === ADMIN_PIN) {
+      const pin = prompt('Chỉ Admin mới có quyền chỉnh sửa. Nhập mật mã Admin:');
+      if (!pin) return false;
+      const digest = await sha256Hex(pin.trim());
+      if (digest === ADMIN_PIN_SHA256) {
         localStorage.setItem(ADMIN_UNLOCK_KEY, 'true');
         launcher.style.display = 'flex';
         return true;
       }
-      if (pin !== null) {
-        showToast('❌ Sai mã PIN Admin!');
-      }
+      showToast('❌ Mật mã Admin không chính xác!');
       return false;
     }
 
-    function toggleEditMode(forceState) {
+    async function toggleEditMode(forceState) {
       const targetState = typeof forceState === 'boolean' ? forceState : !isEditMode;
-      if (targetState && !requestAdminPin()) return;
+      if (targetState && !(await requestAdminPin())) return;
       isEditMode = targetState;
       document.body.classList.toggle('ve-editing', isEditMode);
       launcher.style.display = isEditMode ? 'none' : isAdminUnlocked() ? 'flex' : 'none';
       enableInlineEditing(isEditMode);
       if (isEditMode) {
-        showToast('Đã bật Chế độ Sửa Web! Bấm vào chữ bất kỳ để sửa hoặc bấm vào ảnh để thay ảnh.');
+        showToast('Đã bật Chế độ Sửa Web (Admin)! Bấm vào chữ để sửa hoặc bấm vào ảnh để thay ảnh.');
       } else {
         document.getElementById('ve-ImgHoverBadge').style.display = 'none';
         showToast('Đã thoát chế độ chỉnh sửa.');
@@ -911,8 +917,28 @@
 
     launcher.onclick = () => toggleEditMode(true);
     document.getElementById('ve-ExitBtn').onclick = () => toggleEditMode(false);
+    document.getElementById('ve-LockAdminBtn').onclick = () => {
+      localStorage.removeItem(ADMIN_UNLOCK_KEY);
+      isEditMode = false;
+      document.body.classList.remove('ve-editing');
+      enableInlineEditing(false);
+      launcher.style.display = hasLocalBridge ? 'flex' : 'none';
+      document.getElementById('ve-ImgHoverBadge').style.display = 'none';
+      showToast('🔒 Đã khóa chế độ Admin trên trình duyệt này.');
+    };
     document.getElementById('ve-OpenFontBtn').onclick = () => openFontModal();
     document.getElementById('ve-PublishBtn').onclick = () => publishToWeb();
+
+    // Check if local Admin Sync Bridge is running on this computer
+    fetch(LOCAL_STATUS_URL, { method: 'GET' })
+      .then(r => (r.ok ? r.json() : null))
+      .then(data => {
+        if (data && data.admin) {
+          hasLocalBridge = true;
+          if (!isEditMode) launcher.style.display = 'flex';
+        }
+      })
+      .catch(() => {});
 
     // Secret Keyboard shortcut Ctrl+Shift+E (or Ctrl+E when already unlocked)
     window.addEventListener('keydown', e => {
