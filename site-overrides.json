@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-03T11:00:59.275Z",
+  "updatedAt": "2026-11-03T11:04:28.277Z",
   "fonts": {
     "display": "'1FTV-VIP-Queen-of-Silence', serif",
     "body": "'Prata', Georgia, serif",
@@ -26,9 +26,22 @@
   },
   "texts": {
     "root.span.2": "欽天監 · BÍNH THÂN 1836",
-    "root.span.1": "MỘT TÁC PHẨM ĐIỆN ẢNH CỦA<br><strong>GOSU CINEMA</strong>"
+    "root.span.1": "MỘT TÁC PHẨM ĐIỆN ẢNH CỦA<br><strong>GOSU CINEMA</strong>",
+    "hero.span.28": "DỊ LỤC<sup data-ve-id=\"hero.sup.29\" data-ve-editable=\"true\" contenteditable=\"true\">1836</sup>",
+    "root.span.0": "<br>"
   },
-  "elementStyles": {},
+  "elementStyles": {
+    "hero.span.28": {
+      "fontWeight": "",
+      "fontStyle": "",
+      "textDecoration": "",
+      "textTransform": "",
+      "fontSize": "",
+      "letterSpacing": "",
+      "color": "",
+      "textAlign": ""
+    }
+  },
   "images": {},
   "imageStyles": {},
   "videos": {
