@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-03T10:07:46.277Z",
+  "updatedAt": "2026-11-03T10:37:05.550Z",
   "fonts": {
     "display": "",
     "body": "'Prata', Georgia, serif",
@@ -17,6 +17,67 @@
   },
   "images": {},
   "imageStyles": {},
-  "chars": null,
+  "chars": [
+    [
+      "Mót",
+      "HUYỀN QUANG · 18 TUỔI · MỆNH ÂM",
+      "assets/159.jpg",
+      "Một thiếu niên mang Mệnh Âm bẩm sinh, có thể nhìn thấu và chạm vào linh thể người khuất. Từ đứa trẻ lăn ra trong chiếc bình gốm vỡ đêm mưa năm 1818 tại Điện Voi Ré, Mót bước vào nhánh mật Khâm Thiên Sứ với cổ phù phong ấn ẩn sâu trên cánh tay.",
+      "“Mình đã may mắn được cứu khỏi đêm mưa, thì không thể để người khác phải tuyệt vọng chờ một may mắn tình cờ.”",
+      "命陰",
+      "assets/characters/mot-3view.webp",
+      "assets/characters/mot-sheet.webp"
+    ],
+    [
+      "Đại Sơn",
+      "KHÂM THIÊN SỨ · 21 TUỔI · HỎA PHÙ KIẾM",
+      "assets/161.jpg",
+      "Sư huynh bộc trực, trọng nghĩa khí, người luôn đứng mũi chịu sào che chở cho Mót. Dùng hai ngón tay kẹp linh phù chu sa vuốt dọc sống kiếm, Đại Sơn kích hoạt ngọn lửa dương khí chém tan âm tà giữa lòng chảo Hổ Quyền.",
+      "“Kiếm lửa trấn tà. Nghĩa khí giữ người.”",
+      "火符",
+      "assets/characters/daison-3view.webp",
+      "assets/characters/daison-sheet.webp"
+    ],
+    [
+      "Linh",
+      "HUYỀN UYÊN · 25 TUỔI · LƯ HƯƠNG KHÓI ĐỎ",
+      "assets/186.jpg",
+      "Thiếu nữ khoác áo ngũ thân gấm đen như người cầm hương tang lễ, trên vai vắt đòn gánh đầu rồng treo lư hương tỏa khói máu. Sống sót sau đêm thảm sát năm 1818, nàng đội tang cha suốt đời và nắm giữ nửa kia chiếc vòng tín vật của Mót.",
+      "“Tám phần nhân tính hóa tro tàn, hai phần máu lạnh giữ mạng nơi hang cọp.”",
+      "血香",
+      "assets/uploads/1793702211074-TRAILER_SHDL_2.00_03_35_08.Still006.png",
+      "assets/characters/linh-sheet.webp"
+    ],
+    [
+      "Kim Lan",
+      "LONG THỌ · 20 TUỔI · CUNG TIỄN KHUÊ CÁC",
+      "assets/188.jpg",
+      "Tiểu thư thanh tú xứ Huế vừa tinh thông thơ phú vừa sở hữu tài bắn cung bách phát bách trúng. Nhưng biến cố cha nàng nhúng chàm vào khế ước trăm bộ da hổ đã biến Kim Lan thành bài học trưởng thành đau đớn nhất của Mót về cái giá của công lý.",
+      "“Giữa điều đúng và điều thương, có bao nhiêu khoảng cách?”",
+      "悲弓",
+      "assets/characters/kimlan-3view.webp",
+      "assets/characters/kimlan-sheet.webp"
+    ],
+    [
+      "Ông An",
+      "LÀNG LONG THỌ · 68 TUỔI · NHÂN CHỨNG SỐNG",
+      "assets/characters/ongan-avatar.webp",
+      "Bậc cao niên hiền lành gắn bó cả đời với nghề nung ngói lưu ly và ruộng đồng Long Thọ. Ông An là người đầu tiên nhận ra mạch nước sông Hương hóa độc và tận mắt chứng kiến những bóng đen vận chuyển rương gỗ niêm phong vào Điện Voi Ré trong đêm sương.",
+      "“Đất có mạch, người có tâm. Tâm người một khi đã mục ruỗng thì lúa ngoài đồng cũng rỉ máu.”",
+      "老證",
+      "assets/characters/ongan-3view.webp",
+      "assets/characters/ongan-sheet.webp"
+    ],
+    [
+      "Lão Phú",
+      "QUAN LÀNG LONG THỌ · 45 TUỔI · KHẾ ƯỚC MÁU",
+      "assets/characters/laophu-avatar.webp",
+      "Viên quan địa phương cai quản làng Long Thọ, cha ruột của Kim Lan. Vì muốn bảo toàn chức vị và tích góp gia sản cho con gái, Lão Phú đã nhắm mắt ký vào khế ước ngầm với Vạn Kim Thương Hội, lén lút giết 100 con hổ tại Hổ Quyền khiến Đại Ma Hổ thức tỉnh.",
+      "“Ta làm tất cả cũng chỉ để con bé không bao giờ phải nếm mùi bần hàn!”",
+      "貪契",
+      "assets/characters/laophu-3view.webp",
+      "assets/characters/laophu-sheet.webp"
+    ]
+  ],
   "places": null
 }
