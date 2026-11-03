@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-03T11:10:32.317Z",
+  "updatedAt": "2026-11-03T11:12:54.766Z",
   "fonts": {
     "display": "'1FTV-VIP-Queen-of-Silence', serif",
     "body": "'CORMORANTGARAMOND-REGULAR', serif",
@@ -33,7 +33,9 @@
     "root.span.1": "MỘT TÁC PHẨM ĐIỆN ẢNH CỦA<br><strong>GOSU CINEMA</strong>",
     "hero.span.28": "DỊ LỤC<sup data-ve-id=\"hero.sup.29\" data-ve-editable=\"true\" contenteditable=\"true\">1836</sup>",
     "root.span.0": "<br>",
-    "hero.p.30": "“Ma quỷ không tự nhiên sinh ra để hủy diệt nhân gian — chính lòng tham, sự tàn nhẫn và nỗi oan khuất chưa được tháo gỡ của con người mới là mầm mống nuôi dưỡng tà vật.”"
+    "hero.p.30": "“Ma quỷ không tự nhiên sinh ra để hủy diệt nhân gian — chính lòng tham, sự tàn nhẫn và nỗi oan khuất chưa được tháo gỡ của con người mới là mầm mống nuôi dưỡng tà vật.”",
+    "hero.span.27": "SƠN HÀ",
+    "hero.span.23": "MỘT TÁC PHẨM ĐIỆN ẢNH CỦA<br><strong>GOSU CINEMA</strong>"
   },
   "elementStyles": {
     "hero.span.28": {
@@ -47,6 +49,16 @@
       "textAlign": ""
     },
     "hero.p.30": {
+      "fontWeight": "",
+      "fontStyle": "",
+      "textDecoration": "",
+      "textTransform": "",
+      "fontSize": "",
+      "letterSpacing": "",
+      "color": "",
+      "textAlign": ""
+    },
+    "hero.span.27": {
       "fontWeight": "",
       "fontStyle": "",
       "textDecoration": "",
