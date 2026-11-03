@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-03T10:05:31.702Z",
+  "updatedAt": "2026-11-03T10:07:46.277Z",
   "fonts": {
     "display": "",
     "body": "'Prata', Georgia, serif",
@@ -12,7 +12,8 @@
     "customFaces": []
   },
   "texts": {
-    "root.span.2": "欽天監 · BÍNH THÂN 1836"
+    "root.span.2": "欽天監 · BÍNH THÂN 1836",
+    "root.span.1": "MỘT TÁC PHẨM ĐIỆN ẢNH CỦA<br><strong>GOSU CINEMA</strong>"
   },
   "images": {},
   "imageStyles": {},
