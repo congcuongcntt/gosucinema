@@ -6,7 +6,17 @@
 (function () {
   const STORAGE_KEY = 'gosu_visual_editor_overrides_v1';
   const GH_TOKEN_KEY = 'gosu_visual_editor_gh_token';
+  const ADMIN_UNLOCK_KEY = 'gosu_visual_editor_admin_unlocked';
+  const ADMIN_PIN = 'gosu1836';
   const LOCAL_SYNC_URL = 'http://127.0.0.1:8765/api/publish';
+
+  function isLocalhost() {
+    return location.hostname === '127.0.0.1' || location.hostname === 'localhost';
+  }
+
+  function isAdminUnlocked() {
+    return isLocalhost() || localStorage.getItem(ADMIN_UNLOCK_KEY) === 'true';
+  }
 
   const GOOGLE_FONT_PRESETS = [
     { label: 'Mặc định (FZ OptiRadiant / Cormorant)', value: '', google: '' },
@@ -709,12 +719,15 @@
 
   // 7. Build Visual Editor UI
   function buildEditorUI() {
-    // Launcher button
+    // Launcher button (hidden for normal public visitors unless Admin is unlocked)
     const launcher = document.createElement('button');
     launcher.id = 've-Launcher';
     launcher.type = 'button';
-    launcher.title = 'Bật chế độ chỉnh sửa trực tiếp (Phím tắt: Ctrl + E)';
+    launcher.title = 'Bật chế độ chỉnh sửa trực tiếp (Phím tắt: Ctrl + Shift + E)';
     launcher.innerHTML = '✎ SỬA WEB';
+    if (!isAdminUnlocked()) {
+      launcher.style.display = 'none';
+    }
     document.body.appendChild(launcher);
 
     // Floating Toolbar
@@ -867,9 +880,26 @@
     document.body.appendChild(pubModal);
 
     // Wire up Events
+    function requestAdminPin() {
+      if (isAdminUnlocked()) return true;
+      const pin = prompt('Nhập mã PIN Admin để mở Trình Sửa Web:');
+      if (pin && pin.trim() === ADMIN_PIN) {
+        localStorage.setItem(ADMIN_UNLOCK_KEY, 'true');
+        launcher.style.display = 'flex';
+        return true;
+      }
+      if (pin !== null) {
+        showToast('❌ Sai mã PIN Admin!');
+      }
+      return false;
+    }
+
     function toggleEditMode(forceState) {
-      isEditMode = typeof forceState === 'boolean' ? forceState : !isEditMode;
+      const targetState = typeof forceState === 'boolean' ? forceState : !isEditMode;
+      if (targetState && !requestAdminPin()) return;
+      isEditMode = targetState;
       document.body.classList.toggle('ve-editing', isEditMode);
+      launcher.style.display = isEditMode ? 'none' : isAdminUnlocked() ? 'flex' : 'none';
       enableInlineEditing(isEditMode);
       if (isEditMode) {
         showToast('Đã bật Chế độ Sửa Web! Bấm vào chữ bất kỳ để sửa hoặc bấm vào ảnh để thay ảnh.');
@@ -884,9 +914,12 @@
     document.getElementById('ve-OpenFontBtn').onclick = () => openFontModal();
     document.getElementById('ve-PublishBtn').onclick = () => publishToWeb();
 
-    // Keyboard shortcut Ctrl+E
+    // Secret Keyboard shortcut Ctrl+Shift+E (or Ctrl+E when already unlocked)
     window.addEventListener('keydown', e => {
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'e') {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'e') {
+        e.preventDefault();
+        toggleEditMode();
+      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'e' && isAdminUnlocked()) {
         e.preventDefault();
         toggleEditMode();
       }
