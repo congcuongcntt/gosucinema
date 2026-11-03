@@ -1,17 +1,19 @@
 {
   "version": 1,
-  "updatedAt": null,
+  "updatedAt": "2026-11-03T10:05:31.702Z",
   "fonts": {
     "display": "",
-    "body": "",
+    "body": "'Prata', Georgia, serif",
     "serifAlt": "",
-    "sc": "",
+    "sc": "'Prata', Georgia, serif",
     "scale": 100,
     "goldColor": "",
     "crimsonColor": "",
     "customFaces": []
   },
-  "texts": {},
+  "texts": {
+    "root.span.2": "欽天監 · BÍNH THÂN 1836"
+  },
   "images": {},
   "imageStyles": {},
   "chars": null,
