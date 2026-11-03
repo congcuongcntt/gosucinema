@@ -2547,13 +2547,13 @@ dialog::backdrop {
 }
 
 .wire-group {
-  transition: opacity 0.3s, filter 0.3s;
+  transition: opacity 0.35s ease, filter 0.35s ease;
 }
 
 .wire-group path {
   fill: none;
   stroke-width: 2;
-  transition: stroke-width 0.3s;
+  transition: stroke-width 0.35s ease, opacity 0.35s ease;
 }
 
 .wire-kin path {
@@ -2571,19 +2571,20 @@ dialog::backdrop {
 }
 
 .wire-group rect {
-  fill: rgba(7, 10, 10, 0.92);
-  stroke: rgba(189, 149, 91, 0.42);
+  fill: rgba(7, 10, 10, 0.94);
+  stroke: rgba(189, 149, 91, 0.45);
   stroke-width: 1;
+  transition: opacity 0.28s ease, stroke 0.28s ease, fill 0.28s ease;
 }
 
 .wire-feud rect {
   stroke: rgba(217, 56, 41, 0.65);
-  fill: rgba(28, 7, 7, 0.92);
+  fill: rgba(28, 7, 7, 0.94);
 }
 
 .wire-bond rect {
   stroke: rgba(239, 142, 125, 0.6);
-  fill: rgba(24, 10, 10, 0.92);
+  fill: rgba(24, 10, 10, 0.94);
 }
 
 .wire-group text {
@@ -2591,19 +2592,95 @@ dialog::backdrop {
   font-size: 11.5px;
   fill: #ece2d0;
   text-anchor: middle;
+  transition: opacity 0.28s ease, fill 0.28s ease;
 }
 
+/* Focus Bar above Relationship Board */
+.rel-focus-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 18px;
+  padding: 10px 18px;
+  background: rgba(12, 16, 16, 0.88);
+  border: 1px solid rgba(189, 149, 91, 0.28);
+}
+
+.rel-focus-status {
+  font-family: var(--font-body);
+  font-size: 14.5px;
+  color: var(--bone);
+}
+
+.rel-focus-status strong {
+  color: var(--gold-bright);
+  font-weight: 600;
+}
+
+.rel-reset-btn {
+  padding: 7px 16px;
+  background: rgba(150, 27, 21, 0.22);
+  border: 1px solid var(--gold);
+  color: var(--gold-bright);
+  font-family: var(--font-sc);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.8px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.rel-reset-btn:hover,
+.rel-reset-btn.is-showing-all {
+  background: var(--crimson);
+  border-color: var(--gold-bright);
+  color: #fff;
+  box-shadow: 0 0 18px rgba(201, 48, 38, 0.55);
+}
+
+/* DIM UNRELATED WIRES & HIDE UNRELATED LABELS WHEN A CHARACTER IS PICKED */
 .rel-board.has-focus .wire-group:not(.wire-active) {
-  opacity: 0.16;
+  opacity: 1;
 }
 
+.rel-board.has-focus .wire-group:not(.wire-active) path {
+  opacity: 0.05;
+}
+
+.rel-board.has-focus .wire-group:not(.wire-active) rect,
+.rel-board.has-focus .wire-group:not(.wire-active) text {
+  opacity: 0;
+}
+
+/* GLOW RELATED WIRES & LABELS WHEN A CHARACTER IS PICKED */
 .rel-board.has-focus .wire-group.wire-active {
   opacity: 1;
-  filter: drop-shadow(0 0 8px rgba(223, 192, 138, 0.65));
+  filter: drop-shadow(0 0 10px rgba(235, 196, 132, 0.78));
+}
+
+.rel-board.has-focus .wire-feud.wire-active {
+  filter: drop-shadow(0 0 12px rgba(229, 57, 45, 0.88));
+}
+
+.rel-board.has-focus .wire-bond.wire-active {
+  filter: drop-shadow(0 0 11px rgba(239, 142, 125, 0.85));
 }
 
 .rel-board.has-focus .wire-group.wire-active path {
-  stroke-width: 3.2;
+  stroke-width: 3.5;
+  opacity: 1;
+}
+
+.rel-board.has-focus .wire-group.wire-active rect {
+  stroke-width: 1.5;
+  fill: rgba(8, 11, 11, 0.98);
+}
+
+.rel-board.has-focus .wire-group.wire-active text {
+  fill: #fffdf8;
+  font-weight: 500;
 }
 
 /* Positioned Character Boxes on the 1280x780 Board */
@@ -2616,6 +2693,23 @@ dialog::backdrop {
   background: rgba(11, 15, 15, 0.96);
   border: 1px solid rgba(189, 149, 91, 0.45);
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.85);
+  transition: opacity 0.35s ease, filter 0.35s ease, transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.rel-conn-badge {
+  position: absolute;
+  top: -10px;
+  right: 10px;
+  padding: 2px 8px;
+  font-family: var(--font-sc);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  border-radius: 2px;
+  opacity: 0;
+  transform: translateY(3px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  pointer-events: none;
 }
 
 .rel-board .rel-node strong {
@@ -2626,12 +2720,6 @@ dialog::backdrop {
 .rel-board .rel-node small {
   font-size: 12.5px;
   line-height: 1.35;
-}
-
-.rel-board .rel-node:hover,
-.rel-board .rel-node.active {
-  transform: translate(-50%, -53%) scale(1.03);
-  z-index: 5;
 }
 
 .rel-pos-ongan     { left: 16.5%; top: 11.5%; border-color: #7ea898; }
@@ -2646,16 +2734,70 @@ dialog::backdrop {
 .rel-pos-mot {
   left: 50%;
   top: 59.5%;
-  width: 280px !important;
-  padding: 16px 20px !important;
-  border: 2px solid var(--gold-bright) !important;
-  background: linear-gradient(135deg, rgba(135, 22, 16, 0.85), rgba(14, 10, 10, 0.98)) !important;
-  box-shadow: 0 0 40px rgba(201, 48, 38, 0.5), 0 15px 40px rgba(0, 0, 0, 0.95) !important;
+  width: 280px;
+  padding: 16px 20px;
+  border: 2px solid var(--gold-bright);
+  background: linear-gradient(135deg, rgba(110, 20, 15, 0.72), rgba(14, 10, 10, 0.96));
+  box-shadow: 0 0 28px rgba(201, 48, 38, 0.35), 0 15px 40px rgba(0, 0, 0, 0.92);
 }
 
 .rel-pos-kimlan    { left: 20.5%; top: 88%; border-color: #8ab09a; }
 .rel-pos-laophu    { left: 50%;   top: 88%; width: 255px; border-color: #b85a3a; }
 .rel-pos-maho      { left: 79.5%; top: 88%; border-color: #c93026; }
+
+/* STATES WHEN A CHARACTER IS PICKED (.has-focus) */
+.rel-board.has-focus .rel-node.is-dimmed {
+  opacity: 0.14;
+  filter: grayscale(0.92) brightness(0.45);
+  border-color: rgba(189, 149, 91, 0.14);
+  box-shadow: none;
+  transform: translate(-50%, -50%) scale(0.96);
+  z-index: 2;
+}
+
+.rel-board.has-focus .rel-node.is-dimmed:hover {
+  opacity: 0.65;
+  filter: grayscale(0.2) brightness(0.9);
+  transform: translate(-50%, -52%) scale(1);
+}
+
+.rel-board.has-focus .rel-node.is-connected {
+  opacity: 1;
+  filter: none;
+  z-index: 6;
+  border-color: var(--gold-bright);
+  background: rgba(15, 20, 20, 0.98);
+  box-shadow: 0 0 26px rgba(223, 192, 138, 0.42), 0 14px 32px rgba(0, 0, 0, 0.92);
+  transform: translate(-50%, -52%) scale(1.02);
+}
+
+.rel-board.has-focus .rel-node.is-connected .rel-conn-badge {
+  opacity: 1;
+  transform: translateY(0);
+  background: rgba(18, 24, 24, 0.96);
+  border: 1px solid var(--gold);
+  color: var(--gold-bright);
+}
+
+.rel-board .rel-node.is-selected,
+.rel-board.has-focus .rel-node.is-selected {
+  opacity: 1;
+  filter: none;
+  z-index: 9;
+  transform: translate(-50%, -54%) scale(1.06);
+  border: 2px solid #ffe2a8;
+  background: linear-gradient(135deg, rgba(155, 24, 18, 0.92), rgba(14, 10, 10, 0.98));
+  box-shadow: 0 0 42px rgba(235, 196, 132, 0.72), 0 0 80px rgba(201, 48, 38, 0.62), 0 18px 40px rgba(0, 0, 0, 0.96);
+}
+
+.rel-board.has-focus .rel-node.is-selected .rel-conn-badge {
+  opacity: 1;
+  transform: translateY(0);
+  background: var(--crimson);
+  border: 1px solid #ffe2a8;
+  color: #fffdf7;
+  box-shadow: 0 0 14px rgba(201, 48, 38, 0.8);
+}
 
 /* Connected Faction Web Box */
 .faction-web-box {

@@ -496,24 +496,70 @@ const relTagEl = document.querySelector('#rel-detail-tag');
 const relNameEl = document.querySelector('#rel-detail-name');
 const relDescEl = document.querySelector('#rel-detail-desc');
 const relLinksEl = document.querySelector('#rel-detail-links');
+const relFocusStatusEl = document.querySelector('#rel-focus-status');
+const relResetBtn = document.querySelector('#rel-reset-btn');
+
+let lockedNodeId = null;
 
 function highlightNodeWires(nodeId) {
   if (!relBoardEl) return;
   if (!nodeId) {
     relBoardEl.classList.remove('has-focus');
     wireGroups.forEach(w => w.classList.remove('wire-active'));
+    relNodeBtns.forEach(b => {
+      b.classList.remove('active', 'is-selected', 'is-connected', 'is-dimmed');
+      const badge = b.querySelector('.rel-conn-badge');
+      if (badge) badge.textContent = '';
+    });
+    if (relFocusStatusEl) {
+      relFocusStatusEl.innerHTML =
+        'ĐANG HIỆN TOÀN BỘ SƠ ĐỒ (<strong>11 NHÂN VẬT · 17 MỐI QUAN HỆ</strong>) — Bấm vào bất kỳ nhân vật nào để chỉ phát sáng những mối liên quan';
+    }
+    if (relResetBtn) relResetBtn.classList.add('is-showing-all');
     return;
   }
+
   relBoardEl.classList.add('has-focus');
+  if (relResetBtn) relResetBtn.classList.remove('is-showing-all');
+
+  const connectedIds = new Set();
   wireGroups.forEach(w => {
-    const isConnected = w.dataset.from === nodeId || w.dataset.to === nodeId;
+    const from = w.dataset.from;
+    const to = w.dataset.to;
+    const isConnected = from === nodeId || to === nodeId;
     w.classList.toggle('wire-active', isConnected);
+    if (isConnected) {
+      connectedIds.add(from === nodeId ? to : from);
+      if (w.parentNode) w.parentNode.appendChild(w);
+    }
   });
+
+  relNodeBtns.forEach(b => {
+    const id = b.dataset.node;
+    const isSelected = id === nodeId;
+    const isConn = !isSelected && connectedIds.has(id);
+    const isDimmed = !isSelected && !isConn;
+    b.classList.toggle('active', isSelected);
+    b.classList.toggle('is-selected', isSelected);
+    b.classList.toggle('is-connected', isConn);
+    b.classList.toggle('is-dimmed', isDimmed);
+    const badge = b.querySelector('.rel-conn-badge');
+    if (badge) {
+      badge.textContent = isSelected ? '✦ ĐANG CHỌN' : isConn ? 'LIÊN QUAN' : '';
+    }
+  });
+
+  if (relFocusStatusEl) {
+    const selectedBtn = [...relNodeBtns].find(b => b.dataset.node === nodeId);
+    const shortName = selectedBtn ? selectedBtn.querySelector('strong').textContent : nodeId;
+    relFocusStatusEl.innerHTML =
+      `ĐANG SOI MẠCH QUAN HỆ: <strong>${shortName}</strong> — Phát sáng <strong>${connectedIds.size}</strong> nhân vật liên quan &amp; dìm các mối không liên quan`;
+  }
 }
 
 function selectRelNode(btn) {
   const nodeId = btn.dataset.node;
-  relNodeBtns.forEach(b => b.classList.toggle('active', b === btn));
+  lockedNodeId = nodeId;
   highlightNodeWires(nodeId);
   const data = relNodesData[nodeId];
   if (!data) return;
@@ -524,10 +570,33 @@ function selectRelNode(btn) {
 }
 
 relNodeBtns.forEach(btn => {
-  btn.onclick = () => selectRelNode(btn);
-  btn.addEventListener('pointerenter', () => highlightNodeWires(btn.dataset.node));
+  btn.onclick = e => {
+    e.stopPropagation();
+    selectRelNode(btn);
+  };
+  btn.addEventListener('pointerenter', () => {
+    if (!lockedNodeId) highlightNodeWires(btn.dataset.node);
+  });
   btn.addEventListener('pointerleave', () => {
-    const activeBtn = document.querySelector('.rel-board .rel-node.active');
-    highlightNodeWires(activeBtn ? activeBtn.dataset.node : null);
+    if (!lockedNodeId) highlightNodeWires(null);
   });
 });
+
+if (relResetBtn) {
+  relResetBtn.onclick = () => {
+    lockedNodeId = null;
+    highlightNodeWires(null);
+  };
+}
+
+if (relBoardEl) {
+  relBoardEl.addEventListener('click', e => {
+    if (e.target === relBoardEl || e.target.classList.contains('rel-wires')) {
+      lockedNodeId = null;
+      highlightNodeWires(null);
+    }
+  });
+}
+
+// Khởi tạo mặc định ở chế độ nhìn toàn cảnh rõ ràng, khi bấm vào bất kỳ nhân vật nào sẽ lập tức phát sáng nhánh liên quan & dìm phần còn lại
+highlightNodeWires(null);

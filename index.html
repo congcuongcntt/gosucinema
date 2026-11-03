@@ -277,12 +277,16 @@
       <div class="script-panel" id="tab-relations" role="tabpanel" hidden>
         <div class="relation-map-container">
           <div class="relation-header">
-            <span class="small">SƠ ĐỒ ĐƯỜNG DÂY KẾT NỐI · RÊ CHUỘT HOẶC BẤM VÀO Ô ĐỂ SOI TỪNG MẠCH QUAN HỆ</span>
+            <span class="small">SƠ ĐỒ ĐƯỜNG DÂY KẾT NỐI · BẤM CHỌN NHÂN VẬT ĐỂ PHÁT SÁNG MẠCH LIÊN QUAN &amp; DÌM CÁC MỐI KHÔNG LIÊN QUAN</span>
             <h3>Mạng lưới Ân Oán — Gia Tộc — Thế Lực</h3>
             <div class="rel-legend" aria-label="Chú giải đường dây quan hệ">
               <span class="leg-item leg-kin"><i></i> Gia tộc · Sư môn · Chính nghĩa</span>
               <span class="leg-item leg-bond"><i></i> Tình cảm · Tri kỷ · Định mệnh 1818</span>
               <span class="leg-item leg-feud"><i></i> Ân oán máu · Khế ước ngầm · Phản bội</span>
+            </div>
+            <div class="rel-focus-bar">
+              <span class="rel-focus-status" id="rel-focus-status">ĐANG SOI TÂM ĐIỂM: <strong>MÓT (HUYỀN QUANG)</strong> — Bấm vào bất kỳ nhân vật nào để lọc riêng mạch quan hệ</span>
+              <button type="button" class="rel-reset-btn" id="rel-reset-btn">✦ HIỆN TOÀN BỘ SƠ ĐỒ (BỎ LỌC)</button>
             </div>
           </div>
 
@@ -312,22 +316,22 @@
                 <!-- 2. Ông An -> Mót -->
                 <g class="wire-group wire-kin" data-from="ongan" data-to="mot">
                   <path d="M 250 135 C 330 250, 420 390, 520 445" marker-end="url(#arrow-kin)"/>
-                  <rect x="275" y="328" width="210" height="24" rx="3"/>
-                  <text x="380" y="344">Nhặt ở Điện Voi Ré · Cha nuôi</text>
+                  <rect x="265" y="295" width="210" height="24" rx="3"/>
+                  <text x="370" y="311">Nhặt ở Điện Voi Ré · Cha nuôi</text>
                 </g>
 
                 <!-- 3. Ông An -> Anh Hai Hương -->
                 <g class="wire-group wire-kin" data-from="ongan" data-to="huong">
                   <path d="M 190 140 L 160 235" marker-end="url(#arrow-kin)"/>
-                  <rect x="72" y="175" width="180" height="22" rx="3"/>
-                  <text x="162" y="190">Cha con · Dạy đạo vì dân</text>
+                  <rect x="68" y="175" width="180" height="22" rx="3"/>
+                  <text x="158" y="190">Cha con · Dạy đạo vì dân</text>
                 </g>
 
                 <!-- 4. Anh Hai Hương -> Mót -->
                 <g class="wire-group wire-kin" data-from="huong" data-to="mot">
                   <path d="M 260 320 C 340 405, 430 445, 520 462" marker-end="url(#arrow-kin)"/>
-                  <rect x="240" y="402" width="228" height="24" rx="3"/>
-                  <text x="354" y="418">Anh hai nuôi · Trao sổ mật trước lúc chết</text>
+                  <rect x="235" y="408" width="228" height="24" rx="3"/>
+                  <text x="349" y="424">Anh hai nuôi · Trao sổ mật trước lúc chết</text>
                 </g>
 
                 <!-- 5. Đại Sơn <-> Mót -->
@@ -347,36 +351,36 @@
                 <!-- 7. Cha Mẹ 1818 -> Linh -->
                 <g class="wire-group wire-feud" data-from="chame1818" data-to="linh">
                   <path d="M 740 115 L 845 230" marker-end="url(#arrow-feud)"/>
-                  <rect x="690" y="158" width="214" height="22" rx="3"/>
-                  <text x="797" y="173">Vụ nổ 1818 · Cha Linh chết oan</text>
+                  <rect x="655" y="146" width="210" height="22" rx="3"/>
+                  <text x="760" y="161">Vụ nổ 1818 · Cha Linh chết oan</text>
                 </g>
 
                 <!-- 8. Hội Trưởng Vạn Kim -> Linh -->
                 <g class="wire-group wire-feud" data-from="hoitruong" data-to="linh">
                   <path d="M 1015 138 L 905 230" marker-end="url(#arrow-feud)"/>
-                  <rect x="862" y="182" width="210" height="22" rx="3"/>
-                  <text x="967" y="197">Kề đao năm 10 tuổi · Ép luyện quỷ</text>
+                  <rect x="830" y="186" width="210" height="22" rx="3"/>
+                  <text x="935" y="201">Kề đao năm 10 tuổi · Ép luyện quỷ</text>
                 </g>
 
                 <!-- 9. Hội Trưởng Vạn Kim -> Khánh Vũ -->
                 <g class="wire-group wire-feud" data-from="hoitruong" data-to="khanhvu">
                   <path d="M 1090 140 L 1120 235" marker-end="url(#arrow-feud)"/>
-                  <rect x="1015" y="175" width="225" height="22" rx="3"/>
-                  <text x="1127" y="190">Cha ruột · Giam mẹ ép chứa Quỷ</text>
+                  <rect x="1050" y="170" width="218" height="22" rx="3"/>
+                  <text x="1159" y="185">Cha ruột · Giam mẹ ép chứa Quỷ</text>
                 </g>
 
                 <!-- 10. Khánh Vũ <-> Mót -->
                 <g class="wire-group wire-bond" data-from="khanhvu" data-to="mot">
                   <path d="M 1020 320 C 940 405, 850 445, 760 462" marker-start="url(#arrow-bond)" marker-end="url(#arrow-bond)"/>
-                  <rect x="802" y="402" width="246" height="24" rx="3"/>
-                  <text x="925" y="418">Tri kỷ · Nuôi Mót mạnh để giết mình</text>
+                  <rect x="802" y="408" width="246" height="24" rx="3"/>
+                  <text x="925" y="424">Tri kỷ · Nuôi Mót mạnh để giết mình</text>
                 </g>
 
                 <!-- 11. Mót <-> Kim Lan -->
                 <g class="wire-group wire-bond" data-from="mot" data-to="kimlan">
                   <path d="M 540 500 L 325 630" marker-start="url(#arrow-bond)" marker-end="url(#arrow-bond)"/>
-                  <rect x="315" y="552" width="215" height="24" rx="3"/>
-                  <text x="422" y="568">Tình đầu · Lỡ dở vì công lý</text>
+                  <rect x="285" y="548" width="215" height="24" rx="3"/>
+                  <text x="392" y="564">Tình đầu · Lỡ dở vì công lý</text>
                 </g>
 
                 <!-- 12. Lão Phú -> Kim Lan -->
@@ -406,22 +410,39 @@
                   <rect x="975" y="510" width="215" height="24" rx="3"/>
                   <text x="1082" y="526">Phá ấn hóa Quỷ Xương Cuồng</text>
                 </g>
+
+                <!-- 16. Hội Trưởng Vạn Kim -> Cha Mẹ 1818 -->
+                <g class="wire-group wire-feud" data-from="hoitruong" data-to="chame1818">
+                  <path d="M 945 84 L 775 84" marker-end="url(#arrow-feud)"/>
+                  <rect x="762" y="60" width="196" height="22" rx="3"/>
+                  <text x="860" y="75">Truy sát 1818 · Phá ma trận</text>
+                </g>
+
+                <!-- 17. Đại Sơn <-> Đại Ma Hổ -->
+                <g class="wire-group wire-feud" data-from="daison" data-to="maho">
+                  <path d="M 465 335 C 610 475, 780 560, 925 645" marker-end="url(#arrow-feud)"/>
+                  <rect x="748" y="520" width="205" height="24" rx="3"/>
+                  <text x="850" y="536">Hỏa Phù Kiếm · Trấn Ma Hổ</text>
+                </g>
               </svg>
 
               <!-- HÀNG 1: THẾ HỆ TRƯỚC & THƯỢNG TẦNG -->
               <button type="button" class="rel-node rel-pos-ongan" data-node="ongan">
+                <span class="rel-conn-badge" aria-hidden="true"></span>
                 <span class="rel-role">CHA NUÔI · QUAN LIÊM</span>
                 <strong>Ông An (Cụ An)</strong>
                 <small>Nhặt Mót ở Điện Voi Ré (1818)</small>
               </button>
 
               <button type="button" class="rel-node rel-pos-chame1818" data-node="chame1818">
+                <span class="rel-conn-badge" aria-hidden="true"></span>
                 <span class="rel-role">BI KỊCH ĐÊM MƯA 1818</span>
                 <strong>Cha Mẹ Mót &amp; Cha Linh</strong>
                 <small>Phá hủy ma trận · Để lại 2 nửa vòng ngọc</small>
               </button>
 
               <button type="button" class="rel-node rel-pos-hoitruong" data-node="hoitruong">
+                <span class="rel-conn-badge" aria-hidden="true"></span>
                 <span class="rel-role">TRÙM CUỐI · BÁ QUYỀN KIM TIỀN</span>
                 <strong>Hội Trưởng Vạn Kim</strong>
                 <small>Cha ruột Khánh Vũ · Chủ mưu 1818</small>
@@ -429,24 +450,28 @@
 
               <!-- HÀNG 2: ĐỒNG MINH CHÍNH NGHĨA vs. VẠN KIM / HUYỀN UYÊN -->
               <button type="button" class="rel-node rel-pos-huong" data-node="huong">
+                <span class="rel-conn-badge" aria-hidden="true"></span>
                 <span class="rel-role">ANH HAI · QUAN ÁN SỨ</span>
                 <strong>Hương (27 tuổi)</strong>
                 <small>“Pháp bất vị thân” · Hy sinh ở Kinh</small>
               </button>
 
               <button type="button" class="rel-node rel-pos-daison" data-node="daison">
+                <span class="rel-conn-badge" aria-hidden="true"></span>
                 <span class="rel-role">SƯ HUYNH · HỎA PHÙ KIẾM</span>
                 <strong>Đại Sơn (21 tuổi)</strong>
                 <small>Dẫn dắt Mót · Nặng gánh chữ Hiếu</small>
               </button>
 
               <button type="button" class="rel-node rel-pos-linh" data-node="linh">
+                <span class="rel-conn-badge" aria-hidden="true"></span>
                 <span class="rel-role">HUYỀN UYÊN · LƯ HƯƠNG ĐỎ</span>
                 <strong>Linh (25 tuổi)</strong>
                 <small>Đội tang cha 18 năm · Giữ nửa vòng kia</small>
               </button>
 
               <button type="button" class="rel-node rel-pos-khanhvu" data-node="khanhvu">
+                <span class="rel-conn-badge" aria-hidden="true"></span>
                 <span class="rel-role">THIẾU GIA · CHIẾC BÌNH SỐNG</span>
                 <strong>Khánh Vũ (24 tuổi)</strong>
                 <small>Bị cha phong ấn Quỷ Xương Cuồng</small>
@@ -454,6 +479,7 @@
 
               <!-- HÀNG 3: TÂM ĐIỂM MÓT -->
               <button type="button" class="rel-node rel-node-core rel-pos-mot active" data-node="mot">
+                <span class="rel-conn-badge" aria-hidden="true"></span>
                 <span class="rel-seal">命陰</span>
                 <span class="rel-role">TÂM ĐIỂM MẠNG LƯỚI · KHÂM THIÊN SỨ</span>
                 <strong>MÓT (Huyền Quang · 18 tuổi)</strong>
@@ -462,18 +488,21 @@
 
               <!-- HÀNG 4: BI KỊCH LÀNG LONG THỌ & TÀ VẬT -->
               <button type="button" class="rel-node rel-pos-kimlan" data-node="kimlan">
+                <span class="rel-conn-badge" aria-hidden="true"></span>
                 <span class="rel-role">NÀNG THƠ ĐẦU ĐỜI · CUNG TIỄN</span>
                 <strong>Kim Lan (20 tuổi)</strong>
                 <small>Con gái Lão Phú · Sụp đổ ước mơ lên Kinh</small>
               </button>
 
               <button type="button" class="rel-node rel-pos-laophu" data-node="laophu">
+                <span class="rel-conn-badge" aria-hidden="true"></span>
                 <span class="rel-role">QUAN XẤU &amp; CAI NGỤC HỔ QUYỀN</span>
                 <strong>Lão Phú &amp; Quản Chuồng Hổ</strong>
                 <small>Khế ước 100 da hổ · Nhét 5 chìa khóa sắt</small>
               </button>
 
               <button type="button" class="rel-node rel-pos-maho" data-node="maho">
+                <span class="rel-conn-badge" aria-hidden="true"></span>
                 <span class="rel-role">TÀ VẬT &amp; ĐẠI CỔ QUỶ</span>
                 <strong>Đại Ma Hổ &amp; Xương Cuồng</strong>
                 <small>Kết tụ từ oán niệm &amp; tham vọng con người</small>
