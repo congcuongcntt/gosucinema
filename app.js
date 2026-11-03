@@ -100,6 +100,7 @@ function updateCharStage() {
   });
 
   charInfo.innerHTML = `<span class="small">${c[1]}</span><h3>${c[0]}</h3><p>${c[3]}</p><blockquote>${c[4]}</blockquote>`;
+  window.dispatchEvent(new CustomEvent('gosu:char-updated', { detail: { index: currentCharIndex, mode: charViewMode } }));
 }
 
 function setCharViewMode(viewMode) {
@@ -714,3 +715,20 @@ if (relBoardEl) {
 
 // Khởi tạo mặc định ở chế độ nhìn toàn cảnh rõ ràng, khi bấm vào bất kỳ nhân vật nào sẽ lập tức phát sáng nhánh liên quan & dìm phần còn lại
 highlightNodeWires(null);
+
+window.GOSU_STATE = {
+  chars,
+  places,
+  relicData,
+  relNodesData,
+  getCurrentCharIndex: () => currentCharIndex,
+  getCharViewMode: () => charViewMode,
+  setCharViewMode,
+  selectChar,
+  updateCharStage,
+  refreshTabs: () => {
+    [...tabs.children].forEach((b, idx) => {
+      if (chars[idx]) b.textContent = chars[idx][0];
+    });
+  }
+};
