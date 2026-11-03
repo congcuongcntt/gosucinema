@@ -2956,3 +2956,7 @@ dialog::backdrop {
   }
 }
 
+
+/* GOSU logo */
+.brand-logo{display:block;height:30px;width:auto;margin-bottom:4px}
+footer .brand-logo{height:34px}
