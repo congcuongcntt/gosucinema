@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-03T11:18:03.637Z",
+  "updatedAt": "2026-11-03T11:22:01.332Z",
   "fonts": {
     "display": "'1FTV-VIP-Queen-of-Silence', serif",
     "body": "'CORMORANTGARAMOND-REGULAR', serif",
@@ -26,7 +26,8 @@
         "name": "CORMORANTGARAMOND-REGULAR",
         "url": "assets/uploads/1793704176731-CORMORANTGARAMOND-REGULAR.TTF"
       }
-    ]
+    ],
+    "subhead": "'CORMORANTGARAMOND-REGULAR', serif"
   },
   "texts": {
     "root.span.2": "欽天監 · BÍNH THÂN 1836",
