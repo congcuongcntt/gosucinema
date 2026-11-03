@@ -179,22 +179,22 @@ function showFrame(n) {
 const relicData = [
   {
     src: 'assets/phap-khi/1.webp',
-    title: 'Pháp Khí Đệ Nhất · Túi Pháp Khí Trấn Tà',
-    caption: 'Túi vải thô nhuộm chu sa buộc trên đầu trượng gỗ mun chạm rồng — cất giữ kim bạc thử độc và linh phù Hoàng Kim của Khâm Thiên Sứ.'
+    title: 'Pháp Khí Mở Đầu 01 · Túi Vải Pháp Khí Của Linh (Huyền Uyên)',
+    caption: 'Túi vải thô nhuộm huyết chu sa buộc trên một đầu đòn gánh gỗ mun chạm rồng của Linh — cất giữ thảo dược dẫn hồn, cổ trùng, huyết phù và tro cốt tà vật để nạp vào lư hương sai khiến Vong — Ma — Quỷ.'
   },
   {
     src: 'assets/phap-khi/2.webp',
-    title: 'Pháp Khí Đệ Nhị · Lư Hương Huyết Khói',
-    caption: 'Đỉnh đồng cổ treo trên đòn gánh đầu rồng của Huyền Uyên (Linh), tỏa làn khói máu dẫn dụ và thao túng Vong — Ma — Quỷ.'
+    title: 'Pháp Khí Mở Đầu 02 · Lư Hương Huyết Khói Của Linh (Huyền Uyên)',
+    caption: 'Đỉnh đồng cổ treo ở đầu còn lại trên đòn gánh chạm rồng của Linh (Huyền Uyên) — khi đốt trầm trộn huyết dược từ túi vải sẽ tỏa làn khói máu dẫn dụ và thao túng Vong — Ma — Quỷ.'
   },
   {
     src: 'assets/phap-khi/3.webp',
-    title: 'Pháp Khí Đệ Tam · La Bàn Tầm Khí',
-    caption: 'Phong Thủy Cổ Bàn bằng đồng khắc Bát Quái của Mót — xoay tít và phát sáng khi chạm vào mạch đất Khí suy hoặc tử thi nhiễm oán linh.'
+    title: 'Pháp Khí Mở Đầu 03 · La Bàn Tầm Khí Của Mót',
+    caption: 'Phong Thủy Cổ Bàn bằng đồng khắc Bát Quái của Mót (Huyền Quang) — xoay tít và phát sáng khi chạm vào mạch đất Khí suy hoặc tử thi nhiễm oán linh.'
   },
   {
     src: 'assets/phap-khi/4.webp',
-    title: 'Pháp Khí Đệ Tứ · Ngọc Lệnh Khâm Thiên Giám',
+    title: 'Pháp Khí Mở Đầu 04 · Ngọc Lệnh Khâm Thiên Giám',
     caption: 'Thẻ bạch ngọc chạm lộng song long thếp chữ vàng “欽天監” — mật lệnh điều tra dị sự triều Minh Mạng năm 1836.'
   }
 ];
@@ -208,8 +208,8 @@ function showRelicModal(idx) {
   dialogImg.alt = r.title;
   dialogTitle.textContent = r.title;
   dialogCaption.textContent = r.caption;
-  dialogTag.textContent = 'TỨ ĐẠI PHÁP KHÍ · HỒ SƠ CỔ VẬT LINH DỊ';
-  slideCount.textContent = `PHÁP KHÍ 0${currentFrame + 1} / 04`;
+  dialogTag.textContent = 'CÁC PHÁP KHÍ ĐẦU TIÊN XUẤT HIỆN · CHƯƠNG I';
+  slideCount.textContent = `PHÁP KHÍ MỞ ĐẦU 0${currentFrame + 1} / 04`;
   thumbStrip.style.display = 'none';
   playBtn.style.display = 'none';
   if (!dialog.open) dialog.showModal();
