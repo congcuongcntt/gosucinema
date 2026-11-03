@@ -2,41 +2,159 @@ const chars = [
   [
     'Mót',
     'HUYỀN QUANG · 18 TUỔI · MỆNH ÂM',
-    '159',
+    'assets/159.jpg',
     'Một thiếu niên mang Mệnh Âm bẩm sinh, có thể nhìn thấu và chạm vào linh thể người khuất. Từ đứa trẻ lăn ra trong chiếc bình gốm vỡ đêm mưa năm 1818 tại Điện Voi Ré, Mót bước vào nhánh mật Khâm Thiên Sứ với cổ phù phong ấn ẩn sâu trên cánh tay.',
     '“Mình đã may mắn được cứu khỏi đêm mưa, thì không thể để người khác phải tuyệt vọng chờ một may mắn tình cờ.”',
-    '命陰'
+    '命陰',
+    'assets/characters/mot-3view.webp',
+    'assets/characters/mot-sheet.webp'
   ],
   [
     'Đại Sơn',
     'KHÂM THIÊN SỨ · 21 TUỔI · HỎA PHÙ KIẾM',
-    '161',
+    'assets/161.jpg',
     'Sư huynh bộc trực, trọng nghĩa khí, người luôn đứng mũi chịu sào che chở cho Mót. Dùng hai ngón tay kẹp linh phù chu sa vuốt dọc sống kiếm, Đại Sơn kích hoạt ngọn lửa dương khí chém tan âm tà giữa lòng chảo Hổ Quyền.',
     '“Kiếm lửa trấn tà. Nghĩa khí giữ người.”',
-    '火符'
+    '火符',
+    'assets/characters/daison-3view.webp',
+    'assets/characters/daison-sheet.webp'
   ],
   [
     'Linh',
     'HUYỀN UYÊN · 25 TUỔI · LƯ HƯƠNG KHÓI ĐỎ',
-    '186',
+    'assets/186.jpg',
     'Thiếu nữ khoác áo ngũ thân gấm đen như người cầm hương tang lễ, trên vai vắt đòn gánh đầu rồng treo lư hương tỏa khói máu. Sống sót sau đêm thảm sát năm 1818, nàng đội tang cha suốt đời và nắm giữ nửa kia chiếc vòng tín vật của Mót.',
     '“Tám phần nhân tính hóa tro tàn, hai phần máu lạnh giữ mạng nơi hang cọp.”',
-    '血香'
+    '血香',
+    'assets/characters/linh-3view.webp',
+    'assets/characters/linh-sheet.webp'
   ],
   [
     'Kim Lan',
     'LONG THỌ · 20 TUỔI · CUNG TIỄN KHUÊ CÁC',
-    '188',
+    'assets/188.jpg',
     'Tiểu thư thanh tú xứ Huế vừa tinh thông thơ phú vừa sở hữu tài bắn cung bách phát bách trúng. Nhưng biến cố cha nàng nhúng chàm vào khế ước trăm bộ da hổ đã biến Kim Lan thành bài học trưởng thành đau đớn nhất của Mót về cái giá của công lý.',
     '“Giữa điều đúng và điều thương, có bao nhiêu khoảng cách?”',
-    '悲弓'
+    '悲弓',
+    'assets/characters/kimlan-3view.webp',
+    'assets/characters/kimlan-sheet.webp'
+  ],
+  [
+    'Ông An',
+    'LÀNG LONG THỌ · 68 TUỔI · NHÂN CHỨNG SỐNG',
+    'assets/characters/ongan-avatar.webp',
+    'Bậc cao niên hiền lành gắn bó cả đời với nghề nung ngói lưu ly và ruộng đồng Long Thọ. Ông An là người đầu tiên nhận ra mạch nước sông Hương hóa độc và tận mắt chứng kiến những bóng đen vận chuyển rương gỗ niêm phong vào Điện Voi Ré trong đêm sương.',
+    '“Đất có mạch, người có tâm. Tâm người một khi đã mục ruỗng thì lúa ngoài đồng cũng rỉ máu.”',
+    '老證',
+    'assets/characters/ongan-3view.webp',
+    'assets/characters/ongan-sheet.webp'
+  ],
+  [
+    'Lão Phú',
+    'QUAN LÀNG LONG THỌ · 45 TUỔI · KHẾ ƯỚC MÁU',
+    'assets/characters/laophu-avatar.webp',
+    'Viên quan địa phương cai quản làng Long Thọ, cha ruột của Kim Lan. Vì muốn bảo toàn chức vị và tích góp gia sản cho con gái, Lão Phú đã nhắm mắt ký vào khế ước ngầm với Vạn Kim Thương Hội, lén lút giết 100 con hổ tại Hổ Quyền khiến Đại Ma Hổ thức tỉnh.',
+    '“Ta làm tất cả cũng chỉ để con bé không bao giờ phải nếm mùi bần hàn!”',
+    '貪契',
+    'assets/characters/laophu-3view.webp',
+    'assets/characters/laophu-sheet.webp'
   ]
 ];
 
 const tabs = document.querySelector('.tabs');
+const charLayout = document.querySelector('#character-layout');
+const portraitBox = document.querySelector('#portrait-box');
 const portraitImg = document.querySelector('#portrait');
 const portraitSeal = document.querySelector('#portrait-seal');
+const portraitModeBadge = document.querySelector('#portrait-mode-badge');
+const charZoomBtn = document.querySelector('#char-zoom-btn');
 const charInfo = document.querySelector('#character-info');
+const charViewBtns = [...document.querySelectorAll('.char-view-btn')];
+const charThumbBtns = [...document.querySelectorAll('.char-thumb')];
+const thumbAvatarImg = document.querySelector('#thumb-avatar');
+const thumbTurnaroundImg = document.querySelector('#thumb-turnaround');
+const thumbSheetImg = document.querySelector('#thumb-sheet');
+
+let currentCharIndex = 0;
+let charViewMode = 'avatar'; // 'avatar' | 'turnaround' | 'sheet'
+
+const charViewLabels = {
+  avatar: 'CHẾ ĐỘ: CHÂN DUNG (AVATAR)',
+  turnaround: 'CHẾ ĐỘ: FULL 3 MẶT (TRƯỚC · SAU · CẬN)',
+  sheet: 'CHẾ ĐỘ: BẢNG THIẾT KẾ CHI TIẾT 1836'
+};
+
+function getCharImageByMode(c, viewMode) {
+  if (viewMode === 'turnaround') return c[6];
+  if (viewMode === 'sheet') return c[7];
+  return c[2];
+}
+
+function updateCharStage() {
+  const c = chars[currentCharIndex];
+  const isWide = charViewMode !== 'avatar';
+  if (charLayout) charLayout.classList.toggle('is-wide-view', isWide);
+  portraitImg.src = getCharImageByMode(c, charViewMode);
+  portraitImg.alt = `${c[0]} — ${charViewLabels[charViewMode]}`;
+  if (portraitSeal) portraitSeal.textContent = c[5];
+  if (portraitModeBadge) portraitModeBadge.textContent = charViewLabels[charViewMode];
+
+  if (thumbAvatarImg) thumbAvatarImg.src = c[2];
+  if (thumbTurnaroundImg) thumbTurnaroundImg.src = c[6];
+  if (thumbSheetImg) thumbSheetImg.src = c[7];
+
+  charViewBtns.forEach(btn => {
+    const active = btn.dataset.charView === charViewMode;
+    btn.classList.toggle('active', active);
+    btn.setAttribute('aria-pressed', String(active));
+  });
+  charThumbBtns.forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.charView === charViewMode);
+  });
+
+  const nextToggleMode = charViewMode === 'turnaround' ? 'avatar' : 'turnaround';
+  const nextToggleText =
+    charViewMode === 'turnaround'
+      ? 'QUAY VỀ CHÂN DUNG (AVATAR)'
+      : 'XEM FULL 3 MẶT (TRƯỚC · SAU · CẬN)';
+
+  charInfo.innerHTML = `
+    <span class="small">${c[1]}</span>
+    <h3>${c[0]}</h3>
+    <p>${c[3]}</p>
+    <blockquote>${c[4]}</blockquote>
+    <div class="char-quick-actions">
+      <button type="button" class="char-action-pill primary" data-quick-view="${nextToggleMode}">
+        ${nextToggleText}
+      </button>
+      <button type="button" class="char-action-pill" data-quick-view="sheet">
+        BẢNG THIẾT KẾ 1836
+      </button>
+      <button type="button" class="char-action-pill" data-quick-zoom="true">
+        PHÓNG TO 4K ⤢
+      </button>
+    </div>
+  `;
+
+  charInfo.querySelectorAll('[data-quick-view]').forEach(btn => {
+    btn.onclick = () => setCharViewMode(btn.dataset.quickView);
+  });
+  const qZoom = charInfo.querySelector('[data-quick-zoom]');
+  if (qZoom) qZoom.onclick = () => openCharLightbox();
+}
+
+function setCharViewMode(viewMode) {
+  charViewMode = viewMode;
+  updateCharStage();
+}
+
+charViewBtns.forEach(btn => {
+  btn.onclick = () => setCharViewMode(btn.dataset.charView);
+});
+
+charThumbBtns.forEach(btn => {
+  btn.onclick = () => setCharViewMode(btn.dataset.charView);
+});
 
 chars.forEach((c, i) => {
   const b = document.createElement('button');
@@ -47,12 +165,9 @@ chars.forEach((c, i) => {
 });
 
 function selectChar(i) {
-  const c = chars[i];
+  currentCharIndex = i;
   [...tabs.children].forEach((b, j) => b.setAttribute('aria-selected', j === i));
-  portraitImg.src = 'assets/' + c[2] + '.jpg';
-  portraitImg.alt = c[0];
-  if (portraitSeal) portraitSeal.textContent = c[5];
-  charInfo.innerHTML = `<span class="small">${c[1]}</span><h3>${c[0]}</h3><p>${c[3]}</p><blockquote>${c[4]}</blockquote>`;
+  updateCharStage();
 }
 
 selectChar(0);
@@ -61,7 +176,7 @@ tabs.addEventListener('keydown', e => {
   if (!['ArrowRight', 'ArrowLeft', 'ArrowDown', 'ArrowUp'].includes(e.key)) return;
   e.preventDefault();
   let i = [...tabs.children].indexOf(document.activeElement);
-  const step = ['ArrowRight', 'ArrowDown'].includes(e.key) ? 1 : 3;
+  const step = ['ArrowRight', 'ArrowDown'].includes(e.key) ? 1 : chars.length - 1;
   i = (i + step) % chars.length;
   selectChar(i);
   tabs.children[i].focus();
@@ -215,6 +330,46 @@ function showRelicModal(idx) {
   if (!dialog.open) dialog.showModal();
 }
 
+const charViewOrder = ['avatar', 'turnaround', 'sheet'];
+
+function openCharLightbox(viewOverride) {
+  stopAutoPlay();
+  mode = 'char';
+  if (viewOverride) {
+    setCharViewMode(viewOverride);
+  }
+  const c = chars[currentCharIndex];
+  const viewIdx = charViewOrder.indexOf(charViewMode);
+  dialogImg.src = getCharImageByMode(c, charViewMode);
+  dialogImg.alt = `${c[0]} — ${charViewLabels[charViewMode]}`;
+  dialogTitle.textContent = `${c[0]} · ${charViewLabels[charViewMode].replace('CHẾ ĐỘ: ', '')}`;
+  dialogCaption.textContent = `${c[1]} — ${c[3]}`;
+  dialogTag.textContent = 'HỒ SƠ TẠO HÌNH NHÂN VẬT 4K · SƠN HÀ DỊ LỤC (1836)';
+  slideCount.textContent = `GÓC NHÌN 0${viewIdx + 1} / 03 · ${c[0].toUpperCase()}`;
+  thumbStrip.style.display = 'none';
+  playBtn.style.display = 'none';
+  if (!dialog.open) dialog.showModal();
+}
+
+function stepCharLightbox(delta) {
+  const idx = (charViewOrder.indexOf(charViewMode) + delta + charViewOrder.length) % charViewOrder.length;
+  openCharLightbox(charViewOrder[idx]);
+}
+
+if (portraitBox) {
+  portraitBox.onclick = e => {
+    if (e.target === charZoomBtn) return;
+    openCharLightbox();
+  };
+}
+
+if (charZoomBtn) {
+  charZoomBtn.onclick = e => {
+    e.stopPropagation();
+    openCharLightbox();
+  };
+}
+
 frames.forEach((b, i) => {
   b.onclick = () => {
     stopAutoPlay();
@@ -233,11 +388,13 @@ document.querySelector('.slideshow').onclick = () => {
 
 document.querySelector('.previous').onclick = () => {
   if (mode === 'relic') showRelicModal(currentFrame - 1);
+  else if (mode === 'char') stepCharLightbox(-1);
   else showFrame(currentFrame - 1);
 };
 
 document.querySelector('.next').onclick = () => {
   if (mode === 'relic') showRelicModal(currentFrame + 1);
+  else if (mode === 'char') stepCharLightbox(1);
   else showFrame(currentFrame + 1);
 };
 
@@ -267,10 +424,12 @@ dialog.onclick = e => {
 dialog.addEventListener('keydown', e => {
   if (e.key === 'ArrowRight') {
     if (mode === 'relic') showRelicModal(currentFrame + 1);
+    else if (mode === 'char') stepCharLightbox(1);
     else showFrame(currentFrame + 1);
   }
   if (e.key === 'ArrowLeft') {
     if (mode === 'relic') showRelicModal(currentFrame - 1);
+    else if (mode === 'char') stepCharLightbox(-1);
     else showFrame(currentFrame - 1);
   }
 });
