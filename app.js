@@ -466,23 +466,68 @@ const relNodesData = {
       '<strong>Với Linh & Gia đình Mót:</strong> Kẻ chủ mưu đứng sau thảm kịch đêm mưa năm 1818.',
       '<strong>Với Quan trường Đại Nam:</strong> Dùng đĩnh vàng Vạn Kim mua chuộc quan tham từ Lão Phú đến các đại thần.'
     ]
+  },
+  chame1818: {
+    tag: 'KHỞI NGUỒN ĐỊNH MỆNH · ĐÊM MƯA BÃO NĂM 1818',
+    name: 'Cha Mẹ Ruột Mót & Cha Ruột Linh — Vụ nổ ma trận và hai nửa chiếc vòng ngọc',
+    desc: 'Cha Mót và Cha Linh từng là hai học giả kiệt xuất của nhánh Huyền Uyên phục vụ dự án khống chế quỷ của Vạn Kim. Vì yêu mẹ Mót (một nữ Khâm Thiên Sứ), cha Mót quyết định hoàn lương, kích nổ hủy toàn bộ ma trận đêm mưa năm 1818. Trước khi hy sinh, cha mẹ Mót phong ấn năng lượng vào tay con và giấu Mót trong chiếc bình gốm ở Điện Voi Ré; còn cha Linh chết oan trong vụ nổ ngay trước mắt cô bé Linh 10 tuổi.',
+    links: [
+      '<strong>Với Mót:</strong> Để lại Cổ Phù Phong Ấn trên cánh tay và nửa chiếc vòng ngọc tín vật trong chiếc bình gốm.',
+      '<strong>Với Linh (Huyền Uyên):</strong> Cái chết của cha Linh trong vụ nổ khiến Linh ôm mối hận 18 năm trước khi biết chân tướng.',
+      '<strong>Với Hội Trưởng Vạn Kim:</strong> Phá hủy công trình điều khiển Quỷ Xương Cuồng đời đầu của Vạn Kim.'
+    ]
+  },
+  maho: {
+    tag: 'THỰC THỂ OÁN KHÍ & ĐẠI CỔ QUỶ',
+    name: 'Đại Ma Hổ (Hổ Quyền) & Quỷ Xương Cuồng (Đỉnh Tháp Vạn Kim)',
+    desc: 'Trong thế giới Sơn Hà Dị Lục, tà vật không tự nhiên sinh ra mà kết tụ từ lòng tham và tội ác của con người: Đại Ma Hổ hình thành từ oán hồn con mãnh hổ bị bẻ nanh, đâm chết trong chuồng số 3 cùng 100 bộ da hổ; còn Quỷ Xương Cuồng là đại cổ quỷ bị Hội trưởng Vạn Kim phong ấn vào thân xác Khánh Vũ để mưu đồ bá quyền.',
+    links: [
+      '<strong>Với Quản Chuồng Hổ & Lão Phú:</strong> Đại Ma Hổ vồ chết Quản Chuồng Hổ, nhét 5 chìa khóa sắt vào miệng để đòi nợ máu.',
+      '<strong>Với Mót & Đại Sơn:</strong> Bị Mót dùng Chưởng Cổ Phù Kim Quang và Hỏa Phù Kiếm của Đại Sơn hóa giải tại Hổ Quyền.',
+      '<strong>Với Khánh Vũ:</strong> Quỷ Xương Cuồng chiếm đoạt thân xác Vũ ở Thiên III trước khi bị Mót đánh tan để giải thoát cho bạn.'
+    ]
   }
 };
 
+const relBoardEl = document.querySelector('#rel-board');
 const relNodeBtns = document.querySelectorAll('[data-node]');
+const wireGroups = document.querySelectorAll('.wire-group');
 const relTagEl = document.querySelector('#rel-detail-tag');
 const relNameEl = document.querySelector('#rel-detail-name');
 const relDescEl = document.querySelector('#rel-detail-desc');
 const relLinksEl = document.querySelector('#rel-detail-links');
 
+function highlightNodeWires(nodeId) {
+  if (!relBoardEl) return;
+  if (!nodeId) {
+    relBoardEl.classList.remove('has-focus');
+    wireGroups.forEach(w => w.classList.remove('wire-active'));
+    return;
+  }
+  relBoardEl.classList.add('has-focus');
+  wireGroups.forEach(w => {
+    const isConnected = w.dataset.from === nodeId || w.dataset.to === nodeId;
+    w.classList.toggle('wire-active', isConnected);
+  });
+}
+
+function selectRelNode(btn) {
+  const nodeId = btn.dataset.node;
+  relNodeBtns.forEach(b => b.classList.toggle('active', b === btn));
+  highlightNodeWires(nodeId);
+  const data = relNodesData[nodeId];
+  if (!data) return;
+  relTagEl.textContent = data.tag;
+  relNameEl.textContent = data.name;
+  relDescEl.textContent = data.desc;
+  relLinksEl.innerHTML = data.links.map(item => `<span>${item}</span>`).join('');
+}
+
 relNodeBtns.forEach(btn => {
-  btn.onclick = () => {
-    relNodeBtns.forEach(b => b.classList.toggle('active', b === btn));
-    const data = relNodesData[btn.dataset.node];
-    if (!data) return;
-    relTagEl.textContent = data.tag;
-    relNameEl.textContent = data.name;
-    relDescEl.textContent = data.desc;
-    relLinksEl.innerHTML = data.links.map(item => `<span>${item}</span>`).join('');
-  };
+  btn.onclick = () => selectRelNode(btn);
+  btn.addEventListener('pointerenter', () => highlightNodeWires(btn.dataset.node));
+  btn.addEventListener('pointerleave', () => {
+    const activeBtn = document.querySelector('.rel-board .rel-node.active');
+    highlightNodeWires(activeBtn ? activeBtn.dataset.node : null);
+  });
 });

@@ -2474,3 +2474,252 @@ dialog::backdrop {
     padding: 0 16px 16px;
   }
 }
+
+
+/* ==========================================================================
+   VISUAL RELATIONSHIP BOARD WITH SVG CONNECTING WIRES & LABELS
+   ========================================================================== */
+.rel-legend {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin-top: 14px;
+  font-family: var(--font-sc);
+  font-size: 11px;
+  letter-spacing: 1.8px;
+  color: var(--bone);
+}
+
+.leg-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.leg-item i {
+  display: inline-block;
+  width: 28px;
+  height: 2px;
+}
+
+.leg-kin i {
+  background: #dfc08a;
+  box-shadow: 0 0 8px #dfc08a;
+}
+
+.leg-bond i {
+  background: #ef8e7d;
+  box-shadow: 0 0 8px #ef8e7d;
+}
+
+.leg-feud i {
+  border-top: 2px dashed #d93829;
+  background: none;
+}
+
+.rel-board-scroll {
+  overflow-x: auto;
+  padding-bottom: 10px;
+  scrollbar-color: var(--crimson) #0a0e0e;
+}
+
+.rel-board {
+  position: relative;
+  width: 1240px;
+  height: 770px;
+  margin: 0 auto;
+  background:
+    radial-gradient(circle at 50% 58%, rgba(150, 27, 21, 0.22), transparent 45%),
+    radial-gradient(circle at 50% 50%, rgba(189, 149, 91, 0.06), transparent 70%),
+    #060909;
+  border: 1px solid rgba(189, 149, 91, 0.28);
+  box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.9);
+}
+
+.rel-wires {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.wire-group {
+  transition: opacity 0.3s, filter 0.3s;
+}
+
+.wire-group path {
+  fill: none;
+  stroke-width: 2;
+  transition: stroke-width 0.3s;
+}
+
+.wire-kin path {
+  stroke: #dfc08a;
+}
+
+.wire-bond path {
+  stroke: #ef8e7d;
+  stroke-width: 2.3;
+}
+
+.wire-feud path {
+  stroke: #d93829;
+  stroke-dasharray: 7 5;
+}
+
+.wire-group rect {
+  fill: rgba(7, 10, 10, 0.92);
+  stroke: rgba(189, 149, 91, 0.42);
+  stroke-width: 1;
+}
+
+.wire-feud rect {
+  stroke: rgba(217, 56, 41, 0.65);
+  fill: rgba(28, 7, 7, 0.92);
+}
+
+.wire-bond rect {
+  stroke: rgba(239, 142, 125, 0.6);
+  fill: rgba(24, 10, 10, 0.92);
+}
+
+.wire-group text {
+  font-family: var(--font-body);
+  font-size: 11.5px;
+  fill: #ece2d0;
+  text-anchor: middle;
+}
+
+.rel-board.has-focus .wire-group:not(.wire-active) {
+  opacity: 0.16;
+}
+
+.rel-board.has-focus .wire-group.wire-active {
+  opacity: 1;
+  filter: drop-shadow(0 0 8px rgba(223, 192, 138, 0.65));
+}
+
+.rel-board.has-focus .wire-group.wire-active path {
+  stroke-width: 3.2;
+}
+
+/* Positioned Character Boxes on the 1280x780 Board */
+.rel-board .rel-node {
+  position: absolute;
+  z-index: 2;
+  width: 235px;
+  padding: 12px 15px;
+  transform: translate(-50%, -50%);
+  background: rgba(11, 15, 15, 0.96);
+  border: 1px solid rgba(189, 149, 91, 0.45);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.85);
+}
+
+.rel-board .rel-node strong {
+  font-size: 20px;
+  line-height: 1.15;
+}
+
+.rel-board .rel-node small {
+  font-size: 12.5px;
+  line-height: 1.35;
+}
+
+.rel-board .rel-node:hover,
+.rel-board .rel-node.active {
+  transform: translate(-50%, -53%) scale(1.03);
+  z-index: 5;
+}
+
+.rel-pos-ongan     { left: 16.5%; top: 11.5%; border-color: #7ea898; }
+.rel-pos-chame1818 { left: 50%;   top: 10.5%; width: 255px; border-color: #c9985b; }
+.rel-pos-hoitruong { left: 83.5%; top: 11.5%; border-color: #c93026; }
+
+.rel-pos-huong     { left: 13%;   top: 35.5%; border-color: #7ea898; }
+.rel-pos-daison    { left: 33.5%; top: 35.5%; border-color: #c9985b; }
+.rel-pos-linh      { left: 66.5%; top: 35.5%; border-color: #c93026; }
+.rel-pos-khanhvu   { left: 87%;   top: 35.5%; border-color: #d97538; }
+
+.rel-pos-mot {
+  left: 50%;
+  top: 59.5%;
+  width: 280px !important;
+  padding: 16px 20px !important;
+  border: 2px solid var(--gold-bright) !important;
+  background: linear-gradient(135deg, rgba(135, 22, 16, 0.85), rgba(14, 10, 10, 0.98)) !important;
+  box-shadow: 0 0 40px rgba(201, 48, 38, 0.5), 0 15px 40px rgba(0, 0, 0, 0.95) !important;
+}
+
+.rel-pos-kimlan    { left: 20.5%; top: 88%; border-color: #8ab09a; }
+.rel-pos-laophu    { left: 50%;   top: 88%; width: 255px; border-color: #b85a3a; }
+.rel-pos-maho      { left: 79.5%; top: 88%; border-color: #c93026; }
+
+/* Connected Faction Web Box */
+.faction-web-box {
+  background: rgba(7, 10, 10, 0.92);
+  border: 1px solid rgba(189, 149, 91, 0.32);
+  padding: 32px;
+}
+
+.factions-connected-grid {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 22px;
+  align-items: stretch;
+}
+
+.faction-middle-connector {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 12px;
+  color: var(--gold-bright);
+  font-family: var(--font-sc);
+  font-size: 10px;
+  letter-spacing: 2px;
+}
+
+.faction-middle-connector strong {
+  border: 1px solid var(--crimson);
+  background: rgba(120, 18, 14, 0.55);
+  padding: 6px 14px;
+  color: var(--cream);
+}
+
+.faction-middle-connector i {
+  width: 100%;
+  min-width: 140px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--gold), var(--crimson));
+}
+
+.fc-badge {
+  font-family: var(--font-sc);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--crimson);
+  margin-bottom: 6px;
+}
+
+.fc-wire-note {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px dashed rgba(189, 149, 91, 0.3);
+  font-size: 13.5px;
+  color: var(--gold-bright);
+}
+
+@media (max-width: 1024px) {
+  .factions-connected-grid {
+    grid-template-columns: 1fr;
+  }
+  .faction-middle-connector {
+    display: none;
+  }
+}
