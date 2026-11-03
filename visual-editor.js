@@ -1,7 +1,5 @@
 /**
- * GOSU VISUAL LIVE EDITOR (Inline Text, Image Replacer, Font & Theme Studio)
- * Cho phép bấm vào chữ để sửa trực tiếp, bấm vào ảnh để thay ảnh/chỉnh cỡ,
- * đổi Font chữ (Google Fonts hoặc tải file .ttf/.otf/.woff2 từ máy) và Lưu thẳng lên Web.
+ * GOSU VISUAL LIVE EDITOR V2 (Full Rich-Text Bar, Pinned Frame Buttons, Video Replacer, All-DOM Editable)
  */
 (function () {
   const STORAGE_KEY = 'gosu_visual_editor_overrides_v1';
@@ -9,9 +7,6 @@
   const ADMIN_UNLOCK_KEY = 'gosu_visual_editor_admin_v2';
   const ADMIN_PIN_SHA256 = '110209820ed294dbd46c55eb4de674a18c39fefac7b6f5de480213eaf757ed34';
   const LOCAL_SYNC_URL = 'http://127.0.0.1:8765/api/publish';
-  const LOCAL_STATUS_URL = 'http://127.0.0.1:8765/api/status';
-
-  let hasLocalBridge = false;
 
   function isAdminUnlocked() {
     return localStorage.getItem(ADMIN_UNLOCK_KEY) === ADMIN_PIN_SHA256;
@@ -30,7 +25,7 @@
     { label: 'Cormorant SC (Chữ hoa cổ điển)', value: "'Cormorant SC', serif", google: 'Cormorant+SC:wght@500;600;700' },
     { label: 'Playfair Display (Điện ảnh sang trọng)', value: "'Playfair Display', Georgia, serif", google: 'Playfair+Display:ital,wght@0,400;0,600;0,700;1,400' },
     { label: 'Cinzel (Hoàng cung uy nghi)', value: "'Cinzel', Georgia, serif", google: 'Cinzel:wght@400;600;700' },
-    { label: 'Prata (Sắc nét cổ풍)', value: "'Prata', Georgia, serif", google: 'Prata' },
+    { label: 'Prata (Sắc nét cổ phong)', value: "'Prata', Georgia, serif", google: 'Prata' },
     { label: 'Lora (Mềm mại truyền thống)', value: "'Lora', Georgia, serif", google: 'Lora:ital,wght@0,400;0,600;1,400' },
     { label: 'EB Garamond (Sử ký cổ đại)', value: "'EB Garamond', Georgia, serif", google: 'EB+Garamond:ital,wght@0,400;0,600;1,400' },
     { label: 'Noto Serif Display (Hiện đại sắc sảo)', value: "'Noto Serif Display', Georgia, serif", google: 'Noto+Serif+Display:ital,wght@0,400;0,600;1,400' },
@@ -40,7 +35,7 @@
   ];
 
   let overrides = {
-    version: 1,
+    version: 2,
     updatedAt: null,
     fonts: {
       display: '',
@@ -53,15 +48,23 @@
       customFaces: []
     },
     texts: {},
+    elementStyles: {},
     images: {},
     imageStyles: {},
+    videos: {
+      trailerUrl: '',
+      openingUrl: ''
+    },
     chars: null,
-    places: null
+    places: null,
+    relNodes: null
   };
 
   let isEditMode = false;
   let activeImgTarget = null;
-  let pendingAssets = []; // [{ filename, dataUrl }] for new image/font uploads
+  let activeTextTarget = null;
+  let activeVideoSlot = 'trailerUrl'; // 'trailerUrl' or 'openingUrl'
+  let pendingAssets = [];
 
   function showToast(msg, duration = 3200) {
     let toast = document.getElementById('ve-Toast');
@@ -86,53 +89,113 @@
     }
   }
 
-  // 1. Assign deterministic IDs to static text & images
+  // 1. Index every single nook & cranny across the DOM
   function indexDomElements() {
     const textSelectors = [
-      '.hero-meta span',
+      'header .brand > span',
+      'header nav > a',
+      'header .nav-drop-trigger',
+      'header .nav-drop-menu small',
+      'header .nav-drop-menu strong',
+      'header .menu-toggle',
+      '#film-menu .eyebrow',
+      '#film-menu a small',
+      '.hero-meta > span',
       '.hero-kicker',
-      '.hero h1 span',
+      '.hero h1 > span',
+      '.hero h1 sup',
       '.hero-sub',
-      '.hero-bottom span',
-      '.hero-bottom a',
+      '.hero-trailer-btn .trailer-btn-label',
+      '.round-link',
+      '.hero-bottom > span',
+      '.hero-bottom > a',
+      '.ticker > div',
       '.eyebrow',
+      '.chapter-mark',
       'h2',
+      'h3',
+      'h4',
       '.story-talisman span',
       '.story p',
-      '.script-dossier h3',
-      '.script-dossier h4',
+      'figcaption',
+      '.script-tab-btn small',
+      '.script-tab-btn strong',
       '.script-dossier p',
       '.script-dossier li',
       '.script-dossier blockquote',
-      '.wide-caption h2',
+      '.script-stat-card small',
+      '.script-stat-card strong',
+      '.script-stat-card span',
+      '.video-badge-bar span',
+      '.rel-board-header p',
+      '.rel-legend span',
+      '.rel-node small',
+      '.rel-node strong',
+      '.rel-node em',
+      '.faction-card h4',
+      '.faction-card p',
+      '.faction-card li',
+      '.fc-badge',
+      '.fc-wire-note',
+      '.faction-middle-connector strong',
+      '.faction-middle-connector span',
+      '.act-card small',
+      '.act-card h4',
+      '.act-card p',
+      '.act-card li',
       '.section-title p',
+      '.char-view-links button',
+      '#world .place > span',
+      '.principles .principle-item span',
       '.principles .principle-item small',
+      '.relic-filter',
+      '.relic-img-badge',
       '.relic-dossier span',
       '.relic-dossier h3',
       '.relic-dossier p',
       '.relic-dossier li',
+      '.relic-dossier .relic-Inspect-btn',
       '.relic-more-head p',
       '.relic-more-chip small',
       '.relic-more-chip strong',
       '.relic-more-chip span',
       '#gallery .gallery-sub',
+      '#gallery .gallery-actions button',
       '#gallery .frame-meta span',
       '#gallery .frame-meta strong',
       '#gallery .frame-meta small',
       '#gallery > .caption',
-      '#project .facts div',
-      'footer p',
+      '#project .fact-logo-item > span',
+      '#project .facts > div',
+      '#project > .button',
+      'footer .brand > span',
+      'footer > p',
       'footer > span',
-      '.footer-word'
+      '.footer-word',
+      '#trailer-placeholder h3',
+      '#trailer-placeholder p'
     ];
 
     const allTexts = document.querySelectorAll(textSelectors.join(','));
     allTexts.forEach((el, idx) => {
-      if (el.closest('#character-info') || el.closest('#ve-Toolbar') || el.closest('.ve-modal')) return;
-      if (el.querySelector('img')) return; // skip containers that wrap logos directly
+      if (
+        el.closest('#character-info') ||
+        el.closest('#ve-Toolbar') ||
+        el.closest('#ve-FormatBar') ||
+        el.closest('.ve-modal') ||
+        el.closest('.ve-pinned-bar') ||
+        el.id === 'place-title' ||
+        el.id === 'place-description' ||
+        el.id === 'rel-detail-tag' ||
+        el.id === 'rel-detail-name' ||
+        el.id === 'rel-detail-desc'
+      ) {
+        return;
+      }
+      if (el.querySelector('img')) return;
       if (!el.dataset.veId) {
         const tag = el.tagName.toLowerCase();
-        const sec = el.closest('section, header, footer')?.id || 'root';
+        const sec = el.closest('section, header, footer, aside, dialog')?.id || el.closest('section')?.className.split(' ')[0] || 'root';
         el.dataset.veId = `${sec}.${tag}.${idx}`;
       }
     });
@@ -142,14 +205,16 @@
       if (img.closest('.ve-modal') || img.closest('#lightbox')) return;
       if (img.id === 'portrait') {
         img.dataset.veImgId = 'char-portrait-dynamic';
+      } else if (img.classList.contains('heroart')) {
+        img.dataset.veImgId = 'hero-bg-main';
       } else if (!img.dataset.veImgId) {
-        const sec = img.closest('section, header, footer')?.id || 'root';
+        const sec = img.closest('section, header, footer')?.id || img.closest('section')?.className.split(' ')[0] || 'root';
         img.dataset.veImgId = `${sec}.img.${idx}`;
       }
     });
   }
 
-  // 2. Apply overrides (Fonts, Texts, Images, Dynamic Arrays)
+  // 2. Apply overrides (Fonts, Texts, Element Styles, Images, Videos, Dynamic Arrays)
   function ensureGoogleFontLoaded(googleSpec) {
     if (!googleSpec) return;
     const id = 've-gfont-' + googleSpec.replace(/[^a-z0-9]/gi, '');
@@ -165,7 +230,6 @@
     const f = overrides.fonts || {};
     const root = document.documentElement;
 
-    // Inject custom uploaded @font-face rules
     let styleEl = document.getElementById('ve-custom-font-faces');
     if (!styleEl) {
       styleEl = document.createElement('style');
@@ -190,7 +254,6 @@
       styleEl.textContent = '';
     }
 
-    // Load Google Font stylesheets if matching preset
     [f.display, f.body, f.serifAlt, f.sc].forEach(val => {
       if (!val) return;
       const preset = GOOGLE_FONT_PRESETS.find(p => p.value === val);
@@ -234,18 +297,41 @@
     }
   }
 
+  function applyElementStyleObject(el, st) {
+    if (!el || !st) return;
+    const props = ['fontWeight', 'fontStyle', 'textDecoration', 'textTransform', 'fontSize', 'letterSpacing', 'color', 'textAlign'];
+    props.forEach(p => {
+      if (st[p] !== undefined && st[p] !== '') el.style[p] = st[p];
+      else el.style.removeProperty(p.replace(/[A-Z]/g, m => '-' + m.toLowerCase()));
+    });
+  }
+
+  function rebuildCharacterTabs() {
+    const state = window.GOSU_STATE;
+    const tabsEl = document.querySelector('.tabs');
+    if (!state || !tabsEl) return;
+    tabsEl.innerHTML = '';
+    state.chars.forEach((c, i) => {
+      const b = document.createElement('button');
+      b.textContent = c[0];
+      b.setAttribute('role', 'tab');
+      b.setAttribute('aria-selected', String(i === state.getCurrentCharIndex()));
+      b.onclick = () => state.selectChar(i);
+      tabsEl.append(b);
+    });
+  }
+
   function applyAllOverrides() {
     indexDomElements();
     applyFontAndThemeOverrides();
 
     const state = window.GOSU_STATE;
     if (state) {
-      if (Array.isArray(overrides.chars) && overrides.chars.length === state.chars.length) {
-        overrides.chars.forEach((c, idx) => {
-          state.chars[idx] = [...c];
-        });
-        state.refreshTabs();
-        state.updateCharStage();
+      if (Array.isArray(overrides.chars) && overrides.chars.length > 0) {
+        state.chars.length = 0;
+        overrides.chars.forEach(c => state.chars.push([...c]));
+        rebuildCharacterTabs();
+        state.selectChar(Math.min(state.getCurrentCharIndex(), state.chars.length - 1));
       }
       if (Array.isArray(overrides.places) && overrides.places.length === state.places.length) {
         overrides.places.forEach((p, idx) => {
@@ -258,12 +344,43 @@
         if (pTitle && state.places[pIdx]) pTitle.textContent = state.places[pIdx][0];
         if (pDesc && state.places[pIdx]) pDesc.textContent = state.places[pIdx][1];
       }
+      if (overrides.relNodes && state.relNodesData) {
+        Object.entries(overrides.relNodes).forEach(([nodeId, data]) => {
+          if (state.relNodesData[nodeId]) {
+            state.relNodesData[nodeId] = { ...state.relNodesData[nodeId], ...data };
+          }
+        });
+      }
+    }
+
+    // Apply videos
+    if (overrides.videos) {
+      if (overrides.videos.trailerUrl !== undefined) {
+        window.GOSU_TRAILER_URL = overrides.videos.trailerUrl;
+      }
+      if (overrides.videos.openingUrl) {
+        const opVideo = document.querySelector('#tab-opening video');
+        const opSource = opVideo?.querySelector('source');
+        if (opVideo && opSource) {
+          opSource.src = overrides.videos.openingUrl;
+          opVideo.load();
+        }
+      }
     }
 
     // Apply static text overrides
     Object.entries(overrides.texts || {}).forEach(([veId, html]) => {
       const el = document.querySelector(`[data-ve-id="${veId}"]`);
-      if (el) el.innerHTML = html;
+      if (el) {
+        el.innerHTML = html;
+        syncGalleryMetaIfInsideCard(el);
+      }
+    });
+
+    // Apply custom per-element styles (bold, italic, uppercase, fontSize, color, align)
+    Object.entries(overrides.elementStyles || {}).forEach(([veId, st]) => {
+      const el = document.querySelector(`[data-ve-id="${veId}"]`);
+      if (el) applyElementStyleObject(el, st);
     });
 
     // Apply image src overrides
@@ -273,21 +390,36 @@
         img.src = src;
         const galleryBtn = img.closest('#still-gallery [data-image]');
         if (galleryBtn) galleryBtn.dataset.image = src;
+        const relicCard = img.closest('.relic-card[data-relic-index]');
+        if (relicCard && state && state.relicData) {
+          const rIdx = Number(relicCard.dataset.relicIndex) - 1;
+          if (state.relicData[rIdx]) state.relicData[rIdx].src = src;
+        }
       }
     });
 
-    // Apply image style overrides (height, objectFit)
+    // Apply image style overrides
     Object.entries(overrides.imageStyles || {}).forEach(([imgId, st]) => {
       const img = document.querySelector(`img[data-ve-img-id="${imgId}"]`);
       if (img && st) {
         if (st.height) img.style.height = st.height;
         if (st.width) img.style.width = st.width;
         if (st.objectFit) img.style.objectFit = st.objectFit;
+        if (st.objectPosition) img.style.objectPosition = st.objectPosition;
       }
     });
   }
 
-  // 3. Bind dynamic character & place inline edits
+  function syncGalleryMetaIfInsideCard(el) {
+    const galleryBtn = el.closest?.('#still-gallery [data-image]');
+    if (!galleryBtn) return;
+    const titleEl = galleryBtn.querySelector('.frame-meta strong');
+    const capEl = galleryBtn.querySelector('.frame-meta small');
+    if (titleEl) galleryBtn.dataset.title = titleEl.textContent.trim();
+    if (capEl) galleryBtn.dataset.caption = capEl.textContent.trim();
+  }
+
+  // 3. Bind dynamic character, place & relationship web inline edits
   function bindDynamicCharEdits() {
     const charInfo = document.getElementById('character-info');
     const state = window.GOSU_STATE;
@@ -307,20 +439,26 @@
 
     fields.forEach(({ el, idx, isTabName }) => {
       if (!el) return;
-      el.dataset.veEditable = 'true';
+      el.dataset.veEditable = isEditMode ? 'true' : 'false';
       el.contentEditable = isEditMode ? 'true' : 'false';
+      el.onfocus = () => setActiveTextTarget(el);
       el.oninput = () => {
         const cIdx = state.getCurrentCharIndex();
-        state.chars[cIdx][idx] = el.textContent.trim();
-        if (isTabName) state.refreshTabs();
+        state.chars[cIdx][idx] = el.innerHTML.trim();
+        if (isTabName) {
+          state.chars[cIdx][0] = el.textContent.trim();
+          state.refreshTabs();
+        }
         overrides.chars = state.chars.map(row => [...row]);
         saveLocalDraft();
       };
     });
 
+    const portraitSeal = document.getElementById('portrait-seal');
     if (portraitSeal) {
-      portraitSeal.dataset.veEditable = 'true';
+      portraitSeal.dataset.veEditable = isEditMode ? 'true' : 'false';
       portraitSeal.contentEditable = isEditMode ? 'true' : 'false';
+      portraitSeal.onfocus = () => setActiveTextTarget(portraitSeal);
       portraitSeal.oninput = () => {
         const cIdx = state.getCurrentCharIndex();
         state.chars[cIdx][5] = portraitSeal.textContent.trim();
@@ -330,7 +468,6 @@
     }
   }
 
-  const portraitSeal = document.getElementById('portrait-seal');
   window.addEventListener('gosu:char-updated', () => {
     bindDynamicCharEdits();
   });
@@ -342,19 +479,38 @@
       el.contentEditable = enable ? 'true' : 'false';
       if (enable && !el._veBound) {
         el._veBound = true;
+        el.addEventListener('focus', () => setActiveTextTarget(el));
         el.addEventListener('input', () => {
           overrides.texts[el.dataset.veId] = el.innerHTML;
+          syncGalleryMetaIfInsideCard(el);
           saveLocalDraft();
         });
-        el.addEventListener('click', e => {
-          if (isEditMode && (el.tagName === 'A' || el.closest('a'))) {
-            e.preventDefault();
-          }
-        });
+        el.addEventListener(
+          'click',
+          e => {
+            if (!isEditMode) return;
+            // Allow normal tab switching on script tabs, place buttons, char view buttons
+            if (
+              el.closest('.script-tab-btn') ||
+              el.closest('.char-view-btn') ||
+              el.closest('[data-place]') ||
+              el.closest('.rel-node') ||
+              el.closest('.relic-filter')
+            ) {
+              return;
+            }
+            if (el.tagName === 'A' || el.closest('a') || el.closest('button')) {
+              e.preventDefault();
+              e.stopPropagation();
+              el.focus();
+            }
+          },
+          true
+        );
       }
     });
 
-    // Bind World Place Title & Description
+    // World Place Title & Description
     const pTitle = document.getElementById('place-title');
     const pDesc = document.getElementById('place-description');
     [
@@ -366,6 +522,7 @@
       el.contentEditable = enable ? 'true' : 'false';
       if (enable && !el._vePlaceBound) {
         el._vePlaceBound = true;
+        el.addEventListener('focus', () => setActiveTextTarget(el));
         el.addEventListener('input', () => {
           const state = window.GOSU_STATE;
           if (!state) return;
@@ -380,10 +537,322 @@
       }
     });
 
+    // Relationship Web Detail Panel (#rel-detail-tag, #rel-detail-name, #rel-detail-desc)
+    const relTagEl = document.getElementById('rel-detail-tag');
+    const relNameEl = document.getElementById('rel-detail-name');
+    const relDescEl = document.getElementById('rel-detail-desc');
+    [
+      { el: relTagEl, key: 'tag' },
+      { el: relNameEl, key: 'name' },
+      { el: relDescEl, key: 'desc' }
+    ].forEach(({ el, key }) => {
+      if (!el) return;
+      el.dataset.veEditable = enable ? 'true' : 'false';
+      el.contentEditable = enable ? 'true' : 'false';
+      if (enable && !el._veRelBound) {
+        el._veRelBound = true;
+        el.addEventListener('focus', () => setActiveTextTarget(el));
+        el.addEventListener('input', () => {
+          const state = window.GOSU_STATE;
+          const selectedBtn = document.querySelector('.rel-node.is-selected') || document.querySelector('.rel-node.active');
+          const nodeId = selectedBtn ? selectedBtn.dataset.node : 'mot';
+          if (state && state.relNodesData && state.relNodesData[nodeId]) {
+            state.relNodesData[nodeId][key] = el.textContent.trim();
+            overrides.relNodes = overrides.relNodes || {};
+            overrides.relNodes[nodeId] = { ...state.relNodesData[nodeId] };
+            saveLocalDraft();
+          }
+        });
+      }
+    });
+
     bindDynamicCharEdits();
+
+    if (!enable) {
+      const fmtBar = document.getElementById('ve-FormatBar');
+      if (fmtBar) fmtBar.classList.remove('is-visible');
+    }
   }
 
-  // 4. Image Replacer Modal & Hover Badge
+  // 4. Rich-Text Formatting Bar Logic
+  function setActiveTextTarget(el) {
+    if (!isEditMode || !el) return;
+    activeTextTarget = el;
+    const fmtBar = document.getElementById('ve-FormatBar');
+    if (!fmtBar) return;
+    fmtBar.classList.add('is-visible');
+
+    const comp = window.getComputedStyle(el);
+    const sizePx = Math.round(parseFloat(comp.fontSize) || 16);
+    const sizeInput = document.getElementById('ve-FmtSizeInput');
+    if (sizeInput) sizeInput.value = sizePx;
+
+    document.getElementById('ve-FmtBoldBtn')?.classList.toggle('is-active', parseInt(comp.fontWeight, 10) >= 600 || comp.fontWeight === 'bold');
+    document.getElementById('ve-FmtItalicBtn')?.classList.toggle('is-active', comp.fontStyle === 'italic');
+    document.getElementById('ve-FmtUpperBtn')?.classList.toggle('is-active', comp.textTransform === 'uppercase');
+    document.getElementById('ve-FmtLowerBtn')?.classList.toggle('is-active', comp.textTransform === 'lowercase');
+    document.getElementById('ve-FmtCapBtn')?.classList.toggle('is-active', comp.textTransform === 'capitalize');
+  }
+
+  function hasNonEmptySelectionInside(el) {
+    const sel = window.getSelection();
+    if (!sel || sel.isCollapsed || !sel.rangeCount) return false;
+    return el.contains(sel.anchorNode);
+  }
+
+  function saveElementStyleAndText(el) {
+    if (!el) return;
+    const veId = el.dataset.veId;
+    if (veId) {
+      overrides.texts[veId] = el.innerHTML;
+      overrides.elementStyles = overrides.elementStyles || {};
+      overrides.elementStyles[veId] = {
+        fontWeight: el.style.fontWeight || '',
+        fontStyle: el.style.fontStyle || '',
+        textDecoration: el.style.textDecoration || '',
+        textTransform: el.style.textTransform || '',
+        fontSize: el.style.fontSize || '',
+        letterSpacing: el.style.letterSpacing || '',
+        color: el.style.color || '',
+        textAlign: el.style.textAlign || ''
+      };
+    }
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+    saveLocalDraft();
+    setActiveTextTarget(el);
+  }
+
+  function applyRichFormat(action, value) {
+    const el = activeTextTarget;
+    if (!el) {
+      showToast('Hãy bấm chuột vào dòng chữ cần định dạng trước!');
+      return;
+    }
+    el.focus();
+    const hasSel = hasNonEmptySelectionInside(el);
+    const comp = window.getComputedStyle(el);
+
+    if (action === 'bold') {
+      if (hasSel) {
+        document.execCommand('bold', false, null);
+      } else {
+        const isBold = parseInt(comp.fontWeight, 10) >= 600 || comp.fontWeight === 'bold';
+        el.style.fontWeight = isBold ? '400' : '700';
+      }
+    } else if (action === 'italic') {
+      if (hasSel) {
+        document.execCommand('italic', false, null);
+      } else {
+        el.style.fontStyle = comp.fontStyle === 'italic' ? 'normal' : 'italic';
+      }
+    } else if (action === 'underline') {
+      if (hasSel) {
+        document.execCommand('underline', false, null);
+      } else {
+        el.style.textDecoration = comp.textDecorationLine.includes('underline') ? 'none' : 'underline';
+      }
+    } else if (action === 'uppercase') {
+      if (hasSel) {
+        const sel = window.getSelection();
+        document.execCommand('insertText', false, sel.toString().toUpperCase());
+      } else {
+        el.style.textTransform = comp.textTransform === 'uppercase' ? 'none' : 'uppercase';
+      }
+    } else if (action === 'lowercase') {
+      if (hasSel) {
+        const sel = window.getSelection();
+        document.execCommand('insertText', false, sel.toString().toLowerCase());
+      } else {
+        el.style.textTransform = comp.textTransform === 'lowercase' ? 'none' : 'lowercase';
+      }
+    } else if (action === 'capitalize') {
+      if (hasSel) {
+        const sel = window.getSelection();
+        const cap = sel
+          .toString()
+          .toLowerCase()
+          .replace(/(^|\s)\S/g, m => m.toUpperCase());
+        document.execCommand('insertText', false, cap);
+      } else {
+        el.style.textTransform = comp.textTransform === 'capitalize' ? 'none' : 'capitalize';
+      }
+    } else if (action === 'fontSizeDelta') {
+      const cur = Math.round(parseFloat(comp.fontSize) || 16);
+      const next = Math.max(9, Math.min(220, cur + Number(value)));
+      el.style.fontSize = `${next}px`;
+    } else if (action === 'fontSizeExact') {
+      const next = Math.max(9, Math.min(220, Number(value) || 16));
+      el.style.fontSize = `${next}px`;
+    } else if (action === 'letterSpacingDelta') {
+      const cur = parseFloat(comp.letterSpacing) || 0;
+      const next = Math.max(-2, Math.min(24, Math.round((cur + Number(value)) * 2) / 2));
+      el.style.letterSpacing = `${next}px`;
+    } else if (action === 'color') {
+      if (hasSel) {
+        document.execCommand('foreColor', false, value);
+      } else {
+        el.style.color = value;
+      }
+    } else if (action === 'align') {
+      el.style.textAlign = value;
+    } else if (action === 'clear') {
+      ['fontWeight', 'fontStyle', 'textDecoration', 'textTransform', 'fontSize', 'letterSpacing', 'color', 'textAlign'].forEach(p =>
+        el.style.removeProperty(p.replace(/[A-Z]/g, m => '-' + m.toLowerCase()))
+      );
+      if (hasSel) document.execCommand('removeFormat', false, null);
+    }
+
+    saveElementStyleAndText(el);
+  }
+
+  // 5. Pinned Frame Buttons & Deep Image Detection (Fixes Hero Frame 1 & Overlays)
+  function injectPinnedFrameButtons() {
+    // 1. Hero Frame 1
+    const heroSec = document.querySelector('.hero');
+    const heroImg = document.querySelector('.hero .heroart');
+    if (heroSec && heroImg && !heroSec.querySelector('.ve-pinned-bar')) {
+      const bar = document.createElement('div');
+      bar.className = 've-pinned-bar';
+      bar.innerHTML = `
+        <button type="button" class="ve-pin-btn" id="ve-PinHeroBgBtn">🖼 ĐỔI ẢNH NỀN FRAME ĐẦU (HERO)</button>
+        <button type="button" class="ve-pin-btn" id="ve-PinTrailerVidBtn">🎬 ĐỔI VIDEO TRAILER / MOODBOARD</button>
+      `;
+      heroSec.appendChild(bar);
+      document.getElementById('ve-PinHeroBgBtn').onclick = e => {
+        e.stopPropagation();
+        openImageModal(heroImg);
+      };
+      document.getElementById('ve-PinTrailerVidBtn').onclick = e => {
+        e.stopPropagation();
+        openVideoModal('trailerUrl');
+      };
+    }
+
+    // 2. Story Image
+    const storyFig = document.querySelector('.story-image');
+    const storyImg = storyFig?.querySelector('img');
+    if (storyFig && storyImg && !storyFig.querySelector('.ve-pinned-bar')) {
+      storyFig.style.position = 'relative';
+      const bar = document.createElement('div');
+      bar.className = 've-pinned-bar';
+      bar.innerHTML = `<button type="button" class="ve-pin-btn">🖼 ĐỔI ẢNH CHƯƠNG I</button>`;
+      bar.querySelector('button').onclick = e => {
+        e.stopPropagation();
+        openImageModal(storyImg);
+      };
+      storyFig.appendChild(bar);
+    }
+
+    // 3. Script Opening Video
+    const vidShell = document.querySelector('.video-frame-shell');
+    if (vidShell && !vidShell.querySelector('.ve-pinned-bar')) {
+      const bar = document.createElement('div');
+      bar.className = 've-pinned-bar';
+      bar.innerHTML = `<button type="button" class="ve-pin-btn">🎬 ĐỔI VIDEO MỞ ĐẦU (HỒI I)</button>`;
+      bar.querySelector('button').onclick = e => {
+        e.stopPropagation();
+        openVideoModal('openingUrl');
+      };
+      vidShell.appendChild(bar);
+    }
+
+    // 4. Wide Image Banner
+    const wideSec = document.querySelector('.wide-image');
+    const wideImg = wideSec?.querySelector('img');
+    if (wideSec && wideImg && !wideSec.querySelector('.ve-pinned-bar')) {
+      const bar = document.createElement('div');
+      bar.className = 've-pinned-bar';
+      bar.innerHTML = `<button type="button" class="ve-pin-btn">🖼 ĐỔI ẢNH BANNER NGANG</button>`;
+      bar.querySelector('button').onclick = e => {
+        e.stopPropagation();
+        openImageModal(wideImg);
+      };
+      wideSec.appendChild(bar);
+    }
+
+    // 5. Character Portrait Box
+    const portBox = document.getElementById('portrait-box');
+    const portImg = document.getElementById('portrait');
+    if (portBox && portImg && !portBox.querySelector('.ve-pinned-bar')) {
+      const bar = document.createElement('div');
+      bar.className = 've-pinned-bar';
+      bar.innerHTML = `<button type="button" class="ve-pin-btn">🖼 ĐỔI ẢNH NHÂN VẬT NÀY</button>`;
+      bar.querySelector('button').onclick = e => {
+        e.stopPropagation();
+        openImageModal(portImg);
+      };
+      portBox.appendChild(bar);
+    }
+
+    // 6. Add/Delete Character buttons under .tabs
+    const tabsEl = document.querySelector('#characters .tabs');
+    if (tabsEl && !document.getElementById('ve-CharAdminBar')) {
+      const adminBar = document.createElement('div');
+      adminBar.id = 've-CharAdminBar';
+      adminBar.className = 've-char-admin-bar';
+      adminBar.innerHTML = `
+        <button type="button" class="ve-btn" id="ve-AddCharBtn">+ THÊM NHÂN VẬT</button>
+        <button type="button" class="ve-btn" id="ve-DelCharBtn">🗑 XÓA NHÂN VẬT</button>
+      `;
+      tabsEl.parentNode.insertBefore(adminBar, tabsEl.nextSibling);
+
+      document.getElementById('ve-AddCharBtn').onclick = () => {
+        const state = window.GOSU_STATE;
+        if (!state) return;
+        const newChar = [
+          'Nhân Vật Mới',
+          'PHÚ XUÂN 1836 · HỒ SƠ MỚI',
+          'assets/159.jpg',
+          'Nhập tiểu sử và thân thế của nhân vật tại đây...',
+          '“Nhập câu thoại đặc trưng của nhân vật...”',
+          '新角',
+          'assets/characters/mot-3view.webp',
+          'assets/characters/mot-sheet.webp'
+        ];
+        state.chars.push(newChar);
+        overrides.chars = state.chars.map(r => [...r]);
+        rebuildCharacterTabs();
+        state.selectChar(state.chars.length - 1);
+        enableInlineEditing(isEditMode);
+        saveLocalDraft();
+        showToast('Đã thêm nhân vật mới! Hãy bấm vào tên và tiểu sử để sửa.');
+      };
+
+      document.getElementById('ve-DelCharBtn').onclick = () => {
+        const state = window.GOSU_STATE;
+        if (!state || state.chars.length <= 1) return;
+        const idx = state.getCurrentCharIndex();
+        if (!confirm(`Bạn có chắc muốn xóa nhân vật "${state.chars[idx][0]}"?`)) return;
+        state.chars.splice(idx, 1);
+        overrides.chars = state.chars.map(r => [...r]);
+        rebuildCharacterTabs();
+        state.selectChar(Math.max(0, idx - 1));
+        enableInlineEditing(isEditMode);
+        saveLocalDraft();
+        showToast('Đã xóa nhân vật.');
+      };
+    }
+  }
+
+  function findImgAtPoint(clientX, clientY, target) {
+    if (target && target.tagName === 'IMG' && target.dataset.veImgId) return target;
+    const els = document.elementsFromPoint(clientX, clientY);
+    for (const el of els) {
+      if (
+        el.id === 've-Toolbar' ||
+        el.id === 've-FormatBar' ||
+        el.classList?.contains('ve-modal-backdrop') ||
+        el.classList?.contains('ve-pinned-bar')
+      ) {
+        return null;
+      }
+      if (el.tagName === 'IMG' && el.dataset.veImgId) {
+        return el;
+      }
+    }
+    return null;
+  }
+
   function setupImageEditor() {
     const badge = document.createElement('button');
     badge.id = 've-ImgHoverBadge';
@@ -398,21 +867,17 @@
         badge.style.display = 'none';
         return;
       }
-      const t = e.target;
-      if (t && t.tagName === 'IMG' && t.dataset.veImgId) {
-        hoveredImg = t;
-        const rect = t.getBoundingClientRect();
+      if (e.target === badge || badge.contains(e.target)) return;
+      const foundImg = findImgAtPoint(e.clientX, e.clientY, e.target);
+      if (foundImg) {
+        hoveredImg = foundImg;
+        const rect = foundImg.getBoundingClientRect();
         badge.style.display = 'block';
-        badge.style.top = `${Math.max(8, rect.top + 8)}px`;
-        badge.style.left = `${Math.max(8, rect.left + 8)}px`;
-      } else if (t !== badge && ! badge.contains(t)) {
-        if (hoveredImg) {
-          const r = hoveredImg.getBoundingClientRect();
-          if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) {
-            badge.style.display = 'none';
-            hoveredImg = null;
-          }
-        }
+        badge.style.top = `${Math.max(70, Math.min(window.innerHeight - 60, rect.top + 12))}px`;
+        badge.style.left = `${Math.max(12, Math.min(window.innerWidth - 180, rect.left + 12))}px`;
+      } else {
+        badge.style.display = 'none';
+        hoveredImg = null;
       }
     });
 
@@ -422,13 +887,21 @@
       if (hoveredImg) openImageModal(hoveredImg);
     };
 
-    // Intercept clicks on any image or parent button when in Edit Mode
     document.addEventListener(
       'click',
       e => {
         if (!isEditMode) return;
-        const img = e.target.tagName === 'IMG' ? e.target : e.target.querySelector?.('img[data-ve-img-id]');
-        if (img && img.dataset.veImgId && !img.closest('.ve-modal')) {
+        if (
+          e.target.closest('#ve-Toolbar') ||
+          e.target.closest('#ve-FormatBar') ||
+          e.target.closest('.ve-modal') ||
+          e.target.closest('.ve-pinned-bar') ||
+          e.target.closest('[data-ve-editable="true"]')
+        ) {
+          return;
+        }
+        const img = findImgAtPoint(e.clientX, e.clientY, e.target);
+        if (img && img.dataset.veImgId) {
           e.preventDefault();
           e.stopPropagation();
           openImageModal(img);
@@ -442,7 +915,6 @@
     const reader = new FileReader();
     reader.onload = e => {
       const dataUrl = e.target.result;
-      // Keep PNG/SVG/WebP as-is if under 1.8MB or if PNG logo
       if (file.type === 'image/png' || file.type === 'image/svg+xml' || file.size < 900 * 1024) {
         callback(dataUrl, file.name);
         return;
@@ -462,7 +934,7 @@
         canvas.height = h;
         const ctx = canvas.getContext('2d');
         ctx.drawImage(img, 0, 0, w, h);
-        const webpUrl = canvas.toDataURL('image/webp', 0.88);
+        const webpUrl = canvas.toDataURL('image/webp', 0.89);
         const safeName = file.name.replace(/\.[^.]+$/, '') + '.webp';
         callback(webpUrl, safeName);
       };
@@ -487,8 +959,10 @@
       const mode = state.getCharViewMode();
       const modeName = mode === 'avatar' ? 'Chân dung (Avatar)' : mode === 'turnaround' ? 'Full 3 Mặt' : 'Bảng Thiết Kế';
       targetInfo.textContent = `Đang thay ảnh nhân vật: ${c[0]} — Góc nhìn: ${modeName}`;
+    } else if (imgId === 'hero-bg-main') {
+      targetInfo.textContent = 'Đang thay Ảnh Nền Frame Đầu Tiên (Hero Background)';
     } else {
-      targetInfo.textContent = `Mã vị trí ảnh: ${imgId} (${imgEl.alt || 'Hình ảnh trên trang'})`;
+      targetInfo.textContent = `Vị trí ảnh: ${imgId} (${imgEl.alt || 'Hình ảnh trên trang'})`;
     }
 
     urlInput.value = imgEl.getAttribute('src') || '';
@@ -522,6 +996,11 @@
         overrides.images[imgId] = newSrc;
         const galleryBtn = activeImgTarget.closest('#still-gallery [data-image]');
         if (galleryBtn) galleryBtn.dataset.image = newSrc;
+        const relicCard = activeImgTarget.closest('.relic-card[data-relic-index]');
+        if (relicCard && state && state.relicData) {
+          const rIdx = Number(relicCard.dataset.relicIndex) - 1;
+          if (state.relicData[rIdx]) state.relicData[rIdx].src = newSrc;
+        }
       }
     }
 
@@ -553,7 +1032,35 @@
     showToast('Đã cập nhật hình ảnh! Bấm "Lưu Lên Web" để xuất bản.');
   }
 
-  // 5. Font & Theme Modal
+  // 6. Video Replacer Modal (Trailer Moodboard & Opening Video)
+  function openVideoModal(slot) {
+    activeVideoSlot = slot || 'trailerUrl';
+    const modal = document.getElementById('ve-VideoModal');
+    const urlInput = document.getElementById('ve-VidUrlInput');
+    const titleEl = document.getElementById('ve-VidModalTitle');
+    overrides.videos = overrides.videos || {};
+    if (activeVideoSlot === 'trailerUrl') {
+      titleEl.textContent = 'Đổi Video Trailer · Moodboard Dự Án (Frame Đầu)';
+      urlInput.value = overrides.videos.trailerUrl || window.GOSU_TRAILER_URL || '';
+    } else {
+      titleEl.textContent = 'Đổi Video Mở Đầu Kịch Bản (Chương I)';
+      urlInput.value = overrides.videos.openingUrl || 'assets/video/opening-1836.mp4';
+    }
+    modal.classList.add('is-open');
+  }
+
+  function applyVideoModalChange() {
+    const urlInput = document.getElementById('ve-VidUrlInput');
+    const val = urlInput.value.trim();
+    overrides.videos = overrides.videos || {};
+    overrides.videos[activeVideoSlot] = val;
+    applyAllOverrides();
+    saveLocalDraft();
+    document.getElementById('ve-VideoModal').classList.remove('is-open');
+    showToast('✅ Đã cập nhật đường dẫn Video! Bấm "Lưu Lên Web" để xuất bản.');
+  }
+
+  // 7. Font & Theme Modal
   function openFontModal() {
     const modal = document.getElementById('ve-FontModal');
     const f = overrides.fonts || {};
@@ -590,7 +1097,7 @@
     });
   }
 
-  // 6. Publish to Web (Local Sync Server OR GitHub API)
+  // 8. Publish to Web (Local Sync Server OR GitHub API)
   async function publishToWeb() {
     const btn = document.getElementById('ve-PublishBtn');
     const origText = btn.innerHTML;
@@ -599,10 +1106,9 @@
 
     saveLocalDraft();
 
-    // Step A: Try Local Sync Bridge (http://127.0.0.1:8765/api/publish)
     try {
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 15000);
+      const timeout = setTimeout(() => controller.abort(), 20000);
       const res = await fetch(LOCAL_SYNC_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -626,11 +1132,8 @@
         showToast('✅ Đã lưu & đẩy thẳng lên gosucinema.web.id thành công!', 4500);
         return;
       }
-    } catch (_) {
-      // Local sync server not reachable, fallback to GitHub API or Export
-    }
+    } catch (_) {}
 
-    // Step B: Try GitHub Contents API if token is configured
     let ghToken = localStorage.getItem(GH_TOKEN_KEY) || '';
     if (!ghToken) {
       btn.innerHTML = origText;
@@ -654,7 +1157,6 @@
         'Content-Type': 'application/json'
       };
 
-      // Upload any pending assets first so overrides use clean paths
       for (const asset of pendingAssets) {
         const commaIdx = asset.dataUrl.indexOf(',');
         if (commaIdx === -1) continue;
@@ -676,7 +1178,6 @@
           })
         });
         if (putAsset.ok) {
-          // Replace dataUrl reference in overrides with assetPath
           const jsonStr = JSON.stringify(overrides).split(JSON.stringify(asset.dataUrl)).join(JSON.stringify(assetPath));
           overrides = JSON.parse(jsonStr);
         }
@@ -722,9 +1223,8 @@
     }
   }
 
-  // 7. Build Visual Editor UI
+  // 9. Build Visual Editor UI
   function buildEditorUI() {
-    // Launcher button (hidden for normal public visitors unless Admin is unlocked)
     const launcher = document.createElement('button');
     launcher.id = 've-Launcher';
     launcher.type = 'button';
@@ -735,18 +1235,76 @@
     }
     document.body.appendChild(launcher);
 
-    // Floating Toolbar
+    // Top Rich-Text Formatting Bar
+    const fmtBar = document.createElement('div');
+    fmtBar.id = 've-FormatBar';
+    fmtBar.innerHTML = `
+      <div class="ve-fmt-group">
+        <button type="button" class="ve-fmt-btn" id="ve-FmtBoldBtn" title="In đậm (Bold)"><b>B</b></button>
+        <button type="button" class="ve-fmt-btn" id="ve-FmtItalicBtn" title="In nghiêng (Italic)"><i>I</i></button>
+        <button type="button" class="ve-fmt-btn" id="ve-FmtUnderBtn" title="Gạch chân (Underline)"><u>U</u></button>
+      </div>
+      <div class="ve-fmt-group">
+        <button type="button" class="ve-fmt-btn" id="ve-FmtUpperBtn" title="CHỮ IN HOA (UPPERCASE)">HOA</button>
+        <button type="button" class="ve-fmt-btn" id="ve-FmtLowerBtn" title="chữ thường (lowercase)">thường</button>
+        <button type="button" class="ve-fmt-btn" id="ve-FmtCapBtn" title="Viết Hoa Đầu Từ (Capitalize)">Hoa Đầu</button>
+      </div>
+      <div class="ve-fmt-group">
+        <button type="button" class="ve-fmt-btn" id="ve-FmtSizeDecBtn" title="Giảm cỡ chữ">A-</button>
+        <input type="number" class="ve-fmt-input" id="ve-FmtSizeInput" title="Cỡ chữ (px)" min="9" max="220" value="16">
+        <button type="button" class="ve-fmt-btn" id="ve-FmtSizeIncBtn" title="Tăng cỡ chữ">A+</button>
+      </div>
+      <div class="ve-fmt-group">
+        <button type="button" class="ve-fmt-btn" id="ve-FmtTrackDecBtn" title="Thu hẹp khoảng cách chữ">↔-</button>
+        <button type="button" class="ve-fmt-btn" id="ve-FmtTrackIncBtn" title="Giãn khoảng cách chữ">↔+</button>
+      </div>
+      <div class="ve-fmt-group">
+        <input type="color" class="ve-fmt-color" id="ve-FmtColorInput" value="#dfc08a" title="Đổi màu chữ đang chọn">
+        <button type="button" class="ve-fmt-btn" id="ve-FmtAlignLeftBtn" title="Căn trái">⬅</button>
+        <button type="button" class="ve-fmt-btn" id="ve-FmtAlignCenterBtn" title="Căn giữa">⬌</button>
+        <button type="button" class="ve-fmt-btn" id="ve-FmtAlignRightBtn" title="Căn phải">➡</button>
+      </div>
+      <div class="ve-fmt-group">
+        <button type="button" class="ve-fmt-btn" id="ve-FmtClearBtn" title="Khôi phục định dạng gốc của dòng này">↺ GỐC</button>
+      </div>
+    `;
+    document.body.appendChild(fmtBar);
+
+    // Prevent format bar buttons from stealing text selection focus
+    fmtBar.querySelectorAll('button').forEach(b => {
+      b.addEventListener('mousedown', e => e.preventDefault());
+    });
+
+    document.getElementById('ve-FmtBoldBtn').onclick = () => applyRichFormat('bold');
+    document.getElementById('ve-FmtItalicBtn').onclick = () => applyRichFormat('italic');
+    document.getElementById('ve-FmtUnderBtn').onclick = () => applyRichFormat('underline');
+    document.getElementById('ve-FmtUpperBtn').onclick = () => applyRichFormat('uppercase');
+    document.getElementById('ve-FmtLowerBtn').onclick = () => applyRichFormat('lowercase');
+    document.getElementById('ve-FmtCapBtn').onclick = () => applyRichFormat('capitalize');
+    document.getElementById('ve-FmtSizeDecBtn').onclick = () => applyRichFormat('fontSizeDelta', -2);
+    document.getElementById('ve-FmtSizeIncBtn').onclick = () => applyRichFormat('fontSizeDelta', 2);
+    document.getElementById('ve-FmtSizeInput').onchange = e => applyRichFormat('fontSizeExact', e.target.value);
+    document.getElementById('ve-FmtTrackDecBtn').onclick = () => applyRichFormat('letterSpacingDelta', -0.5);
+    document.getElementById('ve-FmtTrackIncBtn').onclick = () => applyRichFormat('letterSpacingDelta', 0.5);
+    document.getElementById('ve-FmtColorInput').oninput = e => applyRichFormat('color', e.target.value);
+    document.getElementById('ve-FmtAlignLeftBtn').onclick = () => applyRichFormat('align', 'left');
+    document.getElementById('ve-FmtAlignCenterBtn').onclick = () => applyRichFormat('align', 'center');
+    document.getElementById('ve-FmtAlignRightBtn').onclick = () => applyRichFormat('align', 'right');
+    document.getElementById('ve-FmtClearBtn').onclick = () => applyRichFormat('clear');
+
+    // Bottom Floating Main Toolbar
     const toolbar = document.createElement('div');
     toolbar.id = 've-Toolbar';
     toolbar.innerHTML = `
-      <span class="ve-brand-badge"><i class="ve-status-dot"></i>CHẾ ĐỘ SỬA TRỰC TIẾP</span>
-      <span class="ve-hint">Bấm vào chữ để gõ · Bấm vào ảnh để thay ảnh</span>
+      <span class="ve-brand-badge"><i class="ve-status-dot"></i>ADMIN STUDIO</span>
+      <button type="button" class="ve-btn" id="ve-HeroBgQuickBtn">🖼 ẢNH FRAME ĐẦU</button>
+      <button type="button" class="ve-btn" id="ve-TrailerQuickBtn">🎬 VIDEO TRAILER</button>
       <button type="button" class="ve-btn" id="ve-OpenFontBtn">🔤 ĐỔI FONT &amp; MÀU</button>
-      <button type="button" class="ve-btn" id="ve-ExportBtn">⬇ TẢI GÓI LƯU</button>
+      <button type="button" class="ve-btn" id="ve-ExportBtn">⬇ TẢI GÓI</button>
       <button type="button" class="ve-btn" id="ve-ImportBtn">⬆ NHẬP GÓI</button>
       <button type="button" class="ve-btn" id="ve-ResetBtn">↺ MẶC ĐỊNH</button>
       <button type="button" class="ve-btn ve-btn-primary" id="ve-PublishBtn">☁ LƯU LÊN WEB</button>
-      <button type="button" class="ve-btn" id="ve-LockAdminBtn" title="Khóa quyền Admin trên trình duyệt này">🔒 KHÓA</button>
+      <button type="button" class="ve-btn" id="ve-LockAdminBtn" title="Khóa quyền Admin">🔒 KHÓA</button>
       <button type="button" class="ve-btn ve-btn-Exit" id="ve-ExitBtn">✕ ĐÓNG</button>
       <input type="file" id="ve-ImportFileInput" accept=".json" hidden>
     `;
@@ -799,6 +1357,37 @@
       </div>
     `;
     document.body.appendChild(imgModal);
+
+    // Video Replacer Modal (For Trailer Moodboard & Opening Video)
+    const vidModal = document.createElement('div');
+    vidModal.id = 've-VideoModal';
+    vidModal.className = 've-modal-backdrop';
+    vidModal.innerHTML = `
+      <div class="ve-modal" role="dialog" aria-label="Cập nhật Video">
+        <div class="ve-modal-head">
+          <h4 id="ve-VidModalTitle">Cập Nhật Video Trailer · Moodboard</h4>
+          <button type="button" class="ve-close-btn" data-ve-close="ve-VideoModal">✕</button>
+        </div>
+        <div class="ve-field">
+          <label>1. CHỌN FILE VIDEO TỪ MÁY TÍNH (.MP4, .WEBM)</label>
+          <label class="ve-file-drop" for="ve-VidFileInput">
+            <strong>🎬 Bấm để chọn file Video (.mp4 / .webm) từ máy tính</strong>
+            <span style="font-size:13px;color:#9a9180">Khi bấm Lưu Lên Web qua cầu nối máy tính, file video sẽ tự động chép vào assets/uploads/</span>
+          </label>
+          <input type="file" id="ve-VidFileInput" accept="video/mp4,video/webm" hidden>
+        </div>
+        <div class="ve-field">
+          <label>2. HOẶC DÁN LINK YOUTUBE / GOOGLE DRIVE / ĐƯỜNG DẪN .MP4</label>
+          <input type="text" class="ve-input" id="ve-VidUrlInput" placeholder="https://www.youtube.com/watch?v=... hoặc assets/video/...">
+        </div>
+        <div class="ve-modal-actions">
+          <button type="button" class="ve-btn" id="ve-PreviewTrailerModalBtn">▶ XEM THỬ POPUP TRAILER</button>
+          <button type="button" class="ve-btn" data-ve-close="ve-VideoModal">HỦY</button>
+          <button type="button" class="ve-btn ve-btn-primary" id="ve-ApplyVidBtn">LƯU VIDEO NÀY</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(vidModal);
 
     // Font & Theme Studio Modal
     const fontOptionsHtml = GOOGLE_FONT_PRESETS.map(p => `<option value="${p.value}">${p.label}</option>`).join('');
@@ -908,7 +1497,7 @@
       launcher.style.display = isEditMode ? 'none' : isAdminUnlocked() ? 'flex' : 'none';
       enableInlineEditing(isEditMode);
       if (isEditMode) {
-        showToast('Đã bật Chế độ Sửa Web (Admin)! Bấm vào chữ để sửa hoặc bấm vào ảnh để thay ảnh.');
+        showToast('Đã bật Chế độ Sửa Web (Admin)! Bấm vào chữ để sửa/in đậm/in nghiêng, hoặc bấm vào ảnh để thay ảnh.');
       } else {
         document.getElementById('ve-ImgHoverBadge').style.display = 'none';
         showToast('Đã thoát chế độ chỉnh sửa.');
@@ -922,23 +1511,17 @@
       isEditMode = false;
       document.body.classList.remove('ve-editing');
       enableInlineEditing(false);
-      launcher.style.display = hasLocalBridge ? 'flex' : 'none';
+      launcher.style.display = 'none';
       document.getElementById('ve-ImgHoverBadge').style.display = 'none';
       showToast('🔒 Đã khóa chế độ Admin trên trình duyệt này.');
     };
+    document.getElementById('ve-HeroBgQuickBtn').onclick = () => {
+      const heroImg = document.querySelector('.hero .heroart');
+      if (heroImg) openImageModal(heroImg);
+    };
+    document.getElementById('ve-TrailerQuickBtn').onclick = () => openVideoModal('trailerUrl');
     document.getElementById('ve-OpenFontBtn').onclick = () => openFontModal();
     document.getElementById('ve-PublishBtn').onclick = () => publishToWeb();
-
-    // Check if local Admin Sync Bridge is running on this computer
-    fetch(LOCAL_STATUS_URL, { method: 'GET' })
-      .then(r => (r.ok ? r.json() : null))
-      .then(data => {
-        if (data && data.admin) {
-          hasLocalBridge = true;
-          if (!isEditMode) launcher.style.display = 'flex';
-        }
-      })
-      .catch(() => {});
 
     // Secret Keyboard shortcut Ctrl+Shift+E (or Ctrl+E when already unlocked)
     window.addEventListener('keydown', e => {
@@ -976,6 +1559,32 @@
 
     document.getElementById('ve-ApplyImgBtn').onclick = () => applyImageModalChange();
 
+    // Video Upload Input
+    const vidFileInput = document.getElementById('ve-VidFileInput');
+    vidFileInput.onchange = e => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        const dataUrl = ev.target.result;
+        const cleanName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+        pendingAssets.push({ filename: cleanName, dataUrl });
+        document.getElementById('ve-VidUrlInput').value = dataUrl;
+        showToast(`Đã nạp video "${file.name}"! Bấm Lưu Video Này rồi bấm Lưu Lên Web.`);
+      };
+      reader.readAsDataURL(file);
+      vidFileInput.value = '';
+    };
+
+    document.getElementById('ve-ApplyVidBtn').onclick = () => applyVideoModalChange();
+    document.getElementById('ve-PreviewTrailerModalBtn').onclick = () => {
+      const urlVal = document.getElementById('ve-VidUrlInput').value.trim();
+      document.getElementById('ve-VideoModal').classList.remove('is-open');
+      if (window.GOSU_STATE && window.GOSU_STATE.openTrailerModal) {
+        window.GOSU_STATE.openTrailerModal(urlVal);
+      }
+    };
+
     // Font Upload Input
     const fontFileInput = document.getElementById('ve-FontFileInput');
     fontFileInput.onchange = e => {
@@ -1002,7 +1611,6 @@
       fontFileInput.value = '';
     };
 
-    // Live preview in Font modal
     const livePreviewFonts = () => {
       overrides.fonts.display = document.getElementById('ve-FontDisplaySelect').value;
       overrides.fonts.body = document.getElementById('ve-FontBodySelect').value;
@@ -1045,7 +1653,6 @@
       showToast('Đã áp dụng Font & Giao diện!');
     };
 
-    // Export / Import / Reset
     const downloadOverridesJson = () => {
       const blob = new Blob([JSON.stringify(overrides, null, 2)], { type: 'application/json' });
       const a = document.createElement('a');
@@ -1095,26 +1702,29 @@
       publishViaGitHubApi(tok);
     };
 
-    // Auto-open if ?edit=1 in URL
     if (new URLSearchParams(location.search).get('edit') === '1') {
       toggleEditMode(true);
     }
   }
 
-  // 8. Initialize: load remote site-overrides.json + merge local draft
+  // 10. Initialize
   async function initVisualEditor() {
     indexDomElements();
+    injectPinnedFrameButtons();
     try {
       const res = await fetch(`site-overrides.json?t=${Date.now()}`, { cache: 'no-store' });
       if (res.ok) {
         const remoteData = await res.json();
         if (remoteData && typeof remoteData === 'object') {
-          overrides = { ...overrides, ...remoteData, fonts: { ...overrides.fonts, ...(remoteData.fonts || {}) } };
+          overrides = {
+            ...overrides,
+            ...remoteData,
+            fonts: { ...overrides.fonts, ...(remoteData.fonts || {}) },
+            videos: { ...overrides.videos, ...(remoteData.videos || {}) }
+          };
         }
       }
-    } catch (_) {
-      // Ignore offline/fetch error
-    }
+    } catch (_) {}
 
     try {
       const localRaw = localStorage.getItem(STORAGE_KEY);
@@ -1123,7 +1733,12 @@
         const remoteTime = overrides.updatedAt ? Date.parse(overrides.updatedAt) : 0;
         const localTime = localData.updatedAt ? Date.parse(localData.updatedAt) : 0;
         if (localTime >= remoteTime) {
-          overrides = { ...overrides, ...localData, fonts: { ...overrides.fonts, ...(localData.fonts || {}) } };
+          overrides = {
+            ...overrides,
+            ...localData,
+            fonts: { ...overrides.fonts, ...(localData.fonts || {}) },
+            videos: { ...overrides.videos, ...(localData.videos || {}) }
+          };
         }
       }
     } catch (_) {}

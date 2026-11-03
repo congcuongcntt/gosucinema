@@ -8,8 +8,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Cormorant+SC:wght@500;600;700&family=Spectral:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=6">
-  <link rel="stylesheet" href="visual-editor.css?v=6">
+  <link rel="stylesheet" href="style.css?v=7">
+  <link rel="stylesheet" href="visual-editor.css?v=7">
 </head>
 <body>
   <div class="horror-grain" aria-hidden="true"></div>
@@ -82,6 +82,12 @@
           <span>DỊ LỤC<sup>1836</sup></span>
         </h1>
         <p class="hero-sub">“Ma quỷ không tự nhiên sinh ra để hủy diệt nhân gian — chính lòng tham, sự tàn nhẫn và nỗi oan khuất chưa được tháo gỡ của con người mới là mầm mống nuôi dưỡng tà vật.”</p>
+        <div class="hero-actions">
+          <button type="button" class="hero-trailer-btn" id="open-trailer-btn">
+            <span class="play-icon" aria-hidden="true">▶</span>
+            <span class="trailer-btn-label">XEM TRAILER · MOODBOARD DỰ ÁN</span>
+          </button>
+        </div>
         <a class="round-link" href="#story" aria-label="Khám phá câu chuyện">↘</a>
       </div>
       <div class="hero-bottom">
@@ -1164,7 +1170,29 @@
     </div>
   </dialog>
 
-  <script src="app.js?v=6"></script>
-  <script src="visual-editor.js?v=6"></script>
+  <dialog id="trailer-dialog" class="trailer-dialog">
+    <div class="lightbox-top">
+      <span class="lightbox-tag" id="trailer-dialog-tag">TRAILER &amp; MOODBOARD DỰ ÁN · SƠN HÀ DỊ LỤC (1836)</span>
+      <button type="button" class="close" id="close-trailer-btn" aria-label="Đóng Trailer">ĐÓNG TRAILER ×</button>
+    </div>
+    <div class="trailer-stage" id="trailer-stage">
+      <video id="trailer-video" controls playsinline preload="metadata" poster="assets/still-frame/09.webp" hidden>
+        <source id="trailer-video-src" src="" type="video/mp4">
+      </video>
+      <iframe id="trailer-iframe" title="Trailer Moodboard Sơn Hà Dị Lục" allow="autoplay; fullscreen" allowfullscreen hidden></iframe>
+      <div class="trailer-placeholder" id="trailer-placeholder">
+        <span class="trailer-ph-seal" aria-hidden="true">預告</span>
+        <p class="eyebrow">GOSU CINEMA · HỒ SƠ THỊ GIÁC 1836</p>
+        <h3 id="trailer-ph-title">Trailer &amp; Moodboard Video Dự Án</h3>
+        <p id="trailer-ph-desc">Video Trailer &amp; Moodboard chính thức đang trong quá trình hậu kỳ âm thanh và chỉnh màu 4K. Vui lòng quay lại xem bản công chiếu sớm nhất.</p>
+        <div class="trailer-ph-actions">
+          <button type="button" class="button" id="trailer-watch-opening-btn">Xem trước trích đoạn Hồi Đầu (1836) ▶</button>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <script src="app.js?v=7"></script>
+  <script src="visual-editor.js?v=7"></script>
 </body>
 </html>

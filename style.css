@@ -318,6 +318,7 @@ nav a:hover::after {
     radial-gradient(ellipse at 50% 35%, transparent 15%, rgba(4, 6, 6, 0.82) 90%),
     linear-gradient(0deg, #050707 4%, rgba(5, 7, 7, 0.72) 42%, rgba(8, 4, 4, 0.35) 75%, rgba(4, 6, 6, 0.88) 100%),
     linear-gradient(90deg, rgba(60, 10, 8, 0.45), transparent 50%, rgba(5, 16, 15, 0.45));
+  pointer-events: none;
 }
 
 .hero-mist {
@@ -329,12 +330,18 @@ nav a:hover::after {
 .hero-copy {
   position: absolute;
   inset: 0;
+  z-index: 4;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-end;
-  padding: 0 6% 96px;
+  padding: 0 6% 86px;
   text-align: center;
+  pointer-events: none;
+}
+
+.hero-copy > * {
+  pointer-events: auto;
 }
 
 .hero-meta {
@@ -423,13 +430,145 @@ h1 sup {
 
 .hero-sub {
   max-width: 690px;
-  margin: 22px auto 0;
+  margin: 18px auto 0;
   font-family: var(--font-serif-alt);
   font-style: italic;
   font-size: clamp(16px, 1.45vw, 21px);
   line-height: 1.65;
   color: #d6cbb8;
   text-shadow: 0 2px 14px #000;
+}
+
+.hero-actions {
+  margin-top: 22px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 14px;
+  position: relative;
+  z-index: 6;
+}
+
+.hero-trailer-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 26px;
+  background: linear-gradient(135deg, rgba(150, 27, 21, 0.85), rgba(45, 8, 6, 0.92));
+  border: 1px solid var(--gold-bright);
+  color: #fff6e5;
+  font-family: var(--font-sc);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 22px rgba(150, 27, 21, 0.45);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease, border-color 0.25s ease;
+}
+
+.hero-trailer-btn .play-icon {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(223, 192, 138, 0.2);
+  border: 1px solid var(--gold-bright);
+  display: inline-grid;
+  place-items: center;
+  font-size: 11px;
+  color: var(--gold-bright);
+  transition: all 0.25s ease;
+}
+
+.hero-trailer-btn:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(135deg, #c93026, #7a140f);
+  border-color: #fff;
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.9), 0 0 32px rgba(201, 48, 38, 0.75);
+}
+
+.hero-trailer-btn:hover .play-icon {
+  background: #fff;
+  color: #961b15;
+  border-color: #fff;
+}
+
+dialog.trailer-dialog {
+  border: 1px solid rgba(223, 192, 138, 0.55);
+  background: rgba(5, 7, 7, 0.97);
+  color: var(--cream);
+  width: min(1120px, 94vw);
+  max-height: 92vh;
+  padding: 24px 28px 30px;
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.95);
+}
+
+dialog.trailer-dialog::backdrop {
+  background: rgba(2, 4, 4, 0.88);
+  backdrop-filter: blur(8px);
+}
+
+.trailer-stage {
+  margin-top: 18px;
+  position: relative;
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  background:
+    radial-gradient(ellipse at 50% 40%, rgba(150, 27, 21, 0.28), transparent 70%),
+    #080b0b;
+  border: 1px solid rgba(189, 149, 91, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.trailer-stage video,
+.trailer-stage iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  object-fit: contain;
+  background: #000;
+}
+
+.trailer-placeholder {
+  position: relative;
+  text-align: center;
+  max-width: 620px;
+  padding: 32px;
+}
+
+.trailer-ph-seal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-display);
+  font-size: 180px;
+  color: rgba(150, 27, 21, 0.12);
+  pointer-events: none;
+  user-select: none;
+}
+
+.trailer-placeholder h3 {
+  font-size: clamp(28px, 3.4vw, 44px);
+  color: var(--gold-bright);
+  margin: 10px 0 14px;
+}
+
+.trailer-placeholder p {
+  font-size: 16.5px;
+  line-height: 1.75;
+  color: var(--bone);
+  margin: 0 0 24px;
+}
+
+.trailer-ph-actions {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
 }
 
 .round-link {
@@ -461,6 +600,7 @@ h1 sup {
   bottom: 24px;
   left: 4.5%;
   right: 4.5%;
+  z-index: 5;
   display: flex;
   justify-content: space-between;
   font-family: var(--font-sc);

@@ -716,11 +716,87 @@ if (relBoardEl) {
 // Khởi tạo mặc định ở chế độ nhìn toàn cảnh rõ ràng, khi bấm vào bất kỳ nhân vật nào sẽ lập tức phát sáng nhánh liên quan & dìm phần còn lại
 highlightNodeWires(null);
 
+// Trailer & Moodboard Modal
+const trailerDialog = document.querySelector('#trailer-dialog');
+const openTrailerBtn = document.querySelector('#open-trailer-btn');
+const closeTrailerBtn = document.querySelector('#close-trailer-btn');
+const trailerVideoEl = document.querySelector('#trailer-video');
+const trailerVideoSrcEl = document.querySelector('#trailer-video-src');
+const trailerIframeEl = document.querySelector('#trailer-iframe');
+const trailerPlaceholderEl = document.querySelector('#trailer-placeholder');
+const trailerWatchOpeningBtn = document.querySelector('#trailer-watch-opening-btn');
+
+window.GOSU_TRAILER_URL = '';
+
+function toEmbedUrl(url) {
+  if (!url) return '';
+  const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([A-Za-z0-9_-]{6,})/);
+  if (ytMatch) return `https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&rel=0`;
+  const driveMatch = url.match(/drive\.google\.com\/file\/d\/([^/]+)/);
+  if (driveMatch) return `https://drive.google.com/file/d/${driveMatch[1]}/preview`;
+  return '';
+}
+
+function stopTrailerPlayback() {
+  if (trailerVideoEl) {
+    trailerVideoEl.pause();
+    trailerVideoEl.hidden = true;
+  }
+  if (trailerIframeEl) {
+    trailerIframeEl.src = '';
+    trailerIframeEl.hidden = true;
+  }
+}
+
+function openTrailerModal(customUrl) {
+  if (!trailerDialog) return;
+  stopTrailerPlayback();
+  const activeUrl = (typeof customUrl === 'string' ? customUrl : window.GOSU_TRAILER_URL || '').trim();
+  if (!activeUrl) {
+    if (trailerPlaceholderEl) trailerPlaceholderEl.hidden = false;
+  } else {
+    if (trailerPlaceholderEl) trailerPlaceholderEl.hidden = true;
+    const embedUrl = toEmbedUrl(activeUrl);
+    if (embedUrl && trailerIframeEl) {
+      trailerIframeEl.src = embedUrl;
+      trailerIframeEl.hidden = false;
+    } else if (trailerVideoEl && trailerVideoSrcEl) {
+      trailerVideoSrcEl.src = activeUrl;
+      trailerVideoEl.load();
+      trailerVideoEl.hidden = false;
+      trailerVideoEl.play().catch(() => {});
+    }
+  }
+  if (!trailerDialog.open) trailerDialog.showModal();
+}
+
+if (openTrailerBtn) {
+  openTrailerBtn.onclick = () => openTrailerModal();
+}
+
+if (trailerWatchOpeningBtn) {
+  trailerWatchOpeningBtn.onclick = () => openTrailerModal('assets/video/opening-1836.mp4');
+}
+
+if (closeTrailerBtn && trailerDialog) {
+  closeTrailerBtn.onclick = () => {
+    stopTrailerPlayback();
+    trailerDialog.close();
+  };
+  trailerDialog.onclick = e => {
+    if (e.target === trailerDialog) {
+      stopTrailerPlayback();
+      trailerDialog.close();
+    }
+  };
+}
+
 window.GOSU_STATE = {
   chars,
   places,
   relicData,
   relNodesData,
+  openTrailerModal,
   getCurrentCharIndex: () => currentCharIndex,
   getCharViewMode: () => charViewMode,
   setCharViewMode,
