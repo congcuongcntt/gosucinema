@@ -1,22 +1,32 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-03T10:37:05.550Z",
+  "updatedAt": "2026-11-03T10:56:00.906Z",
   "fonts": {
-    "display": "",
+    "display": "'1FTV-VIP-Queen-of-Silence', serif",
     "body": "'Prata', Georgia, serif",
     "serifAlt": "",
     "sc": "'Prata', Georgia, serif",
     "scale": 100,
     "goldColor": "",
     "crimsonColor": "",
-    "customFaces": []
+    "customFaces": [
+      {
+        "name": "1FTV-VIP-Queen-of-Silence",
+        "url": "assets/uploads/1793703338122-1FTV-VIP-Queen-of-Silence.ttf"
+      }
+    ]
   },
   "texts": {
     "root.span.2": "欽天監 · BÍNH THÂN 1836",
     "root.span.1": "MỘT TÁC PHẨM ĐIỆN ẢNH CỦA<br><strong>GOSU CINEMA</strong>"
   },
+  "elementStyles": {},
   "images": {},
   "imageStyles": {},
+  "videos": {
+    "trailerUrl": "",
+    "openingUrl": ""
+  },
   "chars": [
     [
       "Mót",
@@ -79,5 +89,6 @@
       "assets/characters/laophu-sheet.webp"
     ]
   ],
-  "places": null
+  "places": null,
+  "relNodes": null
 }
