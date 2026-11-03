@@ -24,6 +24,7 @@
   --bone: #cfc4b0;
   --ash: #9a9180;
   --font-display: 'FZ OptiRadiant', 'Cormorant Garamond', Georgia, serif;
+  --font-subhead: 'Cormorant Garamond', 'Spectral', Georgia, serif;
   --font-body: 'Spectral', 'Cormorant Garamond', Georgia, serif;
   --font-serif-alt: 'Cormorant Garamond', Georgia, serif;
   --font-sc: 'Cormorant SC', 'Cormorant Garamond', serif;
@@ -114,10 +115,16 @@ button {
 }
 
 /* Typography */
-h1, h2, h3, .chapter-mark, #film-menu a, .footer-word, .relic-seal, .principles span {
+h1, h2, .character-layout article h3, .relic-dossier h3, .chapter-mark, #film-menu a, .footer-word, .relic-seal, .principles span {
   font-family: var(--font-display);
   font-weight: 400;
   font-synthesis: none;
+}
+
+h3, h4 {
+  font-family: var(--font-subhead);
+  font-weight: 700;
+  letter-spacing: 0.3px;
 }
 
 blockquote {
@@ -872,8 +879,10 @@ h2 em {
   text-align: left;
   padding: 20px 10px;
   color: var(--ash);
-  font-family: var(--font-display);
-  font-size: 23px;
+  font-family: var(--font-subhead);
+  font-weight: 700;
+  font-size: 24px;
+  letter-spacing: 0.4px;
   transition: 0.3s;
   display: flex;
   align-items: center;
@@ -1641,9 +1650,10 @@ h2 em {
 }
 
 .frame-meta strong {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-size: 24px;
+  font-family: var(--font-subhead);
+  font-weight: 700;
+  font-size: 23px;
+  letter-spacing: 0.3px;
   color: var(--cream);
 }
 
@@ -1710,12 +1720,12 @@ h2 em {
 
 .facts strong {
   display: block;
-  font-family: var(--font-display);
-  font-weight: 400;
+  font-family: var(--font-subhead);
+  font-weight: 700;
   color: var(--gold-bright);
   margin-top: 12px;
   font-size: 22px;
-  letter-spacing: 1px;
+  letter-spacing: 0.8px;
 }
 
 .button {
@@ -1860,9 +1870,10 @@ dialog::backdrop {
 
 .lightbox-figure figcaption strong {
   display: block;
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-size: 26px;
+  font-family: var(--font-subhead);
+  font-weight: 700;
+  font-size: 25px;
+  letter-spacing: 0.3px;
   color: var(--gold-bright);
 }
 
@@ -2160,29 +2171,31 @@ dialog::backdrop {
 }
 
 .script-tab {
-  background: rgba(12, 10, 10, 0.85);
-  border: 1px solid rgba(189, 149, 91, 0.28);
-  padding: 14px 16px;
+  background: rgba(12, 10, 10, 0.88);
+  border: 1px solid rgba(189, 149, 91, 0.32);
+  padding: 16px 18px;
   text-align: left;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
   transition: 0.3s;
 }
 
 .script-tab small {
   font-family: var(--font-sc);
-  font-size: 10px;
-  letter-spacing: 2.5px;
-  color: var(--crimson);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 2.2px;
+  color: #e84c3d;
 }
 
 .script-tab strong {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-size: 19px;
-  color: var(--bone);
-  line-height: 1.25;
+  font-family: var(--font-subhead);
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: 0.25px;
+  color: var(--cream);
+  line-height: 1.38;
 }
 
 .script-tab:hover,
@@ -2314,12 +2327,13 @@ dialog::backdrop {
 }
 
 .origin-card h4 {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-size: 22px;
+  font-family: var(--font-subhead);
+  font-weight: 700;
+  font-size: 20px;
+  letter-spacing: 0.25px;
   color: var(--gold-bright);
   margin: 0 0 10px;
-  line-height: 1.25;
+  line-height: 1.35;
 }
 
 .origin-card p {
@@ -2331,14 +2345,23 @@ dialog::backdrop {
 
 /* Act I Accordions */
 .act1-breakdown {
-  background: rgba(7, 10, 10, 0.85);
-  border: 1px solid rgba(189, 149, 91, 0.25);
+  background: rgba(7, 10, 10, 0.88);
+  border: 1px solid rgba(189, 149, 91, 0.3);
   padding: 28px;
+}
+
+.act1-header h3 {
+  font-family: var(--font-subhead);
+  font-weight: 700;
+  font-size: 22px;
+  letter-spacing: 0.5px;
+  color: var(--gold-bright);
+  margin: 0 0 6px;
 }
 
 .act1-header p {
   margin: 4px 0 18px;
-  color: var(--ash);
+  color: var(--bone);
   font-style: italic;
 }
 
@@ -2377,14 +2400,16 @@ dialog::backdrop {
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 2px;
-  color: var(--crimson);
+  color: #e84c3d;
 }
 
 .act-item summary strong {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-size: 21px;
-  color: var(--cream);
+  font-family: var(--font-subhead);
+  font-weight: 700;
+  font-size: 19.5px;
+  letter-spacing: 0.25px;
+  line-height: 1.35;
+  color: #fff6e8;
 }
 
 .act-place {
@@ -2481,20 +2506,24 @@ dialog::backdrop {
   font-family: var(--font-sc);
   font-size: 10px;
   font-weight: 700;
-  letter-spacing: 2px;
-  color: var(--crimson);
+  letter-spacing: 1.6px;
+  line-height: 1.35;
+  color: #eb5546;
 }
 
 .rel-node strong {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-size: 23px;
-  color: var(--cream);
+  font-family: var(--font-subhead);
+  font-weight: 700;
+  font-size: 19px;
+  letter-spacing: 0.2px;
+  line-height: 1.3;
+  color: #fff8eb;
 }
 
 .rel-node small {
-  font-size: 14px;
-  color: var(--bone);
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  color: #dfd5c3;
   line-height: 1.45;
 }
 
@@ -2506,9 +2535,10 @@ dialog::backdrop {
 }
 
 .relation-detail-box h4 {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-size: 26px;
+  font-family: var(--font-subhead);
+  font-weight: 700;
+  font-size: 24px;
+  letter-spacing: 0.3px;
   color: var(--gold-bright);
   margin: 4px 0 10px;
 }
@@ -2553,11 +2583,13 @@ dialog::backdrop {
 }
 
 .faction-card h4 {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-size: 22px;
+  font-family: var(--font-subhead);
+  font-weight: 700;
+  font-size: 20.5px;
+  letter-spacing: 0.25px;
   color: var(--gold-bright);
   margin: 6px 0 8px;
+  line-height: 1.35;
 }
 
 .faction-card p {
@@ -2605,17 +2637,22 @@ dialog::backdrop {
 }
 
 .tl-year {
-  font-family: var(--font-display);
-  font-size: 22px;
+  font-family: var(--font-subhead);
+  font-weight: 700;
+  font-size: 19px;
+  letter-spacing: 0.4px;
+  line-height: 1.35;
   color: var(--gold-bright);
   border-right: 1px solid rgba(189, 149, 91, 0.22);
   padding-right: 16px;
 }
 
 .tl-content h4 {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-size: 24px;
+  font-family: var(--font-subhead);
+  font-weight: 700;
+  font-size: 22px;
+  letter-spacing: 0.25px;
+  line-height: 1.35;
   color: var(--cream);
   margin: 4px 0 8px;
 }
@@ -2655,9 +2692,11 @@ dialog::backdrop {
 }
 
 .next-act-meta strong {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-size: 28px;
+  font-family: var(--font-subhead);
+  font-weight: 700;
+  font-size: 23px;
+  letter-spacing: 0.3px;
+  line-height: 1.35;
   color: var(--gold-bright);
 }
 
@@ -2773,8 +2812,8 @@ dialog::backdrop {
 
 .rel-board {
   position: relative;
-  width: 1240px;
-  height: 770px;
+  width: 1280px;
+  height: 880px;
   margin: 0 auto;
   background:
     radial-gradient(circle at 50% 58%, rgba(150, 27, 21, 0.22), transparent 45%),
@@ -2960,27 +2999,33 @@ dialog::backdrop {
 }
 
 .rel-board .rel-node strong {
-  font-size: 20px;
-  line-height: 1.15;
+  font-family: var(--font-subhead);
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: 0.2px;
+  line-height: 1.3;
+  color: #fff8eb;
 }
 
 .rel-board .rel-node small {
-  font-size: 12.5px;
-  line-height: 1.35;
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.42;
+  color: #dfd5c3;
 }
 
-.rel-pos-ongan     { left: 16.5%; top: 11.5%; border-color: #7ea898; }
-.rel-pos-chame1818 { left: 50%;   top: 10.5%; width: 255px; border-color: #c9985b; }
-.rel-pos-hoitruong { left: 83.5%; top: 11.5%; border-color: #c93026; }
+.rel-pos-ongan     { left: 16%;   top: 9.5%;  width: 230px; border-color: #7ea898; }
+.rel-pos-chame1818 { left: 50%;   top: 9.5%;  width: 256px; border-color: #c9985b; }
+.rel-pos-hoitruong { left: 84%;   top: 9.5%;  width: 230px; border-color: #c93026; }
 
-.rel-pos-huong     { left: 13%;   top: 35.5%; border-color: #7ea898; }
-.rel-pos-daison    { left: 33.5%; top: 35.5%; border-color: #c9985b; }
-.rel-pos-linh      { left: 66.5%; top: 35.5%; border-color: #c93026; }
-.rel-pos-khanhvu   { left: 87%;   top: 35.5%; border-color: #d97538; }
+.rel-pos-huong     { left: 12%;   top: 33%;   width: 224px; border-color: #7ea898; }
+.rel-pos-daison    { left: 36%;   top: 33%;   width: 224px; border-color: #c9985b; }
+.rel-pos-linh      { left: 64%;   top: 33%;   width: 224px; border-color: #c93026; }
+.rel-pos-khanhvu   { left: 88%;   top: 33%;   width: 224px; border-color: #d97538; }
 
 .rel-pos-mot {
   left: 50%;
-  top: 59.5%;
+  top: 58.5%;
   width: 280px;
   padding: 16px 20px;
   border: 2px solid var(--gold-bright);
@@ -2988,9 +3033,9 @@ dialog::backdrop {
   box-shadow: 0 0 28px rgba(201, 48, 38, 0.35), 0 15px 40px rgba(0, 0, 0, 0.92);
 }
 
-.rel-pos-kimlan    { left: 20.5%; top: 88%; border-color: #8ab09a; }
-.rel-pos-laophu    { left: 50%;   top: 88%; width: 255px; border-color: #b85a3a; }
-.rel-pos-maho      { left: 79.5%; top: 88%; border-color: #c93026; }
+.rel-pos-kimlan    { left: 15.5%; top: 88.5%; width: 224px; border-color: #8ab09a; }
+.rel-pos-laophu    { left: 50%;   top: 88.5%; width: 244px; border-color: #b85a3a; }
+.rel-pos-maho      { left: 84.5%; top: 88.5%; width: 224px; border-color: #c93026; }
 
 /* STATES WHEN A CHARACTER IS PICKED (.has-focus) */
 .rel-board.has-focus .rel-node.is-dimmed {
@@ -3176,9 +3221,11 @@ dialog::backdrop {
 }
 
 .relic-more-chip strong {
-  font-family: var(--font-display);
-  font-size: 19px;
-  font-weight: 400;
+  font-family: var(--font-subhead);
+  font-size: 18.5px;
+  font-weight: 700;
+  letter-spacing: 0.25px;
+  line-height: 1.35;
   color: var(--cream);
 }
 
