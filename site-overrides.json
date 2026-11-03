@@ -1,11 +1,11 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-03T11:10:05.842Z",
+  "updatedAt": "2026-11-03T11:10:32.317Z",
   "fonts": {
     "display": "'1FTV-VIP-Queen-of-Silence', serif",
     "body": "'CORMORANTGARAMOND-REGULAR', serif",
     "serifAlt": "",
-    "sc": "'Prata', Georgia, serif",
+    "sc": "'CORMORANTGARAMOND-REGULAR', serif",
     "scale": 100,
     "goldColor": "",
     "crimsonColor": "",
