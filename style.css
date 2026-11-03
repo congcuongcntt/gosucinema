@@ -1531,11 +1531,41 @@ h2 em {
   justify-content: center;
   flex-wrap: wrap;
   gap: 70px;
-  margin: 48px 0;
+  margin: 42px 0;
   font-family: var(--font-sc);
   font-size: 11px;
   letter-spacing: 2.5px;
   color: var(--ash);
+}
+
+.facts-logos {
+  align-items: center;
+  gap: 88px;
+  margin: 48px auto 36px;
+  padding-bottom: 36px;
+  max-width: 860px;
+  border-bottom: 1px solid rgba(189, 149, 91, 0.2);
+}
+
+.fact-logo-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.fact-logo {
+  height: 36px;
+  width: auto;
+  display: block;
+  margin-top: 14px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.6));
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+.fact-logo:hover {
+  transform: translateY(-2px);
 }
 
 .facts strong {
