@@ -793,6 +793,8 @@ if (closeTrailerBtn && trailerDialog) {
 
 /* ==========================================================================
    CÂY NHANG NGHI LỄ GIỮA "DỊ" VÀ "LỤC" + ĐẾM SỐ NGƯỜI THẮP HƯƠNG (+1)
+   Cơ chế: Hương cháy ngắn dần từ trên xuống (y1: 237.5 -> 329.5) và tối/tàn dần;
+   bấm vào cây nhang hoặc nút đếm sẽ thắp sáng rực và dài lại 100% + cộng thêm 1.
    ========================================================================== */
 const heroIncenseBtn = document.getElementById('hero-incense-btn');
 const heroMainTitle = document.getElementById('hero-main-title');
@@ -802,14 +804,32 @@ const incenseCountValueEl = document.getElementById('incense-count-value');
 const incenseCounterCtaEl = document.getElementById('incense-counter-cta');
 const incensePlusFloatEl = document.getElementById('incense-plus-float');
 
+// Các phần tử SVG phục vụ hiệu ứng cháy ngắn dần & tối dần (tàn hương)
+const stickBodyEl = document.getElementById('incense-stick-body');
+const burningHeadEl = document.getElementById('incense-burning-head');
+const haloLayerEl = document.getElementById('incense-halo-layer');
+const smokeLayerEl = document.getElementById('incense-smoke-layer');
+const unlitInviteEl = document.getElementById('incense-unlit-invite');
+const litAuraEl = document.getElementById('hero-title-lit-aura');
+
 const INCENSE_STORAGE_COUNT_KEY = 'gosu_shdl_incense_count_v1';
 const INCENSE_STORAGE_LIT_KEY = 'gosu_shdl_incense_lit_v1';
 const INCENSE_API_GET = 'https://abacus.jasoncameron.dev/get/gosucinema.web.id/shdl_incense_1836';
 const INCENSE_API_HIT = 'https://abacus.jasoncameron.dev/hit/gosucinema.web.id/shdl_incense_1836';
 
+// Thông số vật lý của cây nhang trong hệ tọa độ SVG (viewBox 0 0 366 416)
+const STICK_TOP_Y = 237.5;       // Đỉnh nhang khi mới thắp (dài 100%)
+const MAX_BURN_DELTA_Y = 92.0;   // Quãng đường cháy ngắn xuống (tới y = 329.5, sát chân nhang đỏ 337.5)
+const BURN_DURATION_MS = 22000;  // 22 giây để cháy hết 1 nén nhang và tàn dần
+const BURN_TICK_MS = 60;         // Cập nhật mượt ~16.6fps kết hợp CSS transition nhẹ
+
 let currentIncenseCount = Math.max(1, parseInt(localStorage.getItem(INCENSE_STORAGE_COUNT_KEY) || '1', 10) || 1);
 let flareTimer = null;
 let floatTimer = null;
+let burnIntervalId = null;
+let burnElapsedMs = 0;
+let lastBurnTickTime = 0;
+let isHeroOffscreen = false;
 
 function renderIncenseCount(val, animatePop = false) {
   if (!incenseCountValueEl) return;
@@ -821,13 +841,15 @@ function renderIncenseCount(val, animatePop = false) {
   }
 }
 
-function setIncenseLitVisual(lit) {
+function setIncenseLitVisual(lit, isBurnedOut = false) {
   if (heroIncenseBtn) {
     heroIncenseBtn.classList.toggle('is-lit', lit);
     heroIncenseBtn.setAttribute('aria-pressed', String(lit));
     const hintEl = heroIncenseBtn.querySelector('.incense-hint');
     if (hintEl) {
-      hintEl.textContent = lit ? 'THẮP THÊM (+1)' : 'BẤM THẮP HƯƠNG (+1)';
+      hintEl.textContent = lit
+        ? 'THẮP LẠI NÉN MỚI (+1)'
+        : (isBurnedOut ? 'HƯƠNG ĐÃ TÀN · BẤM THẮP (+1)' : 'BẤM THẮP HƯƠNG (+1)');
     }
   }
   if (heroMainTitle) {
@@ -837,15 +859,75 @@ function setIncenseLitVisual(lit) {
     heroIncenseCounterBar.classList.toggle('is-lit', lit);
   }
   if (incenseCounterCtaEl) {
-    incenseCounterCtaEl.textContent = lit ? '🔥 THẮP THÊM (+1)' : '✦ BẤM THẮP HƯƠNG (+1)';
+    incenseCounterCtaEl.textContent = lit
+      ? '🔥 THẮP THÊM / LÀM SÁNG LẠI (+1)'
+      : (isBurnedOut ? '✦ HƯƠNG ĐÃ TÀN · BẤM THẮP LẠI (+1)' : '✦ BẤM THẮP HƯƠNG (+1)');
   }
 }
 
-// Khởi tạo trạng thái ban đầu ngay lập tức (0ms delay)
-renderIncenseCount(currentIncenseCount, false);
-if (localStorage.getItem(INCENSE_STORAGE_LIT_KEY) === '1') {
-  setIncenseLitVisual(true);
+function applyIncenseBurnProgress(progress) {
+  const clamped = Math.max(0, Math.min(1, progress));
+  const deltaY = clamped * MAX_BURN_DELTA_Y;
+
+  // 1. Thu ngắn thân nhang từ đỉnh (237.5) xuống chân nhang (329.5)
+  if (stickBodyEl) {
+    stickBodyEl.setAttribute('y1', (STICK_TOP_Y + deltaY).toFixed(2));
+  }
+  // 2. Hạ thấp đầu tàn lửa, vòng tròn chấm và làn khói theo đúng đỉnh nhang đang cháy
+  if (burningHeadEl) {
+    burningHeadEl.setAttribute('transform', 'translate(0, ' + deltaY.toFixed(2) + ')');
+  }
+
+  // 3. Giảm dần độ sáng (tối dần / tàn dần) khi nhang cháy ngắn xuống
+  if (clamped < 1) {
+    const intensity = Math.max(0.06, Math.pow(1 - clamped, 1.35));
+    const smokeIntensity = Math.max(0.04, Math.pow(1 - clamped, 1.55));
+    if (haloLayerEl) haloLayerEl.style.opacity = intensity.toFixed(3);
+    if (smokeLayerEl) smokeLayerEl.style.opacity = smokeIntensity.toFixed(3);
+    if (litAuraEl) litAuraEl.style.opacity = (intensity * 0.96).toFixed(3);
+    if (unlitInviteEl) unlitInviteEl.style.opacity = ((1 - intensity) * 0.55).toFixed(3);
+  } else {
+    // Nhang đã cháy cạn và tàn hẳn — tắt lửa & khói, chờ người dùng bấm thắp lại
+    if (haloLayerEl) haloLayerEl.style.opacity = '0';
+    if (smokeLayerEl) smokeLayerEl.style.opacity = '0';
+    if (litAuraEl) litAuraEl.style.opacity = '0';
+    if (unlitInviteEl) unlitInviteEl.style.opacity = '0.78';
+    setIncenseLitVisual(false, true);
+  }
 }
+
+function startIncenseBurnCycle() {
+  if (burnIntervalId) {
+    clearInterval(burnIntervalId);
+    burnIntervalId = null;
+  }
+  burnElapsedMs = 0;
+  lastBurnTickTime = performance.now();
+  setIncenseLitVisual(true, false);
+  applyIncenseBurnProgress(0);
+
+  burnIntervalId = setInterval(() => {
+    const now = performance.now();
+    const dt = now - lastBurnTickTime;
+    lastBurnTickTime = now;
+
+    // Chỉ trừ thời gian cháy khi người dùng đang nhìn thấy Frame 1
+    if (isHeroOffscreen || document.hidden) return;
+
+    burnElapsedMs += Math.min(dt, 250);
+    const progress = Math.min(1, burnElapsedMs / BURN_DURATION_MS);
+    applyIncenseBurnProgress(progress);
+
+    if (progress >= 1) {
+      clearInterval(burnIntervalId);
+      burnIntervalId = null;
+    }
+  }, BURN_TICK_MS);
+}
+
+// Khởi tạo số đếm và bắt đầu hiệu ứng hương cháy ngắn dần & tối dần ngay khi mở trang
+renderIncenseCount(currentIncenseCount, false);
+startIncenseBurnCycle();
 
 // Đồng bộ số đếm thực tế trên cloud trong nền (không chặn giao diện)
 fetch(INCENSE_API_GET, { mode: 'cors', cache: 'no-store' })
@@ -862,8 +944,8 @@ fetch(INCENSE_API_GET, { mode: 'cors', cache: 'no-store' })
 function triggerLightIncense(e) {
   if (e) e.stopPropagation();
 
-  // 1. Bật hiệu ứng cháy sáng & khói nhang ngay lập tức
-  setIncenseLitVisual(true);
+  // 1. Phục hồi cây nhang dài lại 100% và sáng rực trở lại, bắt đầu chu kỳ cháy mới
+  startIncenseBurnCycle();
   localStorage.setItem(INCENSE_STORAGE_LIT_KEY, '1');
 
   // 2. Cộng +1 ngay tức thì trên giao diện (Optimistic UI)
@@ -915,7 +997,8 @@ if (heroSectionEl && 'IntersectionObserver' in window) {
   const heroObs = new IntersectionObserver(
     entries => {
       entries.forEach(entry => {
-        heroSectionEl.classList.toggle('is-offscreen', !entry.isIntersecting);
+        isHeroOffscreen = !entry.isIntersecting;
+        heroSectionEl.classList.toggle('is-offscreen', isHeroOffscreen);
       });
     },
     { threshold: 0.05 }

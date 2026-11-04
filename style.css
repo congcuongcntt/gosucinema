@@ -512,11 +512,11 @@ h1 {
 .hero-title-lit-aura {
   position: absolute;
   inset: -55%;
-  background: radial-gradient(closest-side at 44% 56%, rgba(212, 36, 26, 0.36) 0%, rgba(212, 36, 26, 0.14) 45%, rgba(212, 36, 26, 0) 88%);
+  background: radial-gradient(closest-side at 44% 58%, rgba(212, 36, 26, 0.38) 0%, rgba(212, 36, 26, 0.15) 45%, rgba(212, 36, 26, 0) 88%);
   opacity: 0;
   pointer-events: none;
   z-index: 1;
-  transition: opacity 0.35s ease;
+  transition: opacity 0.18s linear;
 }
 
 h1.incense-lit .hero-title-lit-aura {
@@ -600,10 +600,10 @@ h1.incense-lit .incense-dotted-ring {
   transform: translateX(-50%) translateY(-2px);
 }
 
-/* Trạng thái CHƯA THẮP HƯƠNG */
+/* Trạng thái CHƯA THẮP / TÀN HƯƠNG */
 .incense-unlit-invite {
   opacity: 0.8;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.18s linear;
 }
 
 .unlit-tip-dot {
@@ -611,18 +611,18 @@ h1.incense-lit .incense-dotted-ring {
 }
 
 @keyframes unlit-dot-fade {
-  0%, 100% { opacity: 0.45; }
-  50% { opacity: 1; }
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 0.95; }
 }
 
-/* Ẩn tầng lửa và khói khi chưa thắp */
+/* Ẩn tầng lửa và khói khi nhang đã tàn hoàn toàn */
 .incense-halo-layer,
 .incense-smoke-layer {
   opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.18s linear;
 }
 
-/* Trạng thái ĐÃ THẮP HƯƠNG (h1.incense-lit) — không dùng transform-box: fill-box để tránh Chrome cắt viền stroke */
+/* Trạng thái ĐANG CHÁY HƯƠNG (h1.incense-lit) — độ sáng giảm dần theo mức cháy trong app.js */
 h1.incense-lit .incense-unlit-invite {
   opacity: 0;
 }
