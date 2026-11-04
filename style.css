@@ -1,4 +1,36 @@
 @font-face {
+  font-family: '1FTV-VIP-Queen-of-Silence';
+  src: url('assets/uploads/1793703338122-1FTV-VIP-Queen-of-Silence.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'CORMORANTGARAMOND-REGULAR';
+  src: url('assets/uploads/1793704176731-CORMORANTGARAMOND-REGULAR.TTF') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'ASSASSIN';
+  src: url('assets/uploads/1793703494605-ASSASSIN_.TTF') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'UVF-ASSASSIN';
+  src: url('assets/uploads/1793703567256-UVF-ASSASSIN.TTF') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
   font-family: 'FZ OptiRadiant';
   src: url('../FZ-SG OPTIRadiant.ttf') format('truetype'),
        url('assets/fonts/fz-sg-optiradiant.ttf') format('truetype');
@@ -23,11 +55,11 @@
   --cream: #e8dfd0;
   --bone: #cfc4b0;
   --ash: #9a9180;
-  --font-display: 'FZ OptiRadiant', 'Cormorant Garamond', Georgia, serif;
-  --font-subhead: 'Cormorant Garamond', 'Spectral', Georgia, serif;
-  --font-body: 'Spectral', 'Cormorant Garamond', Georgia, serif;
-  --font-serif-alt: 'Cormorant Garamond', Georgia, serif;
-  --font-sc: 'Cormorant SC', 'Cormorant Garamond', serif;
+  --font-display: '1FTV-VIP-Queen-of-Silence', serif;
+  --font-subhead: 'CORMORANTGARAMOND-REGULAR', 'Cormorant Garamond', 'Spectral', Georgia, serif;
+  --font-body: 'Prata', Georgia, serif;
+  --font-serif-alt: 'Prata', 'Cormorant Garamond', Georgia, serif;
+  --font-sc: 'CORMORANTGARAMOND-REGULAR', 'Cormorant SC', 'Cormorant Garamond', serif;
 }
 
 * {
@@ -389,6 +421,46 @@ nav a:hover::after {
   box-shadow: 0 0 25px rgba(150, 27, 21, 0.35);
 }
 
+.hero-pitch-tag {
+  position: absolute;
+  top: 152px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 6;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 6px 18px;
+  background: linear-gradient(90deg, rgba(16, 11, 9, 0.92), rgba(58, 12, 9, 0.88), rgba(16, 11, 9, 0.92));
+  border: 1px solid rgba(223, 192, 138, 0.52);
+  border-left: 3px solid var(--crimson);
+  border-right: 3px solid var(--crimson);
+  color: #f6e7c8;
+  font-family: var(--font-sc);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 2.4px;
+  text-transform: uppercase;
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.85), 0 0 18px rgba(150, 27, 21, 0.35);
+  white-space: nowrap;
+}
+
+.hero-pitch-tag::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #ff6b35;
+  box-shadow: 0 0 10px #ff6b35, 0 0 18px #c93026;
+  animation: pitch-dot-pulse 1.8s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+@keyframes pitch-dot-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.45; transform: scale(0.8); }
+}
+
 .hero-kicker {
   font-family: var(--font-sc);
   font-size: 12px;
@@ -400,6 +472,8 @@ nav a:hover::after {
 }
 
 h1 {
+  position: relative;
+  display: inline-block;
   font-size: clamp(72px, 11.4vw, 172px);
   line-height: 1.04;
   letter-spacing: 1px;
@@ -409,15 +483,203 @@ h1 {
     0 6px 35px rgba(0, 0, 0, 0.95),
     0 0 75px rgba(150, 27, 21, 0.55),
     0 0 18px rgba(189, 149, 91, 0.25);
+  transition: text-shadow 0.6s ease, filter 0.6s ease;
+}
+
+h1.incense-lit {
+  text-shadow:
+    0 6px 35px rgba(0, 0, 0, 0.95),
+    0 0 95px rgba(217, 56, 41, 0.82),
+    0 0 34px rgba(255, 170, 90, 0.45);
 }
 
 h1 > span {
   display: block;
 }
 
-h1 > span:last-child {
+h1 > span:first-of-type {
+  word-spacing: 0.26em;
+}
+
+h1 > span:last-of-type {
+  margin-top: 8px;
   padding-left: 26px;
   color: #e4cfa8;
+}
+
+/* 2 Cây Hương Nghi Lễ ở giữa SƠN HÀ và DỊ LỤC */
+.hero-incense-ritual {
+  position: absolute;
+  left: 53.2%;
+  top: 35.5%;
+  transform: translate(-50%, -50%);
+  width: 0.68em;
+  height: 1.48em;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  z-index: 8;
+  display: flex;
+   flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+  filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.92)) drop-shadow(0 0 22px rgba(150, 27, 21, 0.45));
+  transition: transform 0.35s ease, filter 0.35s ease;
+}
+
+.hero-incense-ritual:hover {
+  transform: translate(-50%, -51.5%) scale(1.04);
+  filter: drop-shadow(0 6px 22px rgba(0, 0, 0, 0.95)) drop-shadow(0 0 32px rgba(223, 192, 138, 0.65));
+}
+
+.hero-incense-ritual .incense-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  display: block;
+}
+
+.hero-incense-ritual .incense-hint {
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-sc);
+  font-style: normal;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.8px;
+  color: #ffe2a8;
+  background: rgba(65, 11, 8, 0.88);
+  border: 1px solid rgba(223, 192, 138, 0.55);
+  padding: 2px 8px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.85);
+}
+
+.hero-incense-ritual:hover .incense-hint {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-2px);
+}
+
+/* Trạng thái chưa thắp hương */
+.hero-incense-ritual .ember-core,
+.hero-incense-ritual .ember-hot,
+.hero-incense-ritual .incense-halo-layer,
+.hero-incense-ritual .incense-smoke-layer {
+  opacity: 0;
+  transition: opacity 0.55s ease;
+}
+
+/* Hiệu ứng nhịp thở nhẹ ở đầu hương khi chưa thắp để gợi ý tương tác */
+.hero-incense-ritual:not(.is-lit) .stick-ash {
+  animation: unlit-ash-hint 2.4s ease-in-out infinite;
+}
+
+@keyframes unlit-ash-hint {
+  0%, 100% { fill: #6e5849; }
+  50% { fill: #c95838; }
+}
+
+/* Trạng thái ĐÃ THẮP HƯƠNG (.is-lit) */
+.hero-incense-ritual.is-lit {
+  filter: drop-shadow(0 6px 22px rgba(0, 0, 0, 0.95)) drop-shadow(0 0 38px rgba(224, 83, 60, 0.78));
+}
+
+.hero-incense-ritual.is-lit .ember-core,
+.hero-incense-ritual.is-lit .ember-hot,
+.hero-incense-ritual.is-lit .incense-halo-layer,
+.hero-incense-ritual.is-lit .incense-smoke-layer {
+  opacity: 1;
+}
+
+.hero-incense-ritual.is-lit .ember-core {
+  animation: ember-burn-flicker 1.4s ease-in-out infinite alternate;
+}
+
+.hero-incense-ritual.is-lit .ember-aura {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ember-aura-breathe 2.1s ease-in-out infinite;
+}
+
+.hero-incense-ritual.is-lit .smoke-wisp {
+  stroke-dasharray: 120;
+  stroke-dashoffset: 120;
+  animation: smoke-rise-flow 4.2s linear infinite;
+}
+
+.hero-incense-ritual.is-lit .wisp-2 {
+  animation-duration: 4.8s;
+  animation-delay: 0.6s;
+}
+
+.hero-incense-ritual.is-lit .wisp-3 {
+  animation-duration: 3.7s;
+  animation-delay: 1.2s;
+}
+
+.hero-incense-ritual.is-lit .wisp-4 {
+  animation-duration: 5.2s;
+  animation-delay: 1.8s;
+}
+
+.hero-incense-ritual.is-lit .ember-spark {
+  animation: spark-float-up 2.8s ease-out infinite;
+}
+
+.hero-incense-ritual.is-lit .sp-2 { animation-delay: 0.7s; }
+.hero-incense-ritual.is-lit .sp-3 { animation-delay: 1.4s; }
+.hero-incense-ritual.is-lit .sp-4 { animation-delay: 2.1s; }
+
+@keyframes ember-burn-flicker {
+  0% { r: 3.2px; fill: #ff471a; }
+  50% { r: 3.9px; fill: #ff7b29; }
+  100% { r: 3.5px; fill: #ff5a26; }
+}
+
+@keyframes ember-aura-breathe {
+  0%, 100% { transform: scale(0.92); opacity: 0.75; }
+  50% { transform: scale(1.28); opacity: 1; }
+}
+
+@keyframes smoke-rise-flow {
+  0% {
+    stroke-dashoffset: 120;
+    opacity: 0;
+    transform: translateY(4px) translateX(0);
+  }
+  20% {
+    opacity: 0.85;
+  }
+  65% {
+    opacity: 0.65;
+    transform: translateY(-6px) translateX(-2px);
+  }
+  100% {
+    stroke-dashoffset: -120;
+    opacity: 0;
+    transform: translateY(-16px) translateX(2px);
+  }
+}
+
+@keyframes spark-float-up {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.6);
+  }
+  25% {
+    opacity: 0.95;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-28px) translateX(3px) scale(0.2);
+  }
 }
 
 h1 sup {
@@ -1996,6 +2258,15 @@ dialog::backdrop {
   }
   .hero-seal-badge {
     display: none;
+  }
+  .hero-pitch-tag {
+    top: 132px;
+    font-size: 8.5px;
+    letter-spacing: 1.2px;
+    padding: 4px 10px;
+    max-width: 92vw;
+    white-space: normal;
+    text-align: center;
   }
   h1 {
     font-size: 18.5vw;

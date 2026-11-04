@@ -791,6 +791,27 @@ if (closeTrailerBtn && trailerDialog) {
   };
 }
 
+/* ==========================================================================
+   2 CÂY HƯƠNG NGHI LỄ GIỮA "SƠN HÀ" VÀ "DỊ LỤC" (BẤM ĐỂ THẮP HƯƠNG)
+   ========================================================================== */
+const heroIncenseBtn = document.getElementById('hero-incense-btn');
+const heroMainTitle = document.getElementById('hero-main-title');
+
+if (heroIncenseBtn) {
+  heroIncenseBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    const isLit = heroIncenseBtn.classList.toggle('is-lit');
+    heroIncenseBtn.setAttribute('aria-pressed', String(isLit));
+    if (heroMainTitle) {
+      heroMainTitle.classList.toggle('incense-lit', isLit);
+    }
+    const hintEl = heroIncenseBtn.querySelector('.incense-hint');
+    if (hintEl) {
+      hintEl.textContent = isLit ? 'ĐÃ THẮP HƯƠNG' : 'BẤM ĐỂ THẮP HƯƠNG';
+    }
+  });
+}
+
 window.GOSU_STATE = {
   chars,
   places,

@@ -245,7 +245,7 @@
           src: url('${cf.url}');
           font-weight: normal;
           font-style: normal;
-          font-display: swap;
+          font-display: block;
         }
       `
         )
