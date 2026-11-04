@@ -498,34 +498,28 @@ h1 {
   line-height: 1;
 }
 
-/* Cụm Logo Typo chuẩn Sơn Hà Dị Lục (1836) + Cây nhang tương tác giữa DỊ và LỤC (Zero-Lag GPU) */
+/* Cụm Logo Typo chuẩn Sơn Hà Dị Lục (1836) + Cây nhang tương tác giữa DỊ và LỤC (Zero-Lag, Không Cắt Viền) */
 .hero-title-art-wrap {
   position: relative;
   width: clamp(200px, min(21.5vw, 32svh), 325px);
   aspect-ratio: 366 / 416;
   display: block;
   user-select: none;
-  contain: layout style;
+  overflow: visible;
 }
 
-/* Quầng sáng nền GPU-only (chỉ đổi opacity, không dùng filter: drop-shadow gây lag) */
+/* Quầng sáng nền closest-side tắt hẳn về 0 ở 88% để không bao giờ tạo vệt cắt hình chữ nhật */
 .hero-title-lit-aura {
   position: absolute;
-  inset: -14%;
-  background: radial-gradient(circle at 42% 56%, rgba(212, 36, 26, 0.52) 0%, rgba(223, 192, 138, 0.18) 38%, transparent 70%);
+  inset: -55%;
+  background: radial-gradient(closest-side at 44% 56%, rgba(212, 36, 26, 0.36) 0%, rgba(212, 36, 26, 0.14) 45%, rgba(212, 36, 26, 0) 88%);
   opacity: 0;
   pointer-events: none;
   z-index: 1;
-  transition: opacity 0.35s ease, transform 0.35s ease;
-  will-change: opacity, transform;
+  transition: opacity 0.35s ease;
 }
 
 h1.incense-lit .hero-title-lit-aura {
-  opacity: 1;
-}
-
-h1.incense-flare .hero-title-lit-aura {
-  transform: scale(1.12);
   opacity: 1;
 }
 
@@ -547,6 +541,16 @@ h1.incense-flare .hero-title-lit-aura {
   overflow: visible;
   pointer-events: none;
   z-index: 5;
+}
+
+.incense-dotted-ring {
+  opacity: 0.48;
+  transition: opacity 0.3s ease, stroke 0.3s ease;
+}
+
+h1.incense-lit .incense-dotted-ring {
+  opacity: 0.85;
+  stroke: #ff9a52;
 }
 
 /* Vùng bấm tương tác đúng vị trí cây nhang giữa chữ DỊ và chữ LỤC (x = 40.57%, y = 52%..92%) */
@@ -596,19 +600,14 @@ h1.incense-flare .hero-title-lit-aura {
   transform: translateX(-50%) translateY(-2px);
 }
 
-/* Trạng thái CHƯA THẮP HƯƠNG: chỉ nhấp nháy nhẹ opacity (0% CPU/GPU) */
+/* Trạng thái CHƯA THẮP HƯƠNG */
 .incense-unlit-invite {
-  opacity: 0.78;
+  opacity: 0.8;
   transition: opacity 0.3s ease;
-}
-
-.unlit-halo-ring {
-  opacity: 0.45;
 }
 
 .unlit-tip-dot {
   animation: unlit-dot-fade 2.2s ease-in-out infinite;
-  will-change: opacity;
 }
 
 @keyframes unlit-dot-fade {
@@ -623,7 +622,7 @@ h1.incense-flare .hero-title-lit-aura {
   transition: opacity 0.3s ease;
 }
 
-/* Trạng thái ĐÃ THẮP HƯƠNG (h1.incense-lit) — 100% GPU transform & opacity */
+/* Trạng thái ĐÃ THẮP HƯƠNG (h1.incense-lit) — không dùng transform-box: fill-box để tránh Chrome cắt viền stroke */
 h1.incense-lit .incense-unlit-invite {
   opacity: 0;
 }
@@ -634,27 +633,19 @@ h1.incense-lit .incense-smoke-layer {
 }
 
 h1.incense-lit .ember-aura {
-  transform-box: fill-box;
-  transform-origin: center;
   animation: ember-aura-breathe 2.2s ease-in-out infinite;
-  will-change: transform, opacity;
 }
 
 h1.incense-flare .ember-aura {
-  transform: scale(1.65) !important;
   opacity: 1 !important;
 }
 
 h1.incense-lit .ember-core {
   animation: ember-core-pulse 1.4s ease-in-out infinite alternate;
-  will-change: opacity;
 }
 
 h1.incense-lit .smoke-unit {
-  transform-box: fill-box;
-  transform-origin: 50% 100%;
-  will-change: transform, opacity;
-  animation: smoke-gpu-float 4.2s ease-out infinite;
+  animation: smoke-svg-float 4.2s ease-out infinite;
 }
 
 h1.incense-lit .smoke-unit.su-2 {
@@ -673,25 +664,25 @@ h1.incense-lit .smoke-unit.su-3 {
 }
 
 @keyframes ember-aura-breathe {
-  0%, 100% { transform: scale(0.92); opacity: 0.75; }
-  50% { transform: scale(1.22); opacity: 1; }
+  0%, 100% { opacity: 0.68; }
+  50% { opacity: 1; }
 }
 
-@keyframes smoke-gpu-float {
+@keyframes smoke-svg-float {
   0% {
     opacity: 0;
-    transform: translate3d(0, 6px, 0) scale(0.92);
+    transform: translate(0, 5px);
   }
   22% {
     opacity: 0.92;
   }
   70% {
     opacity: 0.65;
-    transform: translate3d(-1.5px, -14px, 0) scale(1.03);
+    transform: translate(-1.5px, -12px);
   }
   100% {
     opacity: 0;
-    transform: translate3d(2px, -28px, 0) scale(1.08);
+    transform: translate(1.8px, -24px);
   }
 }
 

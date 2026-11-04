@@ -7,12 +7,12 @@
   <title>Gosu Cinema | Sơn Hà Dị Lục · 1836 — Linh Dị Cổ Trang Việt Nam</title>
   <link rel="preload" href="assets/uploads/1793703338122-1FTV-VIP-Queen-of-Silence.ttf" as="font" type="font/ttf" crossorigin>
   <link rel="preload" href="assets/uploads/1793704176731-CORMORANTGARAMOND-REGULAR.TTF" as="font" type="font/ttf" crossorigin>
-  <link rel="preload" href="assets/son-ha-di-luc-title.webp" as="image" type="image/webp">
+  <link rel="preload" href="assets/son-ha-di-luc-title.webp?v=13" as="image" type="image/webp">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Cormorant+SC:wght@500;600;700&family=Prata&family=Spectral:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=12">
-  <link rel="stylesheet" href="visual-editor.css?v=12">
+  <link rel="stylesheet" href="style.css?v=13">
+  <link rel="stylesheet" href="visual-editor.css?v=13">
   <script>
     (function() {
       try {
@@ -112,59 +112,63 @@
           <span class="sr-only">SƠN HÀ</span>
           <div class="hero-title-art-wrap">
             <div class="hero-title-lit-aura" aria-hidden="true"></div>
-            <img class="hero-title-art" src="assets/son-ha-di-luc-title.webp" alt="Sơn Hà Dị Lục 1836" width="366" height="416" decoding="async" fetchpriority="high">
+            <img class="hero-title-art" src="assets/son-ha-di-luc-title.webp?v=13" alt="Sơn Hà Dị Lục 1836" width="366" height="416" decoding="async" fetchpriority="high">
             <svg class="hero-incense-fx-svg" viewBox="0 0 366 416" fill="none" aria-hidden="true">
               <defs>
                 <radialGradient id="inc-ember-glow" cx="50%" cy="50%" r="50%">
                   <stop offset="0%" stop-color="#fffbe6" stop-opacity="1"/>
-                  <stop offset="28%" stop-color="#ff7a33" stop-opacity="0.92"/>
-                  <stop offset="62%" stop-color="#d4241a" stop-opacity="0.58"/>
+                  <stop offset="22%" stop-color="#ff7a33" stop-opacity="0.88"/>
+                  <stop offset="52%" stop-color="#d4241a" stop-opacity="0.45"/>
+                  <stop offset="82%" stop-color="#961b15" stop-opacity="0.08"/>
                   <stop offset="100%" stop-color="#961b15" stop-opacity="0"/>
                 </radialGradient>
-                <linearGradient id="inc-smoke-callig" x1="0" y1="1" x2="0" y2="0">
-                  <stop offset="0%" stop-color="#f9f1e0" stop-opacity="0.9"/>
-                  <stop offset="45%" stop-color="#dfc08a" stop-opacity="0.58"/>
-                  <stop offset="80%" stop-color="#d89b6c" stop-opacity="0.24"/>
+                <linearGradient id="inc-smoke-callig" gradientUnits="userSpaceOnUse" x1="148.5" y1="238" x2="148.5" y2="76">
+                  <stop offset="0%" stop-color="#f9f1e0" stop-opacity="0"/>
+                  <stop offset="10%" stop-color="#f9f1e0" stop-opacity="0.88"/>
+                  <stop offset="50%" stop-color="#dfc08a" stop-opacity="0.55"/>
+                  <stop offset="82%" stop-color="#d89b6c" stop-opacity="0.2"/>
                   <stop offset="100%" stop-color="#f9f1e0" stop-opacity="0"/>
                 </linearGradient>
-                <linearGradient id="inc-smoke-crimson" x1="0" y1="1" x2="0" y2="0">
-                  <stop offset="0%" stop-color="#ff8c52" stop-opacity="0.72"/>
-                  <stop offset="45%" stop-color="#d4241a" stop-opacity="0.4"/>
-                  <stop offset="85%" stop-color="#961b15" stop-opacity="0.14"/>
+                <linearGradient id="inc-smoke-crimson" gradientUnits="userSpaceOnUse" x1="148.5" y1="238" x2="148.5" y2="82">
+                  <stop offset="0%" stop-color="#ff8c52" stop-opacity="0"/>
+                  <stop offset="12%" stop-color="#ff8c52" stop-opacity="0.72"/>
+                  <stop offset="52%" stop-color="#d4241a" stop-opacity="0.38"/>
+                  <stop offset="85%" stop-color="#961b15" stop-opacity="0.12"/>
                   <stop offset="100%" stop-color="#961b15" stop-opacity="0"/>
                 </linearGradient>
               </defs>
 
-              <!-- Vòng tròn chấm & đốm tàn hương khi chưa thắp -->
+              <!-- Vòng tròn chấm 360 độ sắc nét quanh đầu nhang -->
+              <circle class="incense-dotted-ring" cx="148.5" cy="240.5" r="18.5" stroke="#dfc08a" stroke-width="1.05" stroke-dasharray="1.3 3.6" stroke-linecap="round"/>
+
+              <!-- Đốm tàn hương khi chưa thắp -->
               <g class="incense-unlit-invite">
-                <circle class="unlit-halo-ring" cx="148.5" cy="240.5" r="18.5" stroke="#dfc08a" stroke-width="1" stroke-dasharray="1.5 3.5"/>
                 <circle class="unlit-tip-dot" cx="148.5" cy="237.5" r="2.3" fill="#e85838"/>
               </g>
 
-              <!-- Tầng khói nhang GPU-accelerated (chỉ dùng transform & opacity, không dùng filter blur nặng) -->
+              <!-- Tầng khói nhang uốn lượn (gradientUnits="userSpaceOnUse" không bao giờ bị cắt viền) -->
               <g class="incense-smoke-layer">
                 <g class="smoke-unit su-1">
-                  <path d="M 148.5 236 C 138 214, 158 190, 145 164 C 134 140, 156 114, 146 84" stroke="url(#inc-smoke-callig)" stroke-width="5" stroke-opacity="0.24" stroke-linecap="round"/>
-                  <path d="M 148.5 236 C 141 224, 156 212, 146 198 C 137 185, 155 170, 147 152 C 140 136, 154 118, 148 98" stroke="url(#inc-smoke-callig)" stroke-width="1.65" stroke-linecap="round"/>
-                  <circle cx="146" cy="212" r="1.3" fill="#ffd27d"/>
+                  <path d="M 148.5 235 C 136 216, 161 194, 144 168 C 131 146, 159 120, 146 88" stroke="url(#inc-smoke-callig)" stroke-width="5.5" stroke-opacity="0.22" stroke-linecap="round" fill="none"/>
+                  <path d="M 148.5 235 C 139 221, 158 207, 145 191 C 134 176, 157 158, 146 138 C 138 122, 154 104, 147 84" stroke="url(#inc-smoke-callig)" stroke-width="1.65" stroke-linecap="round" fill="none"/>
+                  <circle cx="144" cy="208" r="1.25" fill="#ffd27d" fill-opacity="0.85"/>
                 </g>
                 <g class="smoke-unit su-2">
-                  <path d="M 148.5 236 C 158 212, 138 186, 152 158 C 163 134, 140 108, 151 78" stroke="url(#inc-smoke-crimson)" stroke-width="4.4" stroke-opacity="0.22" stroke-linecap="round"/>
-                  <path d="M 148.5 236 C 155 222, 140 208, 151 192 C 160 178, 142 160, 151 140 C 158 122, 144 104, 150 84" stroke="url(#inc-smoke-crimson)" stroke-width="1.35" stroke-linecap="round"/>
-                  <circle cx="152" cy="196" r="1.15" fill="#ff6b35"/>
+                  <path d="M 148.5 235 C 160 214, 136 190, 153 162 C 165 138, 138 112, 151 82" stroke="url(#inc-smoke-crimson)" stroke-width="4.6" stroke-opacity="0.2" stroke-linecap="round" fill="none"/>
+                  <path d="M 148.5 235 C 157 220, 138 204, 152 186 C 162 170, 140 152, 151 132 C 159 116, 143 98, 150 80" stroke="url(#inc-smoke-crimson)" stroke-width="1.35" stroke-linecap="round" fill="none"/>
+                  <circle cx="153" cy="192" r="1.1" fill="#ff6b35" fill-opacity="0.85"/>
                 </g>
                 <g class="smoke-unit su-3">
-                  <path d="M 148 234 C 143 218, 152 202, 144 184 C 138 168, 150 150, 145 128" stroke="url(#inc-smoke-callig)" stroke-width="1.2" stroke-linecap="round"/>
-                  <circle cx="145" cy="176" r="1.05" fill="#fff0b8"/>
+                  <path d="M 148.5 233 C 142 216, 154 198, 143 178 C 135 162, 151 144, 145 122" stroke="url(#inc-smoke-callig)" stroke-width="1.2" stroke-linecap="round" fill="none"/>
+                  <circle cx="145" cy="172" r="1" fill="#fff0b8" fill-opacity="0.8"/>
                 </g>
               </g>
 
               <!-- Quầng lửa đỏ chu sa & đầu nhang cháy sáng tại (148.5, 237.5) -->
               <g class="incense-halo-layer">
-                <circle class="ember-aura" cx="148.5" cy="237.5" r="21" fill="url(#inc-ember-glow)"/>
-                <circle class="lit-halo-ring" cx="148.5" cy="240.5" r="18.5" stroke="#ff9a52" stroke-width="1.15" stroke-dasharray="1.6 3.4"/>
-                <circle class="ember-core" cx="148.5" cy="237.5" r="3.4" fill="#ff4d1c"/>
-                <circle class="ember-hot" cx="148.5" cy="237.5" r="1.65" fill="#fffbe0"/>
+                <circle class="ember-aura" cx="148.5" cy="237.5" r="26" fill="url(#inc-ember-glow)"/>
+                <circle class="ember-core" cx="148.5" cy="237.5" r="3.3" fill="#ff4d1c"/>
+                <circle class="ember-hot" cx="148.5" cy="237.5" r="1.6" fill="#fffbe0"/>
               </g>
             </svg>
             <button type="button" class="hero-incense-ritual" id="hero-incense-btn" aria-pressed="false" aria-label="Bấm vào cây nhang giữa chữ Dị và Lục để thắp hương (+1)" title="Bấm vào cây nhang để thắp hương (+1)">
