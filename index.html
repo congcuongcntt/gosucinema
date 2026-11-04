@@ -6,37 +6,52 @@
   <meta name="description" content="Khám phá Sơn Hà Dị Lục (1836) — dự án điện ảnh cổ trang, linh dị dân gian và trinh thám Việt Nam của GOSU Studio.">
   <title>Gosu Cinema | Sơn Hà Dị Lục · 1836 — Linh Dị Cổ Trang Việt Nam</title>
   <link rel="preload" href="assets/uploads/1793703338122-1FTV-VIP-Queen-of-Silence.ttf" as="font" type="font/ttf" crossorigin>
-  <link rel="preload" href="assets/uploads/1793704176731-CORMORANTGARAMOND-REGULAR.TTF" as="font" type="font/ttf" crossorigin>
   <link rel="preload" href="assets/son-ha-di-luc-title.webp?v=15" as="image" type="image/webp">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Cormorant+SC:wght@500;600;700&family=Prata&family=Spectral:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=15">
-  <link rel="stylesheet" href="visual-editor.css?v=15">
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Prata&family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=16">
+  <link rel="stylesheet" href="visual-editor.css?v=16">
   <script>
     (function() {
       try {
-        var raw = localStorage.getItem('gosu_shdl_overrides_v1');
-        if (!raw) return;
-        var data = JSON.parse(raw);
-        var f = data && data.fonts;
-        if (!f) return;
-        var root = document.documentElement;
-        if (Array.isArray(f.customFaces) && f.customFaces.length) {
-          var st = document.createElement('style');
-          st.id = 've-custom-font-faces';
-          st.textContent = f.customFaces.map(function(cf) {
-            return "@font-face{font-family:'" + cf.name + "';src:url('" + cf.url + "');font-weight:normal;font-style:normal;font-display:block;}";
-          }).join('\n');
-          document.head.appendChild(st);
-        }
-        if (f.display) root.style.setProperty('--font-display', f.display);
-        if (f.subhead) root.style.setProperty('--font-subhead', f.subhead);
-        if (f.body) {
-          root.style.setProperty('--font-body', f.body);
-          root.style.setProperty('--font-serif-alt', f.body);
-        }
-        if (f.sc) root.style.setProperty('--font-sc', f.sc);
+        var cleanFont = function(val) {
+          if (!val || /cormorant/i.test(val)) return "";
+          return val;
+        };
+        ['gosu_visual_editor_overrides_v1', 'gosu_shdl_overrides_v1'].forEach(function(key) {
+          var raw = localStorage.getItem(key);
+          if (!raw) return;
+          var data = JSON.parse(raw);
+          var f = data && data.fonts;
+          if (!f) return;
+          var changed = false;
+          ['subhead', 'body', 'serifAlt', 'sc'].forEach(function(k) {
+            if (f[k] && /cormorant/i.test(f[k])) {
+              f[k] = '';
+              changed = true;
+            }
+          });
+          if (changed) {
+            localStorage.setItem(key, JSON.stringify(data));
+          }
+          var root = document.documentElement;
+          if (Array.isArray(f.customFaces) && f.customFaces.length) {
+            var st = document.getElementById('ve-custom-font-faces') || document.createElement('style');
+            st.id = 've-custom-font-faces';
+            st.textContent = f.customFaces.map(function(cf) {
+              return "@font-face{font-family:'" + cf.name + "';src:url('" + cf.url + "');font-weight:normal;font-style:normal;font-display:block;unicode-range:U+0000-002F,U+003A-10FFFF;}";
+            }).join('\n');
+            if (!st.parentNode) document.head.appendChild(st);
+          }
+          if (f.display) root.style.setProperty('--font-display', f.display);
+          if (cleanFont(f.subhead)) root.style.setProperty('--font-subhead', f.subhead);
+          if (cleanFont(f.body)) {
+            root.style.setProperty('--font-body', f.body);
+            root.style.setProperty('--font-serif-alt', f.body);
+          }
+          if (cleanFont(f.sc)) root.style.setProperty('--font-sc', f.sc);
+        });
       } catch (e) {}
     })();
   </script>
@@ -654,55 +669,90 @@
           </div>
         </div>
 
-        <!-- SƠ ĐỒ ĐƯỜNG DÂY ĐỐI TRỌNG 6 THẾ LỰC LỚN -->
+        <!-- BẢN ĐỒ ĐỊA THẾ & SƠ ĐỒ 6 THẾ LỰC LỚN (TINH GỌN, TRỰC QUAN) -->
         <div class="faction-web-box">
           <div class="relation-header">
-            <span class="small">BẢN ĐỒ THẾ LỰC ĐẠI NAM 1836 · MẠNG LƯỚI ĐỒNG MINH &amp; ĐỐI ĐẦU</span>
-            <h3>Sơ Đồ Đường Dây 6 Thế Lực Lớn</h3>
+            <span class="small">BẢN ĐỒ ĐỊA THẾ PHÚ XUÂN 1836 · CỤC DIỆN 6 THẾ LỰC</span>
+            <h3>Bản Đồ &amp; Tổng Quan 6 Thế Lực</h3>
+            <p class="relation-sub">Mọi mũi tên trên bản đồ đều hội tụ về <strong>Làng Long Thọ &amp; Đấu trường Hổ Quyền</strong> — nơi mở màn đại án năm Bính Thân 1836.</p>
           </div>
-          <div class="factions-connected-grid">
-            <div class="faction-card fc-1">
-              <div class="fc-badge">THẾ LỰC 01 · CHÍNH THỐNG TRIỀU ĐÌNH</div>
-              <h4>Khâm Thiên Giám &amp; Khâm Thiên Sứ</h4>
-              <p>Điều tra, trấn yểm dị sự theo 4 phép <em>Giải · Diệt · Trấn · An</em>; phối hợp cùng nha môn Án Sứ giữ yên bờ cõi (<strong>Mót, Đại Sơn, Mẹ Mót</strong>).</p>
-              <div class="fc-wire-note">⟷ Đối đầu trực diện <strong>Thương Hội Vạn Kim</strong> &amp; <strong>Quy Nguyên Giáo</strong></div>
-            </div>
 
-            <div class="faction-middle-connector" aria-hidden="true">
-              <span>◀ ĐIỀU TRA &amp; TRẤN YỂM</span>
-              <i></i>
-              <strong>TRỤC XUNG ĐỘT NGẦM 1836</strong>
-              <i></i>
-              <span>THAO TÚNG KIM TIỀN ▶</span>
+          <!-- Bản đồ cổ vẽ tay 6 Thế Lực -->
+          <figure class="faction-map-showcase">
+            <div class="faction-map-frame">
+              <picture>
+                <source srcset="assets/bando-6-the-luc.webp" type="image/webp">
+                <img src="assets/bando-6-the-luc.jpg" alt="Bản đồ 6 Thế Lực tại Kinh đô Phú Xuân — Khâm Thiên Giám, Thương Hội Vạn Kim, Viện Bách Uyên Huyền Uyên, Bách Tạo Đường, Vô Danh Ty Trảm Thiên và Quy Nguyên Giáo" width="1024" height="571" loading="lazy" decoding="async">
+              </picture>
             </div>
+            <figcaption class="faction-map-legend">
+              <span><i class="map-dot dot-crimson"></i> <strong>Mũi tên Đỏ (Kinh Thành &amp; Long Thọ):</strong> Khâm Thiên Giám &amp; Huyền Uyên tiến vào Hổ Quyền</span>
+              <span><i class="map-dot dot-river"></i> <strong>Mũi tên Xanh Đen (Sông Hương):</strong> Thuyền buôn Vạn Kim từ Cảng Bao Vinh áp sát Long Thọ</span>
+              <span><i class="map-dot dot-dark"></i> <strong>Mũi tên Đỏ Thẫm (Ngự Bình):</strong> Quy Nguyên Giáo rình rập từ phía Nam</span>
+            </figcaption>
+          </figure>
 
-            <div class="faction-card fc-2">
-              <div class="fc-badge">THẾ LỰC 02 · HỘI KÍN PHÚ THƯƠNG</div>
+          <!-- Lưới 6 Thế Lực tinh gọn (3 cột x 2 hàng cân xứng) -->
+          <div class="factions-clean-grid">
+            <article class="faction-card fc-item">
+              <div class="fc-top">
+                <span class="fc-num">01</span>
+                <span class="fc-loc">HOÀNG THÀNH PHÚ XUÂN</span>
+              </div>
+              <h4>Khâm Thiên Giám</h4>
+              <p>Cơ quan chính thống của triều đình, chuyên điều tra dị sự và trấn yểm tà vật theo 4 phép: <em>Giải · Diệt · Trấn · An</em>.</p>
+              <div class="fc-meta"><strong>Nhân sự:</strong> Mót, Đại Sơn · <strong>Phe:</strong> Chính phái triều đình</div>
+            </article>
+
+            <article class="faction-card fc-item">
+              <div class="fc-top">
+                <span class="fc-num">02</span>
+                <span class="fc-loc">CẢNG BAO VINH</span>
+              </div>
               <h4>Thương Hội Vạn Kim</h4>
-              <p>Dùng vàng bạc và khế ước máu mua chuộc quan tham, tài trợ ma trận khống chế đại cổ quỷ <strong>Xương Cuồng</strong> (<strong>Hội trưởng, Khánh Vũ, Lão Phú</strong>).</p>
-              <div class="fc-wire-note">⟷ Bắt tay ngầm với nhánh <strong>Huyền Uyên</strong> · Mua chuộc quan trường</div>
-            </div>
+              <p>Hội kín phú thương dùng tiền bạc mua chuộc quan lại và lập ma trận thâu tóm đại cổ quỷ <strong>Xương Cuồng</strong>.</p>
+              <div class="fc-meta"><strong>Nhân sự:</strong> Hội Trưởng, Khánh Vũ · <strong>Phe:</strong> Trùm phản diện</div>
+            </article>
 
-            <div class="faction-card fc-3">
-              <div class="fc-badge">THẾ LỰC 03 · HỌC GIẢ BÍ THUẬT</div>
-              <h4>Viện Bách Uyên &amp; Nhánh Huyền Uyên</h4>
-              <p>Nghiên cứu tự nhiên &amp; cổ thuật; nhánh cấm kỵ <strong>Huyền Uyên</strong> luyện huyết hương điều khiển Vong – Ma – Quỷ (<strong>Linh, Cha Linh, Cha Mót</strong>).</p>
-              <div class="fc-wire-note">⟷ Bị <strong>Vạn Kim</strong> ép phục dịch từ đêm thảm sát 1818</div>
-            </div>
+            <article class="faction-card fc-item">
+              <div class="fc-top">
+                <span class="fc-num">03</span>
+                <span class="fc-loc">LÀNG LONG THỌ</span>
+              </div>
+              <h4>Viện Bách Uyên · Huyền Uyên</h4>
+              <p>Nhánh học giả cổ thuật dùng <strong>lư hương đỏ</strong> dẫn dụ và điều khiển Vong – Ma – Quỷ; bị Vạn Kim khống chế từ vụ nổ 1818.</p>
+              <div class="fc-meta"><strong>Nhân sự:</strong> Linh, Cha Mót · <strong>Phe:</strong> Bí thuật nửa chính nửa tà</div>
+            </article>
 
-            <div class="faction-card fc-4">
-              <div class="fc-badge">THẾ LỰC 04 · KỸ NGHỆ CƠ KHÍ</div>
+            <article class="faction-card fc-item">
+              <div class="fc-top">
+                <span class="fc-num">04</span>
+                <span class="fc-loc">NAM SÔNG HƯƠNG</span>
+              </div>
               <h4>Bách Tạo Đường</h4>
-              <p>Các nghệ nhân cơ khí tại Kinh thành &amp; thương cảng Bao Vinh chế tạo công cụ, máy móc và pháp khí vật lý cho người không có Mệnh Âm.</p>
-              <div class="fc-wire-note">⟷ Hỗ trợ pháp khí cho <strong>Khâm Thiên Sứ</strong> &amp; dân lành</div>
-            </div>
+              <p>Phường hội nghệ nhân cơ khí chuyên chế tạo binh khí, cơ quan và pháp khí vật lý cho người không có Mệnh Âm.</p>
+              <div class="fc-meta"><strong>Vai trò:</strong> Hậu phương rèn đúc pháp khí hỗ trợ Khâm Thiên Sứ</div>
+            </article>
 
-            <div class="faction-card fc-5">
-              <div class="fc-badge">THẾ LỰC 05 &amp; 06 · GIANG HỒ &amp; BIÊN VIỄN</div>
-              <h4>Vô Danh · Ty Trảm Thiên · Quy Nguyên Giáo</h4>
-              <p><strong>Vô Danh:</strong> Mạng lưới trẻ mồ côi truyền tin. <strong>Ty Trảm Thiên:</strong> Hiệp khách tự xử tham quan. <strong>Quy Nguyên Giáo:</strong> Tà giáo biên viễn gieo rắc tai ương.</p>
-              <div class="fc-wire-note">⟷ Tạo thế tam giác giữa Phép nước — Giang hồ — Tà giáo</div>
-            </div>
+            <article class="faction-card fc-item">
+              <div class="fc-top">
+                <span class="fc-num">05</span>
+                <span class="fc-loc">KIM LONG · THIÊN MỤ</span>
+              </div>
+              <h4>Vô Danh &amp; Ty Trảm Thiên</h4>
+              <p><strong>Vô Danh</strong> là mạng lưới trẻ mồ côi đưa tin mật; <strong>Ty Trảm Thiên</strong> là nhóm hiệp khách ngầm tự xử quan tham.</p>
+              <div class="fc-meta"><strong>Vai trò:</strong> Tai mắt tình báo &amp; lưỡi gươm hành hiệp giang hồ</div>
+            </article>
+
+            <article class="faction-card fc-item">
+              <div class="fc-top">
+                <span class="fc-num">06</span>
+                <span class="fc-loc">NÚI NGỰ BÌNH · BIÊN VIỄN</span>
+              </div>
+              <h4>Quy Nguyên Giáo</h4>
+              <p>Tà giáo cực đoan ẩn mình nơi rừng núi biên viễn, lợi dụng dịch bệnh <em>Khí suy</em> để mê hoặc dân chúng và gieo rắc tai ương.</p>
+              <div class="fc-meta"><strong>Vai trò:</strong> Tà phái ngoại đạo rình rập xâm nhập Kinh kỳ</div>
+            </article>
           </div>
         </div>
       </div>

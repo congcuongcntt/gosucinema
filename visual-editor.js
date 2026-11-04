@@ -230,6 +230,13 @@
     const f = overrides.fonts || {};
     const root = document.documentElement;
 
+    // Tự động chuyển các mục dùng Cormorant (bị nhảy số lệch dòng) về mặc định Spectral thẳng hàng
+    ['subhead', 'body', 'serifAlt', 'sc'].forEach(k => {
+      if (f[k] && /cormorant/i.test(f[k])) {
+        f[k] = '';
+      }
+    });
+
     let styleEl = document.getElementById('ve-custom-font-faces');
     if (!styleEl) {
       styleEl = document.createElement('style');
@@ -246,6 +253,7 @@
           font-weight: normal;
           font-style: normal;
           font-display: block;
+          unicode-range: U+0000-002F, U+003A-10FFFF;
         }
       `
         )
