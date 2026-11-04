@@ -792,24 +792,135 @@ if (closeTrailerBtn && trailerDialog) {
 }
 
 /* ==========================================================================
-   2 CÂY HƯƠNG NGHI LỄ GIỮA "SƠN HÀ" VÀ "DỊ LỤC" (BẤM ĐỂ THẮP HƯƠNG)
+   CÂY NHANG NGHI LỄ GIỮA "DỊ" VÀ "LỤC" + ĐẾM SỐ NGƯỜI THẮP HƯƠNG (+1)
    ========================================================================== */
 const heroIncenseBtn = document.getElementById('hero-incense-btn');
 const heroMainTitle = document.getElementById('hero-main-title');
+const heroIncenseCounterBar = document.getElementById('hero-incense-counter-bar');
+const heroIncenseCounterBtn = document.getElementById('hero-incense-counter-btn');
+const incenseCountValueEl = document.getElementById('incense-count-value');
+const incenseCounterCtaEl = document.getElementById('incense-counter-cta');
+const incensePlusFloatEl = document.getElementById('incense-plus-float');
 
-if (heroIncenseBtn) {
-  heroIncenseBtn.addEventListener('click', e => {
-    e.stopPropagation();
-    const isLit = heroIncenseBtn.classList.toggle('is-lit');
-    heroIncenseBtn.setAttribute('aria-pressed', String(isLit));
-    if (heroMainTitle) {
-      heroMainTitle.classList.toggle('incense-lit', isLit);
-    }
+const INCENSE_STORAGE_COUNT_KEY = 'gosu_shdl_incense_count_v1';
+const INCENSE_STORAGE_LIT_KEY = 'gosu_shdl_incense_lit_v1';
+const INCENSE_API_GET = 'https://abacus.jasoncameron.dev/get/gosucinema.web.id/shdl_incense_1836';
+const INCENSE_API_HIT = 'https://abacus.jasoncameron.dev/hit/gosucinema.web.id/shdl_incense_1836';
+
+let currentIncenseCount = Math.max(1, parseInt(localStorage.getItem(INCENSE_STORAGE_COUNT_KEY) || '1', 10) || 1);
+let flareTimer = null;
+let floatTimer = null;
+
+function renderIncenseCount(val, animatePop = false) {
+  if (!incenseCountValueEl) return;
+  incenseCountValueEl.textContent = Number(val).toLocaleString('vi-VN');
+  if (animatePop) {
+    incenseCountValueEl.classList.remove('is-popping');
+    void incenseCountValueEl.offsetWidth;
+    incenseCountValueEl.classList.add('is-popping');
+  }
+}
+
+function setIncenseLitVisual(lit) {
+  if (heroIncenseBtn) {
+    heroIncenseBtn.classList.toggle('is-lit', lit);
+    heroIncenseBtn.setAttribute('aria-pressed', String(lit));
     const hintEl = heroIncenseBtn.querySelector('.incense-hint');
     if (hintEl) {
-      hintEl.textContent = isLit ? 'ĐÃ THẮP HƯƠNG' : 'BẤM ĐỂ THẮP HƯƠNG';
+      hintEl.textContent = lit ? 'THẮP THÊM (+1)' : 'BẤM THẮP HƯƠNG (+1)';
     }
-  });
+  }
+  if (heroMainTitle) {
+    heroMainTitle.classList.toggle('incense-lit', lit);
+  }
+  if (heroIncenseCounterBar) {
+    heroIncenseCounterBar.classList.toggle('is-lit', lit);
+  }
+  if (incenseCounterCtaEl) {
+    incenseCounterCtaEl.textContent = lit ? '🔥 THẮP THÊM (+1)' : '✦ BẤM THẮP HƯƠNG (+1)';
+  }
+}
+
+// Khởi tạo trạng thái ban đầu ngay lập tức (0ms delay)
+renderIncenseCount(currentIncenseCount, false);
+if (localStorage.getItem(INCENSE_STORAGE_LIT_KEY) === '1') {
+  setIncenseLitVisual(true);
+}
+
+// Đồng bộ số đếm thực tế trên cloud trong nền (không chặn giao diện)
+fetch(INCENSE_API_GET, { mode: 'cors', cache: 'no-store' })
+  .then(r => (r.ok ? r.json() : null))
+  .then(data => {
+    if (data && typeof data.value === 'number' && data.value > 0) {
+      currentIncenseCount = Math.max(currentIncenseCount, data.value);
+      localStorage.setItem(INCENSE_STORAGE_COUNT_KEY, String(currentIncenseCount));
+      renderIncenseCount(currentIncenseCount, false);
+    }
+  })
+  .catch(() => {});
+
+function triggerLightIncense(e) {
+  if (e) e.stopPropagation();
+
+  // 1. Bật hiệu ứng cháy sáng & khói nhang ngay lập tức
+  setIncenseLitVisual(true);
+  localStorage.setItem(INCENSE_STORAGE_LIT_KEY, '1');
+
+  // 2. Cộng +1 ngay tức thì trên giao diện (Optimistic UI)
+  currentIncenseCount += 1;
+  localStorage.setItem(INCENSE_STORAGE_COUNT_KEY, String(currentIncenseCount));
+  renderIncenseCount(currentIncenseCount, true);
+
+  // 3. Hiệu ứng bùng tàn lửa & nhãn "+1 NÉN HƯƠNG" bay lên nhẹ nhàng
+  if (heroMainTitle) {
+    heroMainTitle.classList.remove('incense-flare');
+    if (flareTimer) clearTimeout(flareTimer);
+    requestAnimationFrame(() => {
+      heroMainTitle.classList.add('incense-flare');
+      flareTimer = setTimeout(() => heroMainTitle.classList.remove('incense-flare'), 650);
+    });
+  }
+  if (incensePlusFloatEl) {
+    incensePlusFloatEl.classList.remove('is-active');
+    if (floatTimer) clearTimeout(floatTimer);
+    requestAnimationFrame(() => {
+      incensePlusFloatEl.classList.add('is-active');
+      floatTimer = setTimeout(() => incensePlusFloatEl.classList.remove('is-active'), 900);
+    });
+  }
+
+  // 4. Gửi lệnh +1 lên Cloud Counter bất đồng bộ
+  fetch(INCENSE_API_HIT, { mode: 'cors', cache: 'no-store' })
+    .then(r => (r.ok ? r.json() : null))
+    .then(data => {
+      if (data && typeof data.value === 'number' && data.value > currentIncenseCount) {
+        currentIncenseCount = data.value;
+        localStorage.setItem(INCENSE_STORAGE_COUNT_KEY, String(currentIncenseCount));
+        renderIncenseCount(currentIncenseCount, false);
+      }
+    })
+    .catch(() => {});
+}
+
+if (heroIncenseBtn) {
+  heroIncenseBtn.addEventListener('click', triggerLightIncense);
+}
+if (heroIncenseCounterBtn) {
+  heroIncenseCounterBtn.addEventListener('click', triggerLightIncense);
+}
+
+// Tạm dừng animation ở Hero khi cuộn qua khỏi Frame 1 để web nhẹ tuyệt đối
+const heroSectionEl = document.querySelector('.hero');
+if (heroSectionEl && 'IntersectionObserver' in window) {
+  const heroObs = new IntersectionObserver(
+    entries => {
+      entries.forEach(entry => {
+        heroSectionEl.classList.toggle('is-offscreen', !entry.isIntersecting);
+      });
+    },
+    { threshold: 0.05 }
+  );
+  heroObs.observe(heroSectionEl);
 }
 
 window.GOSU_STATE = {
