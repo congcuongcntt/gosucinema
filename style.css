@@ -330,12 +330,13 @@ nav a:hover::after {
 
 /* Hero Section */
 .hero {
-  height: 100svh;
-  min-height: 780px;
-  max-height: 1300px;
+  min-height: 100svh;
+  height: auto;
   position: relative;
   overflow: hidden;
   border-bottom: 1px solid rgba(150, 27, 21, 0.4);
+  display: flex;
+  flex-direction: column;
 }
 
 .heroart, .shade, .hero-mist {
@@ -367,14 +368,15 @@ nav a:hover::after {
 }
 
 .hero-copy {
-  position: absolute;
-  inset: 0;
+  position: relative;
   z-index: 4;
+  flex: 1;
+  min-height: 100svh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-end;
-  padding: 0 6% 86px;
+  justify-content: center;
+  padding: 146px 6% 72px;
   text-align: center;
   pointer-events: none;
 }
@@ -385,7 +387,7 @@ nav a:hover::after {
 
 .hero-meta {
   position: absolute;
-  top: 108px;
+  top: 94px;
   left: 4.5%;
   right: 4.5%;
   display: flex;
@@ -422,15 +424,13 @@ nav a:hover::after {
 }
 
 .hero-pitch-tag {
-  position: absolute;
-  top: 152px;
-  left: 50%;
-  transform: translateX(-50%);
+  position: relative;
   z-index: 6;
   display: inline-flex;
   align-items: center;
   gap: 9px;
-  padding: 6px 18px;
+  margin: 0 0 10px;
+  padding: 5px 16px;
   background: linear-gradient(90deg, rgba(16, 11, 9, 0.92), rgba(58, 12, 9, 0.88), rgba(16, 11, 9, 0.92));
   border: 1px solid rgba(223, 192, 138, 0.52);
   border-left: 3px solid var(--crimson);
@@ -467,7 +467,7 @@ nav a:hover::after {
   font-weight: 600;
   letter-spacing: 4px;
   color: var(--gold-bright);
-  margin: 0 0 18px;
+  margin: 0 0 12px;
   text-shadow: 0 2px 12px #000;
 }
 
@@ -496,7 +496,7 @@ h1 {
 /* Cụm Logo Typo chuẩn Sơn Hà Dị Lục (1836) + Cây nhang tương tác giữa DỊ và LỤC */
 .hero-title-art-wrap {
   position: relative;
-  width: clamp(265px, 28.5vw, 430px);
+  width: clamp(210px, min(22.5vw, 34svh), 340px);
   aspect-ratio: 366 / 416;
   display: block;
   user-select: none;
@@ -746,17 +746,17 @@ h1.incense-lit .sp-4 { animation-delay: 2.1s; }
 
 .hero-sub {
   max-width: 690px;
-  margin: 18px auto 0;
+  margin: 14px auto 0;
   font-family: var(--font-serif-alt);
   font-style: italic;
-  font-size: clamp(16px, 1.45vw, 21px);
-  line-height: 1.65;
+  font-size: clamp(15.5px, 1.35vw, 19.5px);
+  line-height: 1.6;
   color: #d6cbb8;
   text-shadow: 0 2px 14px #000;
 }
 
 .hero-actions {
-  margin-top: 22px;
+  margin-top: 16px;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -2299,15 +2299,17 @@ dialog::backdrop {
 }
 
 @media (max-width: 760px) {
+  .hero-copy {
+    padding: 126px 6% 68px;
+  }
   .hero-meta {
-    top: 88px;
+    top: 86px;
     font-size: 9px;
   }
   .hero-seal-badge {
     display: none;
   }
   .hero-pitch-tag {
-    top: 132px;
     font-size: 8.5px;
     letter-spacing: 1.2px;
     padding: 4px 10px;
@@ -2316,7 +2318,7 @@ dialog::backdrop {
     text-align: center;
   }
   .hero-title-art-wrap {
-    width: clamp(220px, 68vw, 310px);
+    width: clamp(200px, min(62vw, 33svh), 290px);
   }
   .hero-sub {
     font-size: 15px;
