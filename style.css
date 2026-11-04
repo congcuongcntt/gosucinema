@@ -471,230 +471,277 @@ nav a:hover::after {
   text-shadow: 0 2px 12px #000;
 }
 
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+  pointer-events: none !important;
+}
+
 h1 {
   position: relative;
-  display: inline-block;
-  font-size: clamp(72px, 11.4vw, 172px);
-  line-height: 1.04;
-  letter-spacing: 1px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   margin: 0;
-  color: #efe4ce;
-  text-shadow:
-    0 6px 35px rgba(0, 0, 0, 0.95),
-    0 0 75px rgba(150, 27, 21, 0.55),
-    0 0 18px rgba(189, 149, 91, 0.25);
-  transition: text-shadow 0.6s ease, filter 0.6s ease;
+  line-height: 1;
 }
 
-h1.incense-lit {
-  text-shadow:
-    0 6px 35px rgba(0, 0, 0, 0.95),
-    0 0 95px rgba(217, 56, 41, 0.82),
-    0 0 34px rgba(255, 170, 90, 0.45);
-}
-
-h1 > span {
+/* Cụm Logo Typo chuẩn Sơn Hà Dị Lục (1836) + Cây nhang tương tác giữa DỊ và LỤC */
+.hero-title-art-wrap {
+  position: relative;
+  width: clamp(265px, 28.5vw, 430px);
+  aspect-ratio: 366 / 416;
   display: block;
+  user-select: none;
+  filter:
+    drop-shadow(0 10px 30px rgba(0, 0, 0, 0.96))
+    drop-shadow(0 0 52px rgba(150, 27, 21, 0.5))
+    drop-shadow(0 0 18px rgba(223, 192, 138, 0.22));
+  transition: filter 0.6s ease, transform 0.5s ease;
 }
 
-h1 > span:first-of-type {
-  word-spacing: 0.26em;
+h1.incense-lit .hero-title-art-wrap {
+  filter:
+    drop-shadow(0 10px 34px rgba(0, 0, 0, 0.96))
+    drop-shadow(0 0 75px rgba(212, 36, 26, 0.82))
+    drop-shadow(0 0 28px rgba(255, 172, 92, 0.42));
 }
 
-h1 > span:last-of-type {
-  margin-top: 8px;
-  padding-left: 26px;
-  color: #e4cfa8;
+.hero-title-art {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+  pointer-events: none;
 }
 
-/* 2 Cây Hương Nghi Lễ ở giữa SƠN HÀ và DỊ LỤC */
+.hero-incense-fx-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* Vùng bấm tương tác đúng vị trí cây nhang giữa chữ DỊ và chữ LỤC (x = 40.57%, y = 52%..92%) */
 .hero-incense-ritual {
   position: absolute;
-  left: 53.2%;
-  top: 35.5%;
+  left: 40.57%;
+  top: 72%;
   transform: translate(-50%, -50%);
-  width: 0.68em;
-  height: 1.48em;
+  width: 16%;
+  height: 43%;
   padding: 0;
   border: 0;
   background: transparent;
   cursor: pointer;
-  z-index: 8;
+  z-index: 9;
   display: flex;
-   flex-direction: column;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
-  overflow: visible;
-  filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.92)) drop-shadow(0 0 22px rgba(150, 27, 21, 0.45));
-  transition: transform 0.35s ease, filter 0.35s ease;
-}
-
-.hero-incense-ritual:hover {
-  transform: translate(-50%, -51.5%) scale(1.04);
-  filter: drop-shadow(0 6px 22px rgba(0, 0, 0, 0.95)) drop-shadow(0 0 32px rgba(223, 192, 138, 0.65));
-}
-
-.hero-incense-ritual .incense-svg {
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-  display: block;
+  outline: none;
 }
 
 .hero-incense-ritual .incense-hint {
   position: absolute;
-  bottom: -6px;
+  bottom: -18px;
   left: 50%;
   transform: translateX(-50%);
   font-family: var(--font-sc);
   font-style: normal;
-  font-size: 9px;
+  font-size: 9.5px;
   font-weight: 700;
   letter-spacing: 1.8px;
-  color: #ffe2a8;
-  background: rgba(65, 11, 8, 0.88);
-  border: 1px solid rgba(223, 192, 138, 0.55);
-  padding: 2px 8px;
+  color: #ffe5b0;
+  background: rgba(58, 10, 8, 0.92);
+  border: 1px solid rgba(223, 192, 138, 0.65);
+  padding: 3px 9px;
   white-space: nowrap;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 0.3s ease, transform 0.3s ease;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.85);
+  transition: opacity 0.28s ease, transform 0.28s ease;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.9), 0 0 14px rgba(212, 36, 26, 0.45);
 }
 
-.hero-incense-ritual:hover .incense-hint {
+.hero-incense-ritual:hover .incense-hint,
+.hero-incense-ritual:focus-visible .incense-hint {
   opacity: 1;
-  transform: translateX(-50%) translateY(-2px);
+  transform: translateX(-50%) translateY(-3px);
 }
 
-/* Trạng thái chưa thắp hương */
-.hero-incense-ritual .ember-core,
-.hero-incense-ritual .ember-hot,
-.hero-incense-ritual .incense-halo-layer,
-.hero-incense-ritual .incense-smoke-layer {
+/* Trạng thái CHƯA THẮP HƯƠNG: nhấp nháy nhẹ ở đầu nhang mời gọi click */
+.incense-unlit-invite {
+  opacity: 0.72;
+  transition: opacity 0.45s ease;
+}
+
+.unlit-tip-dot {
+  animation: unlit-tip-pulse 2.2s ease-in-out infinite;
+}
+
+.unlit-halo-ring {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: halo-slow-spin 18s linear infinite;
+  opacity: 0.45;
+}
+
+.hero-title-art-wrap:has(.hero-incense-ritual:hover) .incense-unlit-invite {
+  opacity: 1;
+  filter: drop-shadow(0 0 8px rgba(255, 136, 68, 0.85));
+}
+
+@keyframes unlit-tip-pulse {
+  0%, 100% { r: 1.8px; fill: #b84a32; opacity: 0.65; }
+  50% { r: 2.8px; fill: #ff7838; opacity: 1; }
+}
+
+@keyframes halo-slow-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Ẩn tầng lửa và khói khi chưa thắp */
+.incense-halo-layer,
+.incense-smoke-layer {
   opacity: 0;
   transition: opacity 0.55s ease;
 }
 
-/* Hiệu ứng nhịp thở nhẹ ở đầu hương khi chưa thắp để gợi ý tương tác */
-.hero-incense-ritual:not(.is-lit) .stick-ash {
-  animation: unlit-ash-hint 2.4s ease-in-out infinite;
+/* Trạng thái ĐÃ THẮP HƯƠNG (h1.incense-lit) */
+h1.incense-lit .incense-unlit-invite {
+  opacity: 0;
 }
 
-@keyframes unlit-ash-hint {
-  0%, 100% { fill: #6e5849; }
-  50% { fill: #c95838; }
-}
-
-/* Trạng thái ĐÃ THẮP HƯƠNG (.is-lit) */
-.hero-incense-ritual.is-lit {
-  filter: drop-shadow(0 6px 22px rgba(0, 0, 0, 0.95)) drop-shadow(0 0 38px rgba(224, 83, 60, 0.78));
-}
-
-.hero-incense-ritual.is-lit .ember-core,
-.hero-incense-ritual.is-lit .ember-hot,
-.hero-incense-ritual.is-lit .incense-halo-layer,
-.hero-incense-ritual.is-lit .incense-smoke-layer {
+h1.incense-lit .incense-halo-layer,
+h1.incense-lit .incense-smoke-layer {
   opacity: 1;
 }
 
-.hero-incense-ritual.is-lit .ember-core {
-  animation: ember-burn-flicker 1.4s ease-in-out infinite alternate;
+h1.incense-lit .ember-core {
+  animation: ember-burn-flicker 1.3s ease-in-out infinite alternate;
 }
 
-.hero-incense-ritual.is-lit .ember-aura {
+h1.incense-lit .ember-aura {
   transform-box: fill-box;
   transform-origin: center;
-  animation: ember-aura-breathe 2.1s ease-in-out infinite;
+  animation: ember-aura-breathe 2s ease-in-out infinite;
 }
 
-.hero-incense-ritual.is-lit .smoke-wisp {
-  stroke-dasharray: 120;
-  stroke-dashoffset: 120;
-  animation: smoke-rise-flow 4.2s linear infinite;
+h1.incense-lit .lit-halo-ring {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: halo-slow-spin 12s linear infinite;
+  filter: drop-shadow(0 0 6px rgba(255, 120, 50, 0.8));
 }
 
-.hero-incense-ritual.is-lit .wisp-2 {
-  animation-duration: 4.8s;
-  animation-delay: 0.6s;
+h1.incense-lit .smoke-wisp {
+  stroke-dasharray: 165;
+  stroke-dashoffset: 165;
+  animation: smoke-wisp-rise 4.4s linear infinite;
 }
 
-.hero-incense-ritual.is-lit .wisp-3 {
-  animation-duration: 3.7s;
-  animation-delay: 1.2s;
+h1.incense-lit .wisp-2 {
+  animation-duration: 5.1s;
+  animation-delay: 0.7s;
 }
 
-.hero-incense-ritual.is-lit .wisp-4 {
-  animation-duration: 5.2s;
-  animation-delay: 1.8s;
+h1.incense-lit .wisp-3 {
+  animation-duration: 3.8s;
+  animation-delay: 1.4s;
 }
 
-.hero-incense-ritual.is-lit .ember-spark {
-  animation: spark-float-up 2.8s ease-out infinite;
+h1.incense-lit .smoke-plume {
+  stroke-dasharray: 240;
+  stroke-dashoffset: 240;
+  animation: smoke-plume-rise 5.8s ease-in-out infinite;
 }
 
-.hero-incense-ritual.is-lit .sp-2 { animation-delay: 0.7s; }
-.hero-incense-ritual.is-lit .sp-3 { animation-delay: 1.4s; }
-.hero-incense-ritual.is-lit .sp-4 { animation-delay: 2.1s; }
+h1.incense-lit .plume-2 {
+  animation-duration: 6.6s;
+  animation-delay: 1.1s;
+}
+
+h1.incense-lit .ember-spark {
+  animation: spark-float-up 2.9s ease-out infinite;
+}
+
+h1.incense-lit .sp-2 { animation-delay: 0.7s; }
+h1.incense-lit .sp-3 { animation-delay: 1.4s; }
+h1.incense-lit .sp-4 { animation-delay: 2.1s; }
 
 @keyframes ember-burn-flicker {
-  0% { r: 3.2px; fill: #ff471a; }
-  50% { r: 3.9px; fill: #ff7b29; }
-  100% { r: 3.5px; fill: #ff5a26; }
+  0% { r: 3.1px; fill: #ff3d14; }
+  50% { r: 3.9px; fill: #ff8533; }
+  100% { r: 3.4px; fill: #ff5520; }
 }
 
 @keyframes ember-aura-breathe {
-  0%, 100% { transform: scale(0.92); opacity: 0.75; }
-  50% { transform: scale(1.28); opacity: 1; }
+  0%, 100% { transform: scale(0.9); opacity: 0.78; }
+  50% { transform: scale(1.32); opacity: 1; }
 }
 
-@keyframes smoke-rise-flow {
+@keyframes smoke-wisp-rise {
   0% {
-    stroke-dashoffset: 120;
+    stroke-dashoffset: 165;
     opacity: 0;
-    transform: translateY(4px) translateX(0);
+    transform: translateY(3px) translateX(0);
   }
-  20% {
-    opacity: 0.85;
+  18% {
+    opacity: 0.92;
   }
-  65% {
-    opacity: 0.65;
-    transform: translateY(-6px) translateX(-2px);
+  70% {
+    opacity: 0.68;
+    transform: translateY(-8px) translateX(-1.8px);
   }
   100% {
-    stroke-dashoffset: -120;
+    stroke-dashoffset: -165;
     opacity: 0;
-    transform: translateY(-16px) translateX(2px);
+    transform: translateY(-18px) translateX(2.2px);
+  }
+}
+
+@keyframes smoke-plume-rise {
+  0% {
+    stroke-dashoffset: 240;
+    opacity: 0;
+    transform: translateY(4px) scaleX(0.92);
+  }
+  25% {
+    opacity: 0.55;
+  }
+  70% {
+    opacity: 0.38;
+    transform: translateY(-10px) scaleX(1.08);
+  }
+  100% {
+    stroke-dashoffset: -240;
+    opacity: 0;
+    transform: translateY(-22px) scaleX(1.15);
   }
 }
 
 @keyframes spark-float-up {
   0% {
     opacity: 0;
-    transform: translateY(10px) scale(0.6);
+    transform: translateY(8px) scale(0.6);
   }
   25% {
     opacity: 0.95;
   }
   100% {
     opacity: 0;
-    transform: translateY(-28px) translateX(3px) scale(0.2);
+    transform: translateY(-30px) translateX(3px) scale(0.2);
   }
-}
-
-h1 sup {
-  display: inline-block;
-  vertical-align: top;
-  font-family: var(--font-sc);
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--crimson);
-  letter-spacing: 2px;
-  margin: 14px 0 0 14px;
-  writing-mode: vertical-rl;
-  border: 1px solid rgba(201, 48, 38, 0.6);
-  padding: 8px 4px;
-  background: rgba(40, 6, 5, 0.7);
 }
 
 .hero-sub {
@@ -2268,11 +2315,8 @@ dialog::backdrop {
     white-space: normal;
     text-align: center;
   }
-  h1 {
-    font-size: 18.5vw;
-  }
-  h1 > span:last-child {
-    padding-left: 0;
+  .hero-title-art-wrap {
+    width: clamp(220px, 68vw, 310px);
   }
   .hero-sub {
     font-size: 15px;

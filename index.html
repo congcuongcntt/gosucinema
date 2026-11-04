@@ -7,11 +7,12 @@
   <title>Gosu Cinema | Sơn Hà Dị Lục · 1836 — Linh Dị Cổ Trang Việt Nam</title>
   <link rel="preload" href="assets/uploads/1793703338122-1FTV-VIP-Queen-of-Silence.ttf" as="font" type="font/ttf" crossorigin>
   <link rel="preload" href="assets/uploads/1793704176731-CORMORANTGARAMOND-REGULAR.TTF" as="font" type="font/ttf" crossorigin>
+  <link rel="preload" href="assets/son-ha-di-luc-title.webp" as="image" type="image/webp">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Cormorant+SC:wght@500;600;700&family=Prata&family=Spectral:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=9">
-  <link rel="stylesheet" href="visual-editor.css?v=9">
+  <link rel="stylesheet" href="style.css?v=10">
+  <link rel="stylesheet" href="visual-editor.css?v=10">
   <script>
     (function() {
       try {
@@ -108,88 +109,71 @@
         <div class="hero-pitch-tag" data-ve-id="hero.pitch.tag">HỒ SƠ PITCHING DECK DỰ ÁN · KHÔNG PHẢI WEBSITE CHÍNH THỨC</div>
         <p class="hero-kicker">NHÂN TÂM DẬY SÓNG · MẠCH KHÍ SUY TÀN · SƠN HÀ THỨC GIẤC</p>
         <h1 id="hero-main-title">
-          <span>SƠN HÀ</span>
-          <button type="button" class="hero-incense-ritual" id="hero-incense-btn" aria-pressed="false" aria-label="Bấm để thắp 2 cây hương khai mở Sơn Hà Dị Lục" title="Bấm vào 2 cây hương để thắp hương">
-            <svg class="incense-svg" viewBox="0 0 120 260" fill="none" aria-hidden="true">
+          <span class="sr-only">SƠN HÀ</span>
+          <div class="hero-title-art-wrap">
+            <img class="hero-title-art" src="assets/son-ha-di-luc-title.webp" alt="Sơn Hà Dị Lục 1836" width="366" height="416" decoding="sync" fetchpriority="high">
+            <svg class="hero-incense-fx-svg" viewBox="0 0 366 416" fill="none" aria-hidden="true">
               <defs>
-                <linearGradient id="inc-body-grad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stop-color="#f5ecd9"/>
-                  <stop offset="55%" stop-color="#e4cfa8"/>
-                  <stop offset="100%" stop-color="#b88e52"/>
-                </linearGradient>
-                <linearGradient id="inc-leg-grad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stop-color="#d93829"/>
-                  <stop offset="100%" stop-color="#6e110c"/>
-                </linearGradient>
                 <radialGradient id="inc-ember-glow" cx="50%" cy="50%" r="50%">
-                  <stop offset="0%" stop-color="#fffbe0"/>
-                  <stop offset="35%" stop-color="#ff7b38"/>
-                  <stop offset="72%" stop-color="#d92b1c" stop-opacity="0.75"/>
+                  <stop offset="0%" stop-color="#fffbe6" stop-opacity="1"/>
+                  <stop offset="28%" stop-color="#ff7a33" stop-opacity="0.92"/>
+                  <stop offset="62%" stop-color="#d4241a" stop-opacity="0.58"/>
                   <stop offset="100%" stop-color="#961b15" stop-opacity="0"/>
                 </radialGradient>
-                <linearGradient id="inc-smoke-pale" x1="0" y1="1" x2="0" y2="0">
-                  <stop offset="0%" stop-color="#f2e6d0" stop-opacity="0.75"/>
-                  <stop offset="55%" stop-color="#dfc08a" stop-opacity="0.38"/>
-                  <stop offset="100%" stop-color="#efe4ce" stop-opacity="0"/>
+                <linearGradient id="inc-smoke-callig" x1="0" y1="1" x2="0" y2="0">
+                  <stop offset="0%" stop-color="#f9f1e0" stop-opacity="0.92"/>
+                  <stop offset="45%" stop-color="#dfc08a" stop-opacity="0.62"/>
+                  <stop offset="80%" stop-color="#d89b6c" stop-opacity="0.28"/>
+                  <stop offset="100%" stop-color="#f9f1e0" stop-opacity="0"/>
                 </linearGradient>
-                <linearGradient id="inc-smoke-blood" x1="0" y1="1" x2="0" y2="0">
-                  <stop offset="0%" stop-color="#e8523d" stop-opacity="0.7"/>
-                  <stop offset="55%" stop-color="#c93026" stop-opacity="0.32"/>
+                <linearGradient id="inc-smoke-crimson" x1="0" y1="1" x2="0" y2="0">
+                  <stop offset="0%" stop-color="#ff8c52" stop-opacity="0.78"/>
+                  <stop offset="45%" stop-color="#d4241a" stop-opacity="0.45"/>
+                  <stop offset="85%" stop-color="#961b15" stop-opacity="0.18"/>
                   <stop offset="100%" stop-color="#961b15" stop-opacity="0"/>
                 </linearGradient>
+                <filter id="inc-smoke-soft" x="-50%" y="-30%" width="200%" height="160%">
+                  <feGaussianBlur stdDeviation="2.6"/>
+                </filter>
               </defs>
 
-              <!-- Tầng khói hương uốn lượn (chỉ hiện khi đã thắp) -->
+              <!-- Vòng tròn chấm & đốm tàn hương nhấp nháy nhẹ khi chưa thắp để mời gọi bấm -->
+              <g class="incense-unlit-invite">
+                <circle class="unlit-halo-ring" cx="148.5" cy="240.5" r="18.5" stroke="#dfc08a" stroke-width="1" stroke-dasharray="1.5 3.5"/>
+                <circle class="unlit-tip-dot" cx="148.5" cy="237.5" r="2.2" fill="#d95338"/>
+              </g>
+
+              <!-- Tầng khói nhang uốn lượn bay lên từ đầu cây nhang giữa chữ DỊ và LỤC (x=148.5, y=237.5) -->
               <g class="incense-smoke-layer">
-                <path class="smoke-wisp wisp-1" d="M 49 78 C 36 56, 62 36, 44 14 C 35 4, 48 -4, 42 -12" stroke="url(#inc-smoke-pale)" stroke-width="2.4" stroke-linecap="round"/>
-                <path class="smoke-wisp wisp-2" d="M 71 72 C 84 50, 58 30, 75 10 C 83 0, 70 -6, 76 -14" stroke="url(#inc-smoke-blood)" stroke-width="2.2" stroke-linecap="round"/>
-                <path class="smoke-wisp wisp-3" d="M 50 76 C 60 52, 38 28, 54 6" stroke="url(#inc-smoke-blood)" stroke-width="1.5" stroke-linecap="round"/>
-                <path class="smoke-wisp wisp-4" d="M 70 70 C 60 46, 82 24, 65 2" stroke="url(#inc-smoke-pale)" stroke-width="1.7" stroke-linecap="round"/>
-                <circle class="ember-spark sp-1" cx="47" cy="62" r="1.4" fill="#ffbe6b"/>
-                <circle class="ember-spark sp-2" cx="73" cy="54" r="1.2" fill="#ff6b35"/>
-                <circle class="ember-spark sp-3" cx="56" cy="40" r="1.1" fill="#ffe89e"/>
-                <circle class="ember-spark sp-4" cx="67" cy="28" r="1.3" fill="#ff5533"/>
+                <!-- Khói mờ bồng bềnh tầng nền -->
+                <path class="smoke-plume plume-1" filter="url(#inc-smoke-soft)" d="M 148.5 236 C 136 214, 162 192, 145 166 C 130 142, 160 116, 146 86 C 136 64, 154 42, 147 18" stroke="url(#inc-smoke-callig)" stroke-width="5.2" stroke-linecap="round"/>
+                <path class="smoke-plume plume-2" filter="url(#inc-smoke-soft)" d="M 148.5 236 C 160 212, 136 186, 153 158 C 166 134, 138 106, 152 76" stroke="url(#inc-smoke-crimson)" stroke-width="4.4" stroke-linecap="round"/>
+
+                <!-- Sợi khói mảnh thanh thoát chuẩn mẫu thiết kế -->
+                <path class="smoke-wisp wisp-1" d="M 148.5 236 C 141 224, 156 212, 146 198 C 137 185, 155 170, 147 152 C 140 136, 154 118, 148 98" stroke="url(#inc-smoke-callig)" stroke-width="1.8" stroke-linecap="round"/>
+                <path class="smoke-wisp wisp-2" d="M 148.5 236 C 155 222, 140 208, 151 192 C 160 178, 142 160, 151 140 C 158 122, 144 104, 150 84" stroke="url(#inc-smoke-crimson)" stroke-width="1.45" stroke-linecap="round"/>
+                <path class="smoke-wisp wisp-3" d="M 147.8 234 C 143 218, 152 204, 144 186 C 138 172, 149 156, 145 136" stroke="url(#inc-smoke-callig)" stroke-width="1.2" stroke-linecap="round"/>
+
+                <!-- Tàn lửa nhỏ bay lên theo làn khói -->
+                <circle class="ember-spark sp-1" cx="146" cy="222" r="1.35" fill="#ffd27d"/>
+                <circle class="ember-spark sp-2" cx="152" cy="206" r="1.15" fill="#ff6b35"/>
+                <circle class="ember-spark sp-3" cx="145" cy="188" r="1.05" fill="#fff0b8"/>
+                <circle class="ember-spark sp-4" cx="151" cy="170" r="1.2" fill="#e84528"/>
               </g>
 
-              <!-- Vầng sáng quầng lửa quanh 2 đầu hương -->
+              <!-- Quầng lửa đỏ chu sa & đầu nhang cháy sáng tại (148.5, 237.5) -->
               <g class="incense-halo-layer">
-                <circle class="ember-aura aura-left" cx="49" cy="80" r="16" fill="url(#inc-ember-glow)"/>
-                <circle class="ember-aura aura-right" cx="71" cy="74" r="17" fill="url(#inc-ember-glow)"/>
-              </g>
-
-              <!-- CÂY HƯƠNG TRÁI (Phong cách nét khắc gai góc của font 1FTV-VIP-Queen-of-Silence) -->
-              <g class="incense-stick stick-left">
-                <!-- Chân hương chu sa -->
-                <path d="M 47.5 186 L 51.5 186 L 52.5 204 L 54.5 207 L 51.8 210 L 52.2 236 L 49.5 244 L 47 236 L 47.4 210 L 44.8 207 L 47 204 Z" fill="url(#inc-leg-grad)"/>
-                <!-- Thân hương màu ngà vàng khắc gai gothic -->
-                <path d="M 46.5 82 L 49 77 L 51.5 82 L 52.2 104 L 55.5 108 L 52.3 111.5 L 52.6 138 L 44.5 142 L 46.8 145.5 L 52.5 162 L 55.2 166 L 52 169.5 L 51.8 188 L 47.2 188 L 47 169.5 L 44.2 166 L 46.8 162 L 46.6 111.5 L 43.8 108 L 46.8 104 Z" fill="url(#inc-body-grad)"/>
-                <!-- Đầu tàn hương & đốm lửa -->
-                <path class="stick-ash" d="M 46.8 83 L 49 76.5 L 51.2 83 Z" fill="#5e5248"/>
-                <circle class="ember-core" cx="49" cy="79.5" r="3.4" fill="#ff5a26"/>
-                <circle class="ember-hot" cx="49" cy="79" r="1.7" fill="#fff8c4"/>
-              </g>
-
-              <!-- CÂY HƯƠNG PHẢI (Cao hơn một nhịp, đối xứng gai gothic) -->
-              <g class="incense-stick stick-right">
-                <!-- Chân hương chu sa -->
-                <path d="M 68.5 186 L 72.5 186 L 73.2 204 L 75.8 207 L 73 210 L 73.4 236 L 70.5 244 L 68 236 L 68.4 210 L 65.8 207 L 68.2 204 Z" fill="url(#inc-leg-grad)"/>
-                <!-- Thân hương màu ngà vàng khắc gai gothic -->
-                <path d="M 68.5 76 L 71 71 L 73.5 76 L 73.8 98 L 76.8 102 L 73.8 105.5 L 74 132 L 77 136 L 73.8 139.5 L 73.6 158 L 65.5 162 L 68.2 165.5 L 73.2 188 L 68.6 188 L 68.4 139.5 L 65.4 136 L 68.4 132 L 68.2 105.5 L 65.2 102 L 68.2 98 Z" fill="url(#inc-body-grad)"/>
-                <!-- Đầu tàn hương & đốm lửa -->
-                <path class="stick-ash" d="M 68.8 77 L 71 70.5 L 73.2 77 Z" fill="#5e5248"/>
-                <circle class="ember-core" cx="71" cy="73.5" r="3.5" fill="#ff5a26"/>
-                <circle class="ember-hot" cx="71" cy="73" r="1.8" fill="#fff8c4"/>
-              </g>
-
-              <!-- Đế lư hương cổ phù nằm ngang chính giữa SƠN HÀ và DỊ LỤC -->
-              <g class="incense-altar-line">
-                <path d="M 4 190 L 38 188.5 L 43 185 L 46 190 L 74 190 L 77 185 L 82 188.5 L 116 190 L 82 191.5 L 77 195 L 74 190 L 46 190 L 43 195 L 38 191.5 Z" fill="#bd955b" fill-opacity="0.72"/>
-                <polygon points="60,182 65,190 60,198 55,190" fill="#c93026" stroke="#e4cfa8" stroke-width="1"/>
+                <circle class="ember-aura" cx="148.5" cy="237.5" r="22" fill="url(#inc-ember-glow)"/>
+                <circle class="lit-halo-ring" cx="148.5" cy="240.5" r="18.5" stroke="#ff9a52" stroke-width="1.15" stroke-dasharray="1.6 3.4"/>
+                <circle class="ember-core" cx="148.5" cy="237.5" r="3.4" fill="#ff4d1c"/>
+                <circle class="ember-hot" cx="148.5" cy="237.5" r="1.65" fill="#fffbe0"/>
               </g>
             </svg>
-            <i class="incense-hint">BẤM ĐỂ THẮP HƯƠNG</i>
-          </button>
-          <span>DỊ LỤC<sup>1836</sup></span>
+            <button type="button" class="hero-incense-ritual" id="hero-incense-btn" aria-pressed="false" aria-label="Bấm vào cây nhang giữa chữ Dị và Lục để thắp hương" title="Bấm vào cây nhang để thắp hương">
+              <i class="incense-hint">BẤM THẮP HƯƠNG</i>
+            </button>
+          </div>
+          <span class="sr-only">DỊ LỤC<sup>1836</sup></span>
         </h1>
         <p class="hero-sub">“Ma quỷ không tự nhiên sinh ra để hủy diệt nhân gian — chính lòng tham, sự tàn nhẫn và nỗi oan khuất chưa được tháo gỡ của con người mới là mầm mống nuôi dưỡng tà vật.”</p>
         <div class="hero-actions">
@@ -1302,7 +1286,7 @@
     </div>
   </dialog>
 
-  <script src="app.js?v=9"></script>
-  <script src="visual-editor.js?v=9"></script>
+  <script src="app.js?v=10"></script>
+  <script src="visual-editor.js?v=10"></script>
 </body>
 </html>

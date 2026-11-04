@@ -200,7 +200,7 @@
       }
     });
 
-    const allImgs = document.querySelectorAll('img');
+    const allImgs = document.querySelectorAll('img:not(.hero-title-art)');
     allImgs.forEach((img, idx) => {
       if (img.closest('.ve-modal') || img.closest('#lightbox')) return;
       if (img.id === 'portrait') {
