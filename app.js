@@ -1006,6 +1006,113 @@ if (heroSectionEl && 'IntersectionObserver' in window) {
   heroObs.observe(heroSectionEl);
 }
 
+/* ==========================================================================
+   NHẠC NỀN TOÀN WEB (SOUNDTRACK TỪ 01:44 ĐẾN HẾT & TỰ ĐỘNG REPLAY)
+   ========================================================================== */
+const bgSoundtrackEl = document.getElementById('bg-soundtrack');
+const soundtrackToggleBtn = document.getElementById('soundtrack-toggle');
+const soundtrackLabelEl = document.getElementById('soundtrack-label');
+const SOUNDTRACK_BASE_VOLUME = 0.65;
+
+let userMutedSoundtrack = false;
+let gestureListenersAttached = false;
+
+function updateSoundtrackUI(isPlaying) {
+  if (!soundtrackToggleBtn) return;
+  soundtrackToggleBtn.classList.toggle('is-playing', isPlaying);
+  soundtrackToggleBtn.setAttribute('aria-pressed', String(isPlaying));
+  if (soundtrackLabelEl) {
+    soundtrackLabelEl.textContent = isPlaying ? 'NHẠC NỀN: ĐANG PHÁT' : 'NHẠC NỀN: TẮT';
+  }
+}
+
+function playSoundtrack() {
+  if (!bgSoundtrackEl || userMutedSoundtrack) return;
+  bgSoundtrackEl.loop = true;
+  bgSoundtrackEl.volume = SOUNDTRACK_BASE_VOLUME;
+  const playPromise = bgSoundtrackEl.play();
+  if (playPromise && typeof playPromise.then === 'function') {
+    playPromise
+      .then(() => {
+        updateSoundtrackUI(true);
+        removeFirstGestureListeners();
+      })
+      .catch(() => {
+        // Trình duyệt chờ tương tác đầu tiên của người dùng
+        updateSoundtrackUI(false);
+        attachFirstGestureListeners();
+      });
+  }
+}
+
+function onFirstUserGesture(e) {
+  if (userMutedSoundtrack) {
+    removeFirstGestureListeners();
+    return;
+  }
+  // Nếu bấm trực tiếp vào nút bật/tắt nhạc thì để sự kiện click của nút tự xử lý
+  if (e && soundtrackToggleBtn && soundtrackToggleBtn.contains(e.target)) return;
+  playSoundtrack();
+}
+
+function attachFirstGestureListeners() {
+  if (gestureListenersAttached) return;
+  gestureListenersAttached = true;
+  ['pointerdown', 'click', 'touchstart', 'keydown'].forEach(evt => {
+    window.addEventListener(evt, onFirstUserGesture, { passive: true, capture: true });
+  });
+}
+
+function removeFirstGestureListeners() {
+  if (!gestureListenersAttached) return;
+  gestureListenersAttached = false;
+  ['pointerdown', 'click', 'touchstart', 'keydown'].forEach(evt => {
+    window.removeEventListener(evt, onFirstUserGesture, { capture: true });
+  });
+}
+
+if (bgSoundtrackEl) {
+  // Đảm bảo luôn replay từ đầu đoạn 01:44 khi phát hết bài
+  bgSoundtrackEl.addEventListener('ended', () => {
+    if (!userMutedSoundtrack) {
+      bgSoundtrackEl.currentTime = 0;
+      bgSoundtrackEl.play().catch(() => {});
+    }
+  });
+  bgSoundtrackEl.addEventListener('play', () => updateSoundtrackUI(true));
+  bgSoundtrackEl.addEventListener('pause', () => updateSoundtrackUI(false));
+
+  // Tự động kích hoạt phát nhạc ngay khi mở trang
+  playSoundtrack();
+}
+
+if (soundtrackToggleBtn && bgSoundtrackEl) {
+  soundtrackToggleBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    if (!bgSoundtrackEl.paused) {
+      userMutedSoundtrack = true;
+      removeFirstGestureListeners();
+      bgSoundtrackEl.pause();
+      updateSoundtrackUI(false);
+    } else {
+      userMutedSoundtrack = false;
+      bgSoundtrackEl.volume = SOUNDTRACK_BASE_VOLUME;
+      bgSoundtrackEl.play()
+        .then(() => updateSoundtrackUI(true))
+        .catch(() => updateSoundtrackUI(false));
+    }
+  });
+}
+
+// Tự động giảm âm lượng nhạc nền khi người dùng bật tiếng video Hồi Đầu
+if (openingVideo && bgSoundtrackEl) {
+  openingVideo.addEventListener('volumechange', () => {
+    if (!bgSoundtrackEl.paused) {
+      bgSoundtrackEl.volume = (!openingVideo.muted && !openingVideo.paused) ? 0.15 : SOUNDTRACK_BASE_VOLUME;
+    }
+  });
+}
+
 window.GOSU_STATE = {
   chars,
   places,
