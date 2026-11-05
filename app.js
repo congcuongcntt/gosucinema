@@ -1007,71 +1007,90 @@ if (heroSectionEl && 'IntersectionObserver' in window) {
 }
 
 /* ==========================================================================
-   NHẠC NỀN TOÀN WEB (SOUNDTRACK TỪ 01:44 ĐẾN HẾT & TỰ ĐỘNG REPLAY)
+   NHẠC NỀN TOÀN WEB — MẶC ĐỊNH BẬT (TỪ 01:44 ĐẾN HẾT & TỰ ĐỘNG REPLAY)
    ========================================================================== */
 const bgSoundtrackEl = document.getElementById('bg-soundtrack');
 const soundtrackToggleBtn = document.getElementById('soundtrack-toggle');
 const soundtrackLabelEl = document.getElementById('soundtrack-label');
-const SOUNDTRACK_BASE_VOLUME = 0.65;
+const SOUNDTRACK_BASE_VOLUME = 0.68;
 
 let userMutedSoundtrack = false;
-let gestureListenersAttached = false;
+let hasUnmutedAudio = false;
+let unlockListenersAttached = false;
 
-function updateSoundtrackUI(isPlaying) {
+function updateSoundtrackUI(isOn) {
   if (!soundtrackToggleBtn) return;
-  soundtrackToggleBtn.classList.toggle('is-playing', isPlaying);
-  soundtrackToggleBtn.setAttribute('aria-pressed', String(isPlaying));
+  soundtrackToggleBtn.classList.toggle('is-playing', isOn);
+  soundtrackToggleBtn.setAttribute('aria-pressed', String(isOn));
   if (soundtrackLabelEl) {
-    soundtrackLabelEl.textContent = isPlaying ? 'NHẠC NỀN: ĐANG PHÁT' : 'NHẠC NỀN: TẮT';
+    soundtrackLabelEl.textContent = isOn ? 'NHẠC NỀN: BẬT' : 'NHẠC NỀN: TẮT';
   }
 }
 
-function playSoundtrack() {
-  if (!bgSoundtrackEl || userMutedSoundtrack) return;
-  bgSoundtrackEl.loop = true;
-  bgSoundtrackEl.volume = SOUNDTRACK_BASE_VOLUME;
-  const playPromise = bgSoundtrackEl.play();
-  if (playPromise && typeof playPromise.then === 'function') {
-    playPromise
-      .then(() => {
-        updateSoundtrackUI(true);
-        removeFirstGestureListeners();
-      })
-      .catch(() => {
-        // Trình duyệt chờ tương tác đầu tiên của người dùng
-        updateSoundtrackUI(false);
-        attachFirstGestureListeners();
-      });
-  }
-}
+const UNLOCK_EVENTS = [
+  'click',
+  'pointerdown',
+  'pointerup',
+  'mousedown',
+  'mouseup',
+  'touchstart',
+  'touchend',
+  'keydown',
+  'wheel',
+  'scroll'
+];
 
-function onFirstUserGesture(e) {
-  if (userMutedSoundtrack) {
-    removeFirstGestureListeners();
+function tryUnlockAndPlaySoundtrack(e) {
+  if (userMutedSoundtrack || !bgSoundtrackEl) {
+    detachUnlockListeners();
     return;
   }
-  // Nếu bấm trực tiếp vào nút bật/tắt nhạc thì để sự kiện click của nút tự xử lý
-  if (e && soundtrackToggleBtn && soundtrackToggleBtn.contains(e.target)) return;
-  playSoundtrack();
+  // Nếu bấm vào nút nhạc khi đã phát có tiếng rồi thì để sự kiện click của nút xử lý tắt/bật
+  if (hasUnmutedAudio && e && soundtrackToggleBtn && soundtrackToggleBtn.contains(e.target)) {
+    return;
+  }
+
+  bgSoundtrackEl.loop = true;
+  bgSoundtrackEl.muted = false;
+  bgSoundtrackEl.volume = SOUNDTRACK_BASE_VOLUME;
+
+  const p = bgSoundtrackEl.play();
+  if (p && typeof p.then === 'function') {
+    p.then(() => {
+      hasUnmutedAudio = true;
+      updateSoundtrackUI(true);
+      detachUnlockListeners();
+    }).catch(() => {
+      // Nếu sự kiện hiện tại (VD: scroll) chưa được trình duyệt cấp quyền âm thanh,
+      // giữ trạng thái MẶC ĐỊNH BẬT trên giao diện và chạy ngầm muted chờ cú chạm kế tiếp
+      updateSoundtrackUI(true);
+      bgSoundtrackEl.muted = true;
+      bgSoundtrackEl.play().catch(() => {});
+    });
+  }
 }
 
-function attachFirstGestureListeners() {
-  if (gestureListenersAttached) return;
-  gestureListenersAttached = true;
-  ['pointerdown', 'click', 'touchstart', 'keydown'].forEach(evt => {
-    window.addEventListener(evt, onFirstUserGesture, { passive: true, capture: true });
+function attachUnlockListeners() {
+  if (unlockListenersAttached) return;
+  unlockListenersAttached = true;
+  UNLOCK_EVENTS.forEach(evt => {
+    window.addEventListener(evt, tryUnlockAndPlaySoundtrack, { passive: true, capture: true });
   });
 }
 
-function removeFirstGestureListeners() {
-  if (!gestureListenersAttached) return;
-  gestureListenersAttached = false;
-  ['pointerdown', 'click', 'touchstart', 'keydown'].forEach(evt => {
-    window.removeEventListener(evt, onFirstUserGesture, { capture: true });
+function detachUnlockListeners() {
+  if (!unlockListenersAttached) return;
+  unlockListenersAttached = false;
+  UNLOCK_EVENTS.forEach(evt => {
+    window.removeEventListener(evt, tryUnlockAndPlaySoundtrack, { capture: true });
   });
 }
 
 if (bgSoundtrackEl) {
+  // Mặc định luôn ở trạng thái BẬT ngay khi vào trang
+  updateSoundtrackUI(true);
+  attachUnlockListeners();
+
   // Đảm bảo luôn replay từ đầu đoạn 01:44 khi phát hết bài
   bgSoundtrackEl.addEventListener('ended', () => {
     if (!userMutedSoundtrack) {
@@ -1079,27 +1098,50 @@ if (bgSoundtrackEl) {
       bgSoundtrackEl.play().catch(() => {});
     }
   });
-  bgSoundtrackEl.addEventListener('play', () => updateSoundtrackUI(true));
-  bgSoundtrackEl.addEventListener('pause', () => updateSoundtrackUI(false));
 
-  // Tự động kích hoạt phát nhạc ngay khi mở trang
-  playSoundtrack();
+  // Kích hoạt phát ngay lập tức khi mở trang
+  tryUnlockAndPlaySoundtrack();
+  window.addEventListener('load', () => {
+    if (!userMutedSoundtrack && !hasUnmutedAudio) {
+      tryUnlockAndPlaySoundtrack();
+    }
+  });
 }
 
 if (soundtrackToggleBtn && bgSoundtrackEl) {
   soundtrackToggleBtn.addEventListener('click', e => {
     e.stopPropagation();
-    if (!bgSoundtrackEl.paused) {
+
+    // Nếu trình duyệt trước đó đang khóa tiếng (muted/paused), cú click vào nút sẽ mở tiếng ngay lập tức
+    if (!userMutedSoundtrack && (bgSoundtrackEl.paused || bgSoundtrackEl.muted || !hasUnmutedAudio)) {
+      bgSoundtrackEl.muted = false;
+      bgSoundtrackEl.volume = SOUNDTRACK_BASE_VOLUME;
+      bgSoundtrackEl.play()
+        .then(() => {
+          hasUnmutedAudio = true;
+          updateSoundtrackUI(true);
+          detachUnlockListeners();
+        })
+        .catch(() => {});
+      return;
+    }
+
+    // Chuyển đổi BẬT / TẮT theo ý người dùng
+    if (!userMutedSoundtrack) {
       userMutedSoundtrack = true;
-      removeFirstGestureListeners();
+      detachUnlockListeners();
       bgSoundtrackEl.pause();
       updateSoundtrackUI(false);
     } else {
       userMutedSoundtrack = false;
+      bgSoundtrackEl.muted = false;
       bgSoundtrackEl.volume = SOUNDTRACK_BASE_VOLUME;
       bgSoundtrackEl.play()
-        .then(() => updateSoundtrackUI(true))
-        .catch(() => updateSoundtrackUI(false));
+        .then(() => {
+          hasUnmutedAudio = true;
+          updateSoundtrackUI(true);
+        })
+        .catch(() => {});
     }
   });
 }
@@ -1107,7 +1149,7 @@ if (soundtrackToggleBtn && bgSoundtrackEl) {
 // Tự động giảm âm lượng nhạc nền khi người dùng bật tiếng video Hồi Đầu
 if (openingVideo && bgSoundtrackEl) {
   openingVideo.addEventListener('volumechange', () => {
-    if (!bgSoundtrackEl.paused) {
+    if (!bgSoundtrackEl.paused && !userMutedSoundtrack) {
       bgSoundtrackEl.volume = (!openingVideo.muted && !openingVideo.paused) ? 0.15 : SOUNDTRACK_BASE_VOLUME;
     }
   });
