@@ -79,17 +79,128 @@ const charViewLabels = {
   sheet: 'BẢNG THIẾT KẾ CHI TIẾT 1836'
 };
 
+// Bộ đệm chuyển đổi Base64 nặng -> Blob URL siêu tốc & giữ ảnh đã giải mã trên GPU
+const fastCharUrlMap = new Map();
+const gpuWarmImgMap = new Map();
+let charGpuWarmPoolEl = null;
+
+function ensureGpuWarmPool() {
+  if (!charGpuWarmPoolEl && portraitBox) {
+    charGpuWarmPoolEl = document.createElement('div');
+    charGpuWarmPoolEl.className = 'char-gpu-warm-pool';
+    charGpuWarmPoolEl.setAttribute('aria-hidden', 'true');
+    portraitBox.appendChild(charGpuWarmPoolEl);
+  }
+  return charGpuWarmPoolEl;
+}
+
+function dataUrlToBlobUrl(dataUrl) {
+  try {
+    const parts = dataUrl.split(',');
+    if (parts.length < 2) return dataUrl;
+    const mimeMatch = parts[0].match(/:(.*?);/);
+    const mime = mimeMatch ? mimeMatch[1] : 'image/webp';
+    const bstr = atob(parts[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+    return URL.createObjectURL(new Blob([u8arr], { type: mime }));
+  } catch (_) {
+    return dataUrl;
+  }
+}
+
+const KNOWN_PNG_TO_WEBP = {
+  'assets/uploads/1793702211074-TRAILER_SHDL_2.00_03_35_08.Still006.png':
+    'assets/uploads/1793702211074-TRAILER_SHDL_2.00_03_35_08.Still006.webp',
+  'assets/uploads/1793705406456-NHAN_VAT_QUAN_LON.png':
+    'assets/uploads/1793705406456-NHAN_VAT_QUAN_LON.webp',
+  'assets/uploads/1793705469018-B_ng_thi_t_k__Linh_-_Huy_n_Uy_n_1836.png':
+    'assets/uploads/1793705469018-B_ng_thi_t_k__Linh_-_Huy_n_Uy_n_1836.webp'
+};
+
+function resolveFastCharImage(rawSrc) {
+  if (!rawSrc) return '';
+  if (KNOWN_PNG_TO_WEBP[rawSrc]) {
+    rawSrc = KNOWN_PNG_TO_WEBP[rawSrc];
+  }
+  if (fastCharUrlMap.has(rawSrc)) {
+    return fastCharUrlMap.get(rawSrc);
+  }
+  let fastUrl = rawSrc;
+  if (rawSrc.startsWith('data:image/')) {
+    fastUrl = dataUrlToBlobUrl(rawSrc);
+  }
+  fastCharUrlMap.set(rawSrc, fastUrl);
+  return fastUrl;
+}
+
+function lockImageInGpuPool(url) {
+  if (!url || gpuWarmImgMap.has(url)) return;
+  const pool = ensureGpuWarmPool();
+  const img = new Image();
+  img.decoding = 'async';
+  img.loading = 'eager';
+  img.src = url;
+  if (pool) pool.appendChild(img);
+  if (typeof img.decode === 'function') {
+    img.decode().catch(() => {});
+  }
+  gpuWarmImgMap.set(url, img);
+}
+
+function warmCharacterGpuPool() {
+  // 1. Ưu tiên nạp và giải mã sẵn 100% ảnh Chân Dung (Avatar) của tất cả nhân vật ngay lập tức
+  chars.forEach(c => {
+    if (c && c[2]) {
+      lockImageInGpuPool(resolveFastCharImage(c[2]));
+    }
+  });
+  // 2. Nạp tiếp ảnh Full 3 Mặt & Bảng Thiết Kế ngay sau đó để bấm qua tab phụ cũng 0ms delay
+  setTimeout(() => {
+    chars.forEach(c => {
+      if (!c) return;
+      if (c[6]) lockImageInGpuPool(resolveFastCharImage(c[6]));
+      if (c[7]) lockImageInGpuPool(resolveFastCharImage(c[7]));
+    });
+  }, 120);
+}
+
 function getCharImageByMode(c, viewMode) {
-  if (viewMode === 'turnaround') return c[6];
-  if (viewMode === 'sheet') return c[7];
-  return c[2];
+  const raw = viewMode === 'turnaround' ? c[6] : viewMode === 'sheet' ? c[7] : c[2];
+  return resolveFastCharImage(raw);
+}
+
+// Khởi tạo sẵn 4 phần tử thông tin nhân vật để tránh parse lại innerHTML mỗi lần bấm chuyển
+let charSubEl = null;
+let charNameEl = null;
+let charBioEl = null;
+let charQuoteEl = null;
+
+function ensureCharInfoNodes() {
+  if (!charInfo) return;
+  if (!charSubEl || !charInfo.contains(charSubEl)) {
+    charInfo.innerHTML = '<span class="small"></span><h3></h3><p></p><blockquote></blockquote>';
+    charSubEl = charInfo.querySelector('.small');
+    charNameEl = charInfo.querySelector('h3');
+    charBioEl = charInfo.querySelector('p');
+    charQuoteEl = charInfo.querySelector('blockquote');
+  }
 }
 
 function updateCharStage() {
   const c = chars[currentCharIndex];
+  if (!c) return;
   const isWide = charViewMode !== 'avatar';
   if (charLayout) charLayout.classList.toggle('is-wide-view', isWide);
-  portraitImg.src = getCharImageByMode(c, charViewMode);
+
+  const nextSrc = getCharImageByMode(c, charViewMode);
+  lockImageInGpuPool(nextSrc);
+  if (portraitImg.getAttribute('src') !== nextSrc) {
+    portraitImg.src = nextSrc;
+  }
   portraitImg.alt = `${c[0]} — ${charViewLabels[charViewMode]}`;
   if (portraitSeal) portraitSeal.textContent = c[5];
 
@@ -99,11 +210,17 @@ function updateCharStage() {
     btn.setAttribute('aria-pressed', String(active));
   });
 
-  charInfo.innerHTML = `<span class="small">${c[1]}</span><h3>${c[0]}</h3><p>${c[3]}</p><blockquote>${c[4]}</blockquote>`;
+  ensureCharInfoNodes();
+  if (charSubEl) charSubEl.innerHTML = c[1];
+  if (charNameEl) charNameEl.innerHTML = c[0];
+  if (charBioEl) charBioEl.innerHTML = c[3];
+  if (charQuoteEl) charQuoteEl.innerHTML = c[4];
+
   window.dispatchEvent(new CustomEvent('gosu:char-updated', { detail: { index: currentCharIndex, mode: charViewMode } }));
 }
 
 function setCharViewMode(viewMode) {
+  if (charViewMode === viewMode) return;
   charViewMode = viewMode;
   updateCharStage();
 }
@@ -126,6 +243,7 @@ function selectChar(i) {
   updateCharStage();
 }
 
+warmCharacterGpuPool();
 selectChar(0);
 
 tabs.addEventListener('keydown', e => {
@@ -1166,6 +1284,7 @@ window.GOSU_STATE = {
   setCharViewMode,
   selectChar,
   updateCharStage,
+  warmCharacterGpuPool,
   refreshTabs: () => {
     [...tabs.children].forEach((b, idx) => {
       if (chars[idx]) b.textContent = chars[idx][0];

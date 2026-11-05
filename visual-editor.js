@@ -341,6 +341,9 @@
       if (Array.isArray(overrides.chars) && overrides.chars.length > 0) {
         state.chars.length = 0;
         overrides.chars.forEach(c => state.chars.push([...c]));
+        if (typeof state.warmCharacterGpuPool === 'function') {
+          state.warmCharacterGpuPool();
+        }
         rebuildCharacterTabs();
         state.selectChar(Math.min(state.getCurrentCharIndex(), state.chars.length - 1));
       }
@@ -480,7 +483,9 @@
   }
 
   window.addEventListener('gosu:char-updated', () => {
-    bindDynamicCharEdits();
+    if (isEditMode) {
+      bindDynamicCharEdits();
+    }
   });
 
   function enableInlineEditing(enable) {
@@ -926,13 +931,13 @@
     const reader = new FileReader();
     reader.onload = e => {
       const dataUrl = e.target.result;
-      if (file.type === 'image/png' || file.type === 'image/svg+xml' || file.size < 900 * 1024) {
+      if (file.type === 'image/svg+xml' || file.size < 180 * 1024) {
         callback(dataUrl, file.name);
         return;
       }
       const img = new Image();
       img.onload = () => {
-        const maxDim = 2200;
+        const maxDim = 1500;
         let w = img.width;
         let h = img.height;
         if (w > maxDim || h > maxDim) {
@@ -945,7 +950,7 @@
         canvas.height = h;
         const ctx = canvas.getContext('2d');
         ctx.drawImage(img, 0, 0, w, h);
-        const webpUrl = canvas.toDataURL('image/webp', 0.89);
+        const webpUrl = canvas.toDataURL('image/webp', 0.86);
         const safeName = file.name.replace(/\.[^.]+$/, '') + '.webp';
         callback(webpUrl, safeName);
       };

@@ -5,7 +5,7 @@
     "display": "'1FTV-VIP-Queen-of-Silence', serif",
     "body": "'Prata', Georgia, serif",
     "serifAlt": "",
-    "sc": "'CORMORANTGARAMOND-REGULAR', serif",
+    "sc": "",
     "scale": 100,
     "goldColor": "",
     "crimsonColor": "",
@@ -27,7 +27,7 @@
         "url": "assets/uploads/1793704176731-CORMORANTGARAMOND-REGULAR.TTF"
       }
     ],
-    "subhead": "'CORMORANTGARAMOND-REGULAR', serif"
+    "subhead": ""
   },
   "texts": {
     "root.span.2": "欽天監 · BÍNH THÂN 1836",
@@ -120,7 +120,7 @@
       "Thiếu nữ khoác áo ngũ thân gấm đen như người cầm hương tang lễ, trên vai vắt đòn gánh đầu rồng treo lư hương tỏa khói máu. Sống sót sau đêm thảm sát năm 1818, nàng đội tang cha suốt đời và nắm giữ nửa kia chiếc vòng tín vật của Mót.",
       "“Tám phần nhân tính hóa tro tàn, hai phần máu lạnh giữ mạng nơi hang cọp.”",
       "血香",
-      "assets/uploads/1793702211074-TRAILER_SHDL_2.00_03_35_08.Still006.png",
+      "assets/uploads/1793702211074-TRAILER_SHDL_2.00_03_35_08.Still006.webp",
       "assets/characters/linh-sheet.webp"
     ],
     [
@@ -150,7 +150,7 @@
       "Viên quan địa phương cai quản làng Long Thọ, cha ruột của Kim Lan. Vì muốn bảo toàn chức vị và tích góp gia sản cho con gái, Lão Phú đã nhắm mắt ký vào khế ước ngầm với Vạn Kim Thương Hội, lén lút giết 100 con hổ tại Hổ Quyền khiến Đại Ma Hổ thức tỉnh.",
       "“Ta làm tất cả cũng chỉ để con bé không bao giờ phải nếm mùi bần hàn!”",
       "貪契",
-      "assets/uploads/1793705406456-NHAN_VAT_QUAN_LON.png",
+      "assets/uploads/1793705406456-NHAN_VAT_QUAN_LON.webp",
       "assets/characters/laophu-sheet.webp"
     ]
   ],

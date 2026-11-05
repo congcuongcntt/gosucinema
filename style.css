@@ -1274,7 +1274,6 @@ h2 em {
   gap: 4.5%;
   margin-top: 40px;
   align-items: center;
-  transition: grid-template-columns 0.45s cubic-bezier(0.22, 1, 0.36, 1), gap 0.45s ease;
 }
 
 .character-layout.is-wide-view {
@@ -1392,9 +1391,9 @@ h2 em {
   box-shadow:
     18px 18px 0 #120808,
     19px 19px 0 rgba(189, 149, 91, 0.32),
-    0 25px 60px rgba(0, 0, 0, 0.85);
+    0 20px 44px rgba(0, 0, 0, 0.8);
   cursor: zoom-in;
-  transition: height 0.4s ease, background 0.4s ease;
+  contain: paint;
 }
 
 .character-layout.is-wide-view .portrait {
@@ -1408,14 +1407,25 @@ h2 em {
   height: 100%;
   object-fit: cover;
   object-position: top center;
-  filter: saturate(0.78) contrast(1.06);
-  transition: transform 0.6s, opacity 0.3s, filter 0.3s;
+  display: block;
+  transform: translateZ(0);
 }
 
 .character-layout.is-wide-view .portrait img {
   object-fit: contain;
   object-position: center center;
-  filter: saturate(0.96) contrast(1.03);
+}
+
+.char-gpu-warm-pool {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1px;
+  height: 1px;
+  opacity: 0.001;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: -1;
 }
 
 .portrait-seal {
