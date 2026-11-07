@@ -670,39 +670,33 @@ void main(){
   float dead = smoothstep(burn - .04, burn + .02, n);
   float rim = (1. - smoothstep(0., .07, abs(n - burn)))*step(.02, uBurn);
   vec3 jade = vec3(.32, 1., .82), gold = vec3(1., .74, .36);
-  vec3 col = mix(jade, gold, smoothstep(.35, .75, w))*a*on*dead*.32;
+  vec3 col = mix(jade, gold, smoothstep(.35, .75, w))*a*on*dead*.55;
   col += vec3(1., .5, .18)*rim*a*.8;
   float alpha = a*on*max(dead, rim);
   if (alpha < .003) discard;
   gl_FragColor = vec4(col*alpha, alpha);
 }`,
-    transparent: true, depthTest: false, depthWrite: false, blending: THREE.AdditiveBlending
+    transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide
   });
   const mesh = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), mat);
   mesh.renderOrder = 20;
   mesh.frustumCulled = false;
   mesh.visible = false;
   scene.add(mesh);
-  const fwd = new THREE.Vector3();
   let cur = -1;
 
   return {
-    /** i: đoạn chuyển cảnh (i → i+1), f: tiến trình 0..1, dir: chiều xoáy */
-    update(camera, i, f, dir) {
-      const g = (f - 0.08) / 0.8;
-      if (g <= 0 || g >= 1) { mesh.visible = false; return; }
+    /** i: vùng đất (i → i+1), f: tiến trình 0..1, at: điểm trên đường bay để treo chữ phía trên */
+    update(camera, i, f, at) {
+      if (f <= 0.04 || f >= 0.96) { mesh.visible = false; return; }
       if (i !== cur) { cur = i; mat.uniforms.uTex.value = tex(chars[i % chars.length]); mat.uniforms.uSeed.value = i * 1.37; }
       mesh.visible = true;
-      // chữ lao về phía máy quay rồi vỡ tung qua ống kính
-      const d = THREE.MathUtils.lerp(18, 2.2, g * g * (3 - 2 * g));
-      camera.getWorldDirection(fwd);
-      mesh.position.copy(camera.position).addScaledVector(fwd, d);
-      mesh.quaternion.copy(camera.quaternion);
-      mesh.rotateZ(-dir * (g - 0.5) * 0.9);
-      const vh = 2 * d * Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2);
-      mesh.scale.setScalar(vh * THREE.MathUtils.lerp(0.55, 1.6, g));
-      mat.uniforms.uAmt.value = Math.min(1, g / 0.38);
-      mat.uniforms.uBurn.value = Math.max(0, (g - 0.55) / 0.4);
+      mesh.position.copy(at);
+      mesh.position.y += 8.5;
+      mesh.lookAt(camera.position);
+      mesh.scale.setScalar(11);
+      mat.uniforms.uAmt.value = THREE.MathUtils.smoothstep(f, 0.08, 0.4);
+      mat.uniforms.uBurn.value = THREE.MathUtils.smoothstep(f, 0.6, 0.9);
     }
   };
 }

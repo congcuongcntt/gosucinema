@@ -427,6 +427,25 @@ function timecode(now) {
   return `TC ${p(h)}:${p(m)}:${p(s)}:${p(f)}`;
 }
 
+// Tên vùng đất hiện như location title khi máy quay bay ngang qua
+const landTitle = $('#land-title');
+const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX'];
+let landShown = -1;
+function updateLandTitle() {
+  if (!world || !landTitle) return;
+  const L = world.landInfo();
+  const sm = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+  const a = reduceMotion ? 0 : sm(0.18, 0.36, L.f) * (1 - sm(0.68, 0.86, L.f));
+  if (a > 0.01 && L.i !== landShown) {
+    landShown = L.i;
+    $('#lt-han').textContent = L.han;
+    $('#lt-num').textContent = ROMAN[L.i];
+    $('#lt-name').textContent = L.name;
+  }
+  landTitle.style.opacity = a.toFixed(3);
+  landTitle.style.setProperty('--lt', a.toFixed(3));
+}
+
 let last = performance.now();
 let tcTick = 0;
 function frame(now) {
@@ -447,6 +466,7 @@ function frame(now) {
   if ((tcTick += dt) > 1 / 24) { tcTick = 0; tcEl.textContent = timecode(now); }
 
   world?.render(current, dt, now / 1000);
+  updateLandTitle();
   updateIncenseAnchor();
   requestAnimationFrame(frame);
 }

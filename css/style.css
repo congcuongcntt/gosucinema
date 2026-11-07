@@ -523,3 +523,25 @@ blockquote {
   .shot .card { filter: none; }
   .shot.is-active .card h2 { animation: none; }
 }
+
+/* ============ Tên vùng đất (location title) khi bay qua ============ */
+.land-title {
+  position: absolute; left: 50%; top: 22%; transform: translate(-50%, calc((1 - var(--lt, 0)) * 10px));
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  opacity: 0; pointer-events: none; text-align: center; white-space: nowrap;
+  filter: blur(calc((1 - var(--lt, 0)) * 6px));
+}
+.lt-han {
+  font-family: "Songti SC", "STSong", "Noto Serif SC", serif; font-size: 54px; line-height: 1;
+  color: rgba(150, 255, 220, 0.85); text-shadow: 0 0 24px rgba(80, 255, 200, 0.6);
+}
+.lt-kicker { font-family: var(--f-caps, 'Spectral', serif); font-weight: 600; font-size: 11px; letter-spacing: 0.4em; color: var(--gold); }
+.lt-kicker b { font-weight: 600; color: var(--gold-bright); }
+.lt-name {
+  font-family: var(--f-display); font-size: clamp(26px, 3.2vw, 44px); color: var(--cream);
+  text-shadow: 0 0 30px rgba(0, 0, 0, 0.9), 0 0 18px rgba(80, 255, 200, 0.25);
+}
+.lt-name::before, .lt-name::after { content: '—'; color: var(--gold-dim, #6b5636); margin: 0 0.5em; }
+@media (max-width: 640px) { .land-title { top: 18%; } .lt-han { font-size: 40px; } }
+/* đang bay qua vùng đất: khung chữ lùi đi, để khung hình cho hành trình */
+html.is-moving .shot .card { opacity: 0; transition-delay: 0s; }

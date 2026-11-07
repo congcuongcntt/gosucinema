@@ -12,6 +12,7 @@ import {
   createIncense, createSigil, createTalismans, createGhostFire, createGroundMist, createCursorWisp,
   createGlyphGate, createSpiritStreaks
 } from './fx.js';
+import { createLands, LANDS } from './lands.js';
 
 const V = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z);
 const damp = (a, b, k, dt) => a + (b - a) * (1 - Math.exp(-k * dt));
@@ -21,6 +22,7 @@ const easeInOut = (f) => (f < 0.5 ? 4 * f * f * f : 1 - Math.pow(-2 * f + 2, 3) 
 const FOG_COLOR = new THREE.Color(0x040807); // đen ngọc bích như bản gốc (--abyss / --jade-shadow)
 const FOG_NEAR = 24;
 const FOG_FAR = 78;
+const SPACING = 2.2; // giãn khoảng cách giữa các cảnh để có chỗ cho từng vùng đất
 
 export function createWorld({ canvas, isMobile, reduceMotion, onPick, onLoadProgress }) {
   /* ---------------- Renderer & post ---------------- */
@@ -229,6 +231,8 @@ export function createWorld({ canvas, isMobile, reduceMotion, onPick, onLoadProg
   /* ---------------- Shots ---------------- */
   const shots = [];
   function makeShot(index, anchor, { camPos, camTgt, roll = 0, fov = 40 }) {
+    anchor = anchor.clone();
+    anchor.z *= SPACING;
     const group = new THREE.Group();
     group.position.copy(anchor);
     scene.add(group);
@@ -525,6 +529,8 @@ export function createWorld({ canvas, isMobile, reduceMotion, onPick, onLoadProg
   createTalismans({ scene, spots, perShot: isMobile ? 4 : 8, sharedTime, fog: fogInfo });
   createGhostFire({ scene, spots, perShot: isMobile ? 2 : 4, sharedTime, pixelRatio: DPR });
   createGroundMist({ scene, anchors, sharedTime, fog: fogInfo });
+  const landFog = { color: FOG_COLOR, nearU: { value: FOG_NEAR }, farU: { value: FOG_FAR } };
+  const lands = createLands({ scene, shots, fog: landFog, sharedTime, isMobile, pixelRatio: DPR });
   const finePointer = matchMedia('(pointer: fine)').matches;
   const wisp = finePointer && !reduceMotion ? createCursorWisp({ scene, camera, pixelRatio: DPR }) : null;
 
@@ -564,10 +570,7 @@ export function createWorld({ canvas, isMobile, reduceMotion, onPick, onLoadProg
   }
 
   /* ---------------- Camera rig ---------------- */
-  const posCurve = new THREE.CatmullRomCurve3(shots.map((s) => s.camPos), false, 'centripetal');
-  const tgtCurve = new THREE.CatmullRomCurve3(shots.map((s) => s.camTgt), false, 'centripetal');
   const P = V(), T = V();
-  const tan = V(), side = V(), UP = V(0, 1, 0);
   // trạng thái chuyển cảnh: m = cường độ (0 khi dừng ở cảnh, 1 ở giữa hai cảnh)
   const trans = { m: 0, f: 0, i: 0, dir: 1 };
   const pointer = { x: 0, y: 0, sx: 0, sy: 0 };
@@ -582,46 +585,47 @@ export function createWorld({ canvas, isMobile, reduceMotion, onPick, onLoadProg
     return [0, 0.14];
   }
 
+  const Aw = V(), Bw = V(), tA = V(), tB = V(), Q = V(), Q2 = V(), d1 = V(), d2 = V(), ahead = V();
   function updateCamera(current, dt, t) {
     const N = shots.length;
     const i0 = Math.min(N - 2, Math.max(0, Math.floor(current)));
     const f = Math.min(1, Math.max(0, current - i0));
     const e = easeInOut(f);
-    const u = (i0 + e) / (N - 1);
-    posCurve.getPoint(u, P);
-    tgtCurve.getPoint(u, T);
 
     for (const s of shots) {
       const k = 1 - Math.exp(-dt * 3);
       s.fPos.lerp(s.wPos, k);
       s.fTgt.lerp(s.wTgt, k);
-      const w = Math.max(0, 1 - Math.abs(current - s.index));
-      if (w > 0) {
-        P.addScaledVector(s.fPos, w);
-        T.addScaledVector(s.fTgt, w);
-      }
     }
-
     const a = shots[i0], b = shots[i0 + 1];
+    Aw.copy(a.camPos).add(a.fPos); Bw.copy(b.camPos).add(b.fPos);
+    tA.copy(a.camTgt).add(a.fTgt); tB.copy(b.camTgt).add(b.fTgt);
+
+    // Hành trình qua vùng đất: rời cảnh A, lặn xuống bay sát mặt đất, rồi vút lên cảnh B
+    lands.pathPoint(i0, e, Aw, Bw, P);
+    T.lerpVectors(tA, tB, e);
     let roll = THREE.MathUtils.lerp(a.roll, b.roll, e);
     let fov = THREE.MathUtils.lerp(a.fov, b.fov, e);
-
-    // Vũ đạo chuyển cảnh: máy quay vòng cung lệch sang một bên, xoắn trục (barrel roll),
-    // giãn FOV như bị hút qua cửa âm. Chiều xoáy đổi luân phiên giữa các cảnh.
     const dir = i0 % 2 ? 1 : -1;
     const m = reduceMotion ? 0 : Math.pow(Math.sin(Math.PI * f), 1.4);
     trans.m = m; trans.f = f; trans.i = i0; trans.dir = dir;
     if (m > 0.0005) {
-      posCurve.getTangent(u, tan);
-      side.crossVectors(tan, UP);
-      if (side.lengthSq() > 1e-4) P.addScaledVector(side.normalize(), dir * m * 3.2);
-      P.y += m * 1.6;
-      P.addScaledVector(tan, -m * 2.5);
-      roll += dir * (m * 0.26 + Math.sin(Math.PI * 2 * f) * 0.07);
-      fov += m * 22;
+      // nhìn theo hướng bay (hơi cúi xuống mặt đất) ở giữa hành trình
+      lands.pathPoint(i0, Math.min(1, e + 0.03), Aw, Bw, Q);
+      lands.pathPoint(i0, Math.min(1, e + 0.07), Aw, Bw, Q2);
+      d1.subVectors(Q, P).normalize();
+      d2.subVectors(Q2, Q).normalize();
+      ahead.copy(P).addScaledVector(d1, 16);
+      ahead.y -= 2.2;
+      const wl = THREE.MathUtils.smoothstep(f, 0.06, 0.38) * (1 - THREE.MathUtils.smoothstep(f, 0.66, 0.94));
+      T.lerp(ahead, wl);
+      // nghiêng cánh khi lượn theo thung lũng
+      const turn = d1.x * d2.z - d1.z * d2.x;
+      roll += THREE.MathUtils.clamp(turn * 9, -0.35, 0.35) * wl;
+      fov += m * 10;
     }
     const [ax, ay] = frameShift(i0), [bx, by] = frameShift(i0 + 1);
-    const sx = THREE.MathUtils.lerp(ax, bx, e), sy = THREE.MathUtils.lerp(ay, by, e);
+    const sx = THREE.MathUtils.lerp(ax, bx, e) * (1 - m), sy = THREE.MathUtils.lerp(ay, by, e) * (1 - m);
 
     // handheld + parallax theo con trỏ
     pointer.sx = damp(pointer.sx, pointer.x, 2.5, dt);
@@ -706,7 +710,15 @@ export function createWorld({ canvas, isMobile, reduceMotion, onPick, onLoadProg
   /* ---------------- Preload cảnh đầu ---------------- */
   const first = [MEDIA.titleArt, MEDIA.heroArt];
   let done = 0;
-  const ready = Promise.all(first.map((src) => loadTexture(src).finally(() => onLoadProgress?.(++done / first.length))));
+  const ready = Promise.all(first.map((src) => loadTexture(src).finally(() => onLoadProgress?.(++done / first.length))))
+    .then(() => {
+      // biên dịch trước mọi shader (địa hình, công trình, chữ, vệt hồn) để lần đầu bay qua không khựng
+      const hidden = [];
+      scene.traverse((o) => { if (!o.visible) { hidden.push(o); o.visible = true; } });
+      try { renderer.compile(scene, camera); } catch (_) { /* bỏ qua */ }
+      hidden.forEach((o) => (o.visible = false));
+      veil.enabled = true; composer.render(0); veil.enabled = false;
+    });
 
   /* ---------------- Frame ---------------- */
   let prev = 0;
@@ -748,8 +760,13 @@ export function createWorld({ canvas, isMobile, reduceMotion, onPick, onLoadProg
     const sv = dt > 0 ? (current - prev) / dt : 0;
     const vel = Math.abs(sv);
     prev = current;
-    gate.update(camera, trans.i, trans.f, trans.dir);
-    streaks?.update(camera, dt, trans.m, sv);
+    gate.update(camera, trans.i, trans.f, lands.pathPoint(trans.i, 0.62, shots[trans.i].camPos, shots[trans.i + 1].camPos, gatePos));
+    streaks?.update(camera, dt, trans.m * 0.45, sv);
+    lands.update(dt, trans.m);
+    // tầm nhìn mở xa hơn khi bay qua vùng đất
+    landFog.farU.value = FOG_FAR + trans.m * 40;
+    landFog.nearU.value = FOG_NEAR + trans.m * 10;
+    scene.fog.far = landFog.farU.value;
     const u = film.uniforms;
     u.uTime.value = t;
     u.uAberration.value = damp(u.uAberration.value, Math.min(1, vel * 0.9 + inc.state.flare * 0.5), 6, dt);
@@ -765,7 +782,7 @@ export function createWorld({ canvas, isMobile, reduceMotion, onPick, onLoadProg
     if (veil.enabled) {
       const vu = veil.uniforms;
       vu.uTime.value = t;
-      vu.uVeil.value = trans.m;
+      vu.uVeil.value = trans.m * 0.42;
       vu.uDir.value = trans.dir;
       vu.uSeed.value = trans.i * 2.31;
     }
@@ -777,7 +794,9 @@ export function createWorld({ canvas, isMobile, reduceMotion, onPick, onLoadProg
 
   // chữ Hán của cảnh sắp tới: 源 khởi nguồn · 影 bản dựng · 魂 nhân vật · 勢 thế lực · 域 địa đồ
   // 器 pháp khí · 時 thời gian · 夢 khung hình · 終 hồi kết
-  const gate = createGlyphGate({ scene, chars: ['源', '影', '魂', '勢', '域', '器', '時', '夢', '終'], sharedTime });
+  // chữ Hán tên vùng đất treo lơ lửng trên trời, máy quay bay ngang bên dưới
+  const gate = createGlyphGate({ scene, chars: LANDS.map((l) => l.han), sharedTime });
+  const gatePos = V();
   const streaks = reduceMotion ? null : createSpiritStreaks({ scene, count: isMobile ? 80 : 160 });
 
   let kick = 0;
@@ -800,6 +819,8 @@ export function createWorld({ canvas, isMobile, reduceMotion, onPick, onLoadProg
       s.sigil.pulse();
       kick = 1;
     },
+    /** Vùng đất đang bay qua (để hiện tên vùng kiểu location title) */
+    landInfo() { return { i: trans.i, f: trans.f, m: trans.m, name: LANDS[trans.i].name, han: LANDS[trans.i].han }; },
     /** Trạng thái nhang + toạ độ màn hình của đầu nhang (để đặt nút/nhãn DOM) */
     incenseInfo() {
       const s = shots[0];
