@@ -68,8 +68,34 @@ void main(){
   gl_FragColor = vec4(col, a);
 }`;
 
+/* ---------- Độ sâu trường ảnh cho từng hạt (kiểu ống kính điện ảnh) ----------
+   Hạt nằm đúng tiêu cự: nhỏ, sắc. Lệch tiêu cự: phình thành đốm bokeh tròn, có viền,
+   mờ đi theo diện tích (giữ năng lượng sáng). */
+export const DOF_PARS = /* glsl */ `
+uniform float uFocus, uAperture;
+varying float vBlur;
+float dofCoc(float depth){ return clamp(abs(depth - uFocus)/max(depth, .5)*uAperture, 0., 1.); }
+`;
+export const BOKEH = /* glsl */ `
+varying float vBlur;
+float bokeh(vec2 pc){
+  float d = length(pc - .5)*2.;
+  float soft = pow(max(0., 1. - d), 2.);
+  float disc = 1. - smoothstep(.8, 1., d);
+  float rim = smoothstep(.45, .95, d)*disc;
+  return mix(soft, disc*.5 + rim*.5, smoothstep(.12, .7, vBlur));
+}
+`;
+// hệ số phình / mờ dùng chung (gl_PointSize *= DOF_GROW(vBlur), alpha *= DOF_FADE(vBlur))
+export const DOF_FN = /* glsl */ `
+float dofGrow(float b){ return 1. + b*2.6; }
+float dofFade(float b){ return 1./pow(1. + b*2.6, 1.9); }
+`;
+
 /* ---------- Tàn nhang bay lên ---------- */
 export const emberVertex = /* glsl */ `
+${DOF_PARS}
+${DOF_FN}
 attribute float aSeed;
 attribute float aOff;
 uniform float uTime, uHeight, uSize, uPixelRatio;
@@ -87,15 +113,17 @@ void main(){
   float h = y/uHeight;
   float flick = .5 + .5*sin(uTime*(3. + aSeed*7.) + aSeed*50.);
   vAlpha = smoothstep(0., .12, h)*(1. - smoothstep(.65, 1., h))*(.3 + .7*flick)*(1. - smoothstep(30., 70., -mv.z));
+  vBlur = dofCoc(-mv.z);
+  gl_PointSize *= dofGrow(vBlur);
+  vAlpha *= dofFade(vBlur);
 }`;
 
 export const emberFragment = /* glsl */ `
 uniform vec3 uColor;
 varying float vAlpha;
+${BOKEH}
 void main(){
-  float d = length(gl_PointCoord - .5);
-  float a = smoothstep(.5, 0., d);
-  a *= a;
+  float a = bokeh(gl_PointCoord);
   gl_FragColor = vec4(uColor*(1. + a*2.), a*vAlpha);
 }`;
 

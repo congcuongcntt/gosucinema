@@ -1,6 +1,6 @@
 // Hiệu ứng linh dị: nén nhang 3D, khói, tia lửa, pháp trận, bùa chú bay (đốt được), ma trơi, sương đất, ngọn lửa theo con trỏ.
 import * as THREE from 'three';
-import { NOISE } from './shaders.js';
+import { NOISE, DOF_PARS, DOF_FN, BOKEH } from './shaders.js';
 
 const damp = (a, b, k, dt) => a + (b - a) * (1 - Math.exp(-k * dt));
 
@@ -373,7 +373,7 @@ function talismanAtlas() {
   return t;
 }
 
-export function createTalismans({ scene, spots, perShot, sharedTime, fog, pixelRatio }) {
+export function createTalismans({ scene, spots, perShot, sharedTime, fog, pixelRatio, dof }) {
   const count = spots.length * perShot;
   const PW = 0.42, PH = 1.16;
   const BURN = 2.6, REFORM_AT = 13, REFORM = 2.2;   // giây: cháy hết · bắt đầu tụ lại · thời gian tụ
@@ -497,7 +497,7 @@ export function createTalismans({ scene, spots, perShot, sharedTime, fog, pixelR
   mesh.frustumCulled = false;
   scene.add(mesh);
 
-  const ash = createAsh({ scene, pixelRatio });
+  const ash = createAsh({ scene, pixelRatio, dof });
 
   // Bản sao chuyển động GPU trên CPU để biết bùa đang ở đâu trên màn hình
   const C = new THREE.Vector3(), S = new THREE.Vector3(), X = new THREE.Vector3(), Q = new THREE.Vector3();
@@ -567,7 +567,7 @@ export function createTalismans({ scene, spots, perShot, sharedTime, fog, pixelR
 /* ======================================================================
    MA TRƠI — đốm lửa xanh ngọc lang thang, có đuôi, chập chờn hiện/tắt
    ====================================================================== */
-export function createGhostFire({ scene, spots, perShot, sharedTime, pixelRatio }) {
+export function createGhostFire({ scene, spots, perShot, sharedTime, pixelRatio, dof }) {
   const TRAIL = 18;
   const n = spots.length * perShot * TRAIL;
   const pos = new Float32Array(n * 3);
@@ -594,8 +594,10 @@ export function createGhostFire({ scene, spots, perShot, sharedTime, pixelRatio 
   geo.setAttribute('aSeed', new THREE.BufferAttribute(seed, 1));
   geo.setAttribute('aTrail', new THREE.BufferAttribute(trail, 1));
   const pts = new THREE.Points(geo, new THREE.ShaderMaterial({
-    uniforms: { uTime: sharedTime, uPR: { value: pixelRatio } },
+    uniforms: { uTime: sharedTime, uPR: { value: pixelRatio }, uFocus: dof.uFocus, uAperture: dof.uAperture },
     vertexShader: /* glsl */ `
+      ${DOF_PARS}
+      ${DOF_FN}
       attribute float aSeed; attribute float aTrail;
       uniform float uTime, uPR;
       varying float vA; varying float vHead;
@@ -615,12 +617,15 @@ export function createGhostFire({ scene, spots, perShot, sharedTime, pixelRatio 
         vHead = 1. - step(.01, aTrail);
         vA = (1. - aTrail)*(1. - aTrail)*flick*vis*(1. - smoothstep(35., 70., -mv.z));
         gl_PointSize = (vHead > .5 ? 420. : 240.*(1. - aTrail) + 30.)*uPR/max(1., -mv.z);
+        vBlur = dofCoc(-mv.z)*.7;
+        gl_PointSize *= dofGrow(vBlur);
+        vA *= dofFade(vBlur);
       }`,
     fragmentShader: /* glsl */ `
       varying float vA; varying float vHead;
+      ${BOKEH}
       void main(){
-        float d = length(gl_PointCoord - .5);
-        float a = smoothstep(.5, 0., d); a *= a;
+        float a = bokeh(gl_PointCoord);
         vec3 col = mix(vec3(.15,.95,.8), vec3(.8,1.,1.), a*vHead);
         gl_FragColor = vec4(col*(1.3 + vHead), a*vA*.8);
       }`,
@@ -879,7 +884,7 @@ export function createCursorFlame({ scene, camera, canvas, pixelRatio, reduceMot
 /* ======================================================================
    TRO BÙA — tàn giấy rơi lả tả (xám tro, mép còn ửng than hồng) + tia lửa bay lên
    ====================================================================== */
-function createAsh({ scene, pixelRatio, count = 420 }) {
+function createAsh({ scene, pixelRatio, dof, count = 420 }) {
   const pos = new Float32Array(count * 3);
   const vel = new Float32Array(count * 3);
   const life = new Float32Array(count).fill(1);
@@ -897,8 +902,11 @@ function createAsh({ scene, pixelRatio, count = 420 }) {
   geo.setAttribute('aSeed', new THREE.BufferAttribute(seed, 1));
   const uTime = { value: 0 };
   const pts = new THREE.Points(geo, new THREE.ShaderMaterial({
-    uniforms: { uPR: { value: pixelRatio }, uTime },
+    uniforms: { uPR: { value: pixelRatio }, uTime, uFocus: dof.uFocus, uAperture: dof.uAperture },
     vertexShader: /* glsl */ `
+      ${DOF_PARS}
+      ${DOF_FN}
+      varying float vFade;
       attribute float aLife, aKind, aSeed; uniform float uPR, uTime;
       varying float vK; varying float vKind; varying float vRot; varying float vSeed;
       void main(){
@@ -907,15 +915,25 @@ function createAsh({ scene, pixelRatio, count = 420 }) {
         vec4 mv = modelViewMatrix*vec4(position,1.);
         gl_Position = projectionMatrix*mv;
         float s = aKind > .5 ? (4. + aSeed*3.)*(1. - aLife) : (3.5 + aSeed*4.5);
-        gl_PointSize = aLife >= 1. ? 0. : s*uPR*7./max(.5, -mv.z);
+        vBlur = dofCoc(-mv.z);
+        vFade = dofFade(vBlur);
+        gl_PointSize = aLife >= 1. ? 0. : s*uPR*7./max(.5, -mv.z)*dofGrow(vBlur);
       }`,
     fragmentShader: /* glsl */ `
-      varying float vK; varying float vKind; varying float vRot; varying float vSeed;
+      varying float vK; varying float vKind; varying float vRot; varying float vSeed; varying float vFade;
+      ${BOKEH}
       void main(){
         vec2 p = gl_PointCoord - .5;
         if (vKind > .5) {
-          float a = smoothstep(.5, 0., length(p));
-          gl_FragColor = vec4(mix(vec3(3.,2.,.9), vec3(2.,.4,.08), vK), a*(1. - vK));
+          float a = bokeh(gl_PointCoord);
+          gl_FragColor = vec4(mix(vec3(3.,2.,.9), vec3(2.,.4,.08), vK), a*(1. - vK)*vFade);
+          return;
+        }
+        // tro lệch tiêu cự thành đốm tròn mờ (bokeh) thay vì mảnh dẹt
+        if (vBlur > .35) {
+          float ab = bokeh(gl_PointCoord);
+          vec3 ash0 = mix(vec3(.13,.12,.11), vec3(.38,.36,.33), vSeed);
+          gl_FragColor = vec4(ash0*1.3, ab*(1. - smoothstep(.75, 1., vK))*.9*vFade);
           return;
         }
         // mảnh tro: hình dẹt xoay lật (giả lập cánh giấy lật trong gió)
@@ -929,7 +947,7 @@ function createAsh({ scene, pixelRatio, count = 420 }) {
         vec3 ash = mix(vec3(.13,.12,.11), vec3(.38,.36,.33), vSeed);
         vec3 col = mix(ash, vec3(2.2,.7,.15), ember*.85);
         col += vec3(1.4,.35,.05)*smoothstep(.3, .5, d)*(1. - smoothstep(0., .5, vK))*.8;
-        gl_FragColor = vec4(col, a*(1. - smoothstep(.75, 1., vK))*.9);
+        gl_FragColor = vec4(col, a*(1. - smoothstep(.75, 1., vK))*.9*vFade);
       }`,
     transparent: true, depthWrite: false
   }));
@@ -1064,6 +1082,122 @@ void main(){
       mat.uniforms.uAmt.value = THREE.MathUtils.smoothstep(f, 0.08, 0.4);
       mat.uniforms.uBurn.value = THREE.MathUtils.smoothstep(f, 0.6, 0.9);
     }
+  };
+}
+
+/* ======================================================================
+   HỒN TỤ · HỒN TÁN — chữ Hán của mỗi vùng đất kết lại từ hàng ngàn đốm
+   hồn đăng (ma trơi, than vàng, tro), máy quay bay xuyên qua thì tan thành
+   khói tro cuộn lên. Hạt có độ sâu trường ảnh như ống kính.
+   ====================================================================== */
+function sampleGlyph(ch, n) {
+  const c = glyphTexture(ch).image;
+  const S = c.width;
+  const data = c.getContext('2d').getImageData(0, 0, S, S).data;
+  const cand = [];
+  for (let y = 0; y < S; y += 2) for (let x = 0; x < S; x += 2) {
+    if (data[(y * S + x) * 4] > 120) cand.push(x, y);
+  }
+  const out = new Float32Array(n * 3);
+  const m = cand.length / 2;
+  for (let i = 0; i < n; i++) {
+    const k = Math.floor(Math.random() * m) * 2;
+    out[i * 3] = ((cand[k] + Math.random() * 2) / S - 0.5) * 11;
+    out[i * 3 + 1] = (0.5 - (cand[k + 1] + Math.random() * 2) / S) * 11;
+    out[i * 3 + 2] = (Math.random() - 0.5) * 0.35;
+  }
+  return out;
+}
+
+export function createSoulGlyph({ scene, chars, sharedTime, pixelRatio, isMobile, dof }) {
+  const N = isMobile ? 2600 : 6500;
+  const shapes = new Map();
+  const shape = (ch) => { if (!shapes.has(ch)) shapes.set(ch, sampleGlyph(ch, N)); return shapes.get(ch); };
+  const geo = new THREE.BufferGeometry();
+  const to = new THREE.BufferAttribute(new Float32Array(N * 3), 3);
+  const from = new Float32Array(N * 3);
+  const seed = new Float32Array(N);
+  for (let i = 0; i < N; i++) {
+    seed[i] = Math.random();
+    // đám hồn tản mát: dải mây rộng quanh chữ, dày ở dưới thấp như sương
+    const a = Math.random() * Math.PI * 2, r = Math.pow(Math.random(), 0.6);
+    from[i * 3] = Math.cos(a) * r * 16;
+    from[i * 3 + 1] = (Math.random() - 0.65) * 12;
+    from[i * 3 + 2] = Math.sin(a) * r * 14 - 4;
+  }
+  geo.setAttribute('position', to);
+  geo.setAttribute('aFrom', new THREE.BufferAttribute(from, 3));
+  geo.setAttribute('aSeed', new THREE.BufferAttribute(seed, 1));
+  const u = { uTime: sharedTime, uTu: { value: 0 }, uTan: { value: 0 }, uPR: { value: pixelRatio }, uFocus: dof.uFocus, uAperture: dof.uAperture };
+  const pts = new THREE.Points(geo, new THREE.ShaderMaterial({
+    uniforms: u,
+    vertexShader: /* glsl */ `
+      ${DOF_PARS}
+      ${DOF_FN}
+      attribute vec3 aFrom; attribute float aSeed;
+      uniform float uTime, uTu, uTan, uPR;
+      varying float vA; varying vec3 vCol;
+      void main(){
+        float t = uTime;
+        // TỤ: mỗi hạt tới chậm nhanh khác nhau, bay theo đường xoắn về vị trí nét chữ
+        float k = clamp(uTu*1.7 - aSeed*.7, 0., 1.);
+        float e = k*k*(3. - 2.*k);
+        vec3 drift = vec3(sin(t*.4 + aSeed*30.), sin(t*.3 + aSeed*17.)*.6, cos(t*.35 + aSeed*23.))*1.2;
+        vec3 src = aFrom + drift;
+        vec3 p = mix(src, position, e);
+        float swirl = (1. - e)*e*4.;
+        p.x += sin(aSeed*40. + t)*swirl;
+        p.z += cos(aSeed*40. + t)*swirl;
+        p += vec3(sin(t*2.1 + aSeed*60.), cos(t*1.7 + aSeed*50.), 0.)*.025*e;  // nét chữ rung rinh
+        // TÁN: nổ tung nhẹ từ tâm, cuốn lên như khói tro
+        float tn = clamp(uTan*1.5 - aSeed*.5, 0., 1.);
+        vec3 dir = normalize(vec3(position.xy, 2.5 + aSeed*3.) + vec3(sin(aSeed*91.), cos(aSeed*77.), 0.)*.6);
+        p += dir*tn*tn*(4. + aSeed*6.);
+        p.y += tn*(2. + aSeed*5.);
+        p.x += sin(t*1.3 + aSeed*20. + p.y*.4)*tn*1.8;
+        vec4 mv = modelViewMatrix*vec4(p, 1.);
+        gl_Position = projectionMatrix*mv;
+        vBlur = dofCoc(-mv.z);
+        float flash = exp(-pow((k - .97)*14., 2.));            // loé sáng khoảnh khắc hạt chạm nét chữ
+        gl_PointSize = min(40., (1.1 + aSeed*1.5)*(1. + flash*1.2)*uPR*22./max(1., -mv.z)*dofGrow(vBlur));
+        // màu: phần lớn xanh ngọc ma trơi, ít than vàng, ít tro xám; khi tán chuyển sang than đỏ rồi tro
+        vec3 jade = vec3(.3, 1., .82), gold = vec3(1., .72, .32), ash = vec3(.5, .48, .45), ember = vec3(1., .38, .12);
+        vec3 c = aSeed > .78 ? gold : (aSeed < .1 ? ash : jade);
+        c = mix(c, ember, smoothstep(.0, .35, tn)*(1. - smoothstep(.5, 1., tn)));
+        c = mix(c, ash, smoothstep(.55, 1., tn));
+        vCol = c*(1. + flash*1.4);
+        float flick = .65 + .35*sin(t*(4. + aSeed*9.) + aSeed*70.);
+        vA = (.12 + .88*e)*smoothstep(0., .08, uTu)*(1. - smoothstep(.55, 1., tn))*flick*dofFade(vBlur);
+      }`,
+    fragmentShader: /* glsl */ `
+      ${BOKEH}
+      varying float vA; varying vec3 vCol;
+      void main(){
+        float a = bokeh(gl_PointCoord);
+        gl_FragColor = vec4(vCol*.6, a*vA*.5);
+      }`,
+    transparent: true, depthWrite: false, depthTest: false, blending: THREE.AdditiveBlending
+  }));
+  pts.frustumCulled = false;
+  pts.renderOrder = 5;
+  pts.visible = false;
+  scene.add(pts);
+  let cur = -1;
+  return {
+    points: pts,
+    update(camera, i, f, at) {
+      if (f <= 0.03 || f >= 0.85) { pts.visible = false; return; }
+      if (i !== cur) { cur = i; to.array.set(shape(chars[i % chars.length])); to.needsUpdate = true; }
+      pts.visible = true;
+      pts.position.copy(at);
+      pts.position.y += 0.4;           // ngang tầm bay: máy quay lao xuyên qua giữa chữ
+      pts.lookAt(camera.position);
+      // máy quay đi tới chữ ở f≈0.55 (đường bay có gia tốc): tụ xong ~0.38, tán bắt đầu ngay trước khi lao vào
+      u.uTu.value = THREE.MathUtils.smoothstep(f, 0.04, 0.38);
+      u.uTan.value = THREE.MathUtils.smoothstep(f, 0.46, 0.78);
+    },
+    /** chuẩn bị sẵn hình chữ (tránh khựng lần đầu) */
+    warm() { chars.forEach(shape); }
   };
 }
 

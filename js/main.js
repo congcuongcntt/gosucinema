@@ -361,6 +361,80 @@ function updateFallbackBg() {
   fallbackBg.style.backgroundImage = `url("${urls[i]}")`;
 }
 
+/* ============ Điểm chú thích trên vật thể 3D ============ */
+const hotLayer = $('#hotspots');
+const HOT = {
+  4: (k) => [FACTIONS[k].place, FACTIONS[k].name],
+  5: (k) => [`ĐỊA DANH 0${k + 1}`, PLACES[k].name.split(' — ')[0]],
+  6: (k) => [`PHÁP KHÍ 0${k + 1} · ${RELICS[k].glyph}`, RELICS[k].name]
+};
+let hotShot = -1;
+let hotEls = [];
+let hotCardLeft = Infinity;
+addEventListener('resize', () => { hotShot = -1; });
+function updateHotspots() {
+  const info = world?.hotspots?.();
+  hotLayer.classList.toggle('is-on', !!info && !html.classList.contains('is-moving') && !html.classList.contains('gate-lock'));
+  if (!info) return;
+  if (info.shot !== hotShot) {
+    hotShot = info.shot;
+    hotLayer.textContent = '';
+    hotLayer.classList.toggle('is-quiet', info.shot === 4);
+    // nhãn tự lật sang trái nếu chĩa vào thẻ chữ bên phải
+    const card = $('.card', sections[info.shot]);
+    hotCardLeft = card ? card.getBoundingClientRect().left : Infinity;
+    hotEls = info.list.map((h) => {
+      const [sub, name] = HOT[info.shot](h.k);
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'hotspot';
+      b.tabIndex = -1; // danh sách tab trong thẻ chữ đã cho bàn phím/trình đọc màn hình
+      const dot = document.createElement('span'); dot.className = 'hs-dot';
+      const line = document.createElement('span'); line.className = 'hs-line';
+      const label = document.createElement('span'); label.className = 'hs-label';
+      const small = document.createElement('small'); small.textContent = sub;
+      label.append(small, name);
+      b.append(dot, line, label);
+      const shot = info.shot, k = h.k;
+      b.addEventListener('click', () => select(shot, k));
+      hotLayer.appendChild(b);
+      return b;
+    });
+  }
+  info.list.forEach((h, i) => {
+    const el = hotEls[i];
+    el.style.transform = `translate(${h.x.toFixed(1)}px, ${h.y.toFixed(1)}px)`;
+    el.style.opacity = h.vis.toFixed(2);
+    el.style.pointerEvents = h.vis > 0.5 ? 'auto' : 'none';
+    el.classList.toggle('is-sel', h.sel);
+    el.classList.toggle('is-flip', h.x + 240 > hotCardLeft && h.x > 260);
+  });
+}
+
+/* ============ Âm môn: cổng bước vào ============ */
+const gate = $('#gate');
+const NO_GATE = new URLSearchParams(location.search).has('nogate');
+let gatePassed = false;
+try { gatePassed = sessionStorage.getItem('shdl-gate') === '1'; } catch (_) { /* bỏ qua */ }
+function showGate() {
+  if (NO_GATE || gatePassed || !world) return;
+  gate.hidden = false;
+  html.classList.add('gate-lock');
+  requestAnimationFrame(() => $('#gate-enter').focus({ preventScroll: true }));
+}
+function passGate(withSound) {
+  if (gate.classList.contains('is-open')) return;
+  gate.classList.add('is-open');
+  html.classList.remove('gate-lock');
+  try { sessionStorage.setItem('shdl-gate', '1'); } catch (_) { /* bỏ qua */ }
+  if (withSound) { setSound(true); templeBell(); spiritWind(1); }
+  world?.enterGate?.();
+  setTimeout(() => gate.remove(), reduceMotion ? 50 : 1400);
+}
+$('#gate-enter').addEventListener('click', () => passGate(true));
+$('#gate-silent').addEventListener('click', () => passGate(false));
+gate.addEventListener('keydown', (e) => { if (e.key === 'Escape') passGate(false); });
+
 /* ============ Loader ============ */
 const loader = $('#loader');
 function hideLoader() {
@@ -385,7 +459,8 @@ try {
   });
   if (new URLSearchParams(location.search).has('debug')) window.__world = world;
   $('#loader-text').textContent = 'ĐANG DỰNG CẢNH MỞ MÀN…';
-  Promise.race([world.ready, new Promise((r) => setTimeout(r, 7000))]).then(hideLoader, hideLoader);
+  const reveal = () => { showGate(); hideLoader(); };
+  Promise.race([world.ready, new Promise((r) => setTimeout(r, 7000))]).then(reveal, reveal);
 } catch (err) {
   console.warn('WebGL không khả dụng — chuyển sang chế độ ảnh tĩnh.', err);
   world = null;
@@ -491,6 +566,7 @@ function frame(now) {
   world?.render(current, dt, now / 1000);
   updateLandTitle();
   updateIncenseAnchor();
+  updateHotspots();
   requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);

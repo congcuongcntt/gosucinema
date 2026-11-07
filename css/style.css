@@ -557,3 +557,93 @@ html.is-moving .shot .card { opacity: 0; transition-delay: 0s; }
   .ia-label { right: auto; left: 50%; top: calc(100% + 2px); translate: -50% 0; transform: translateY(-4px); }
   @keyframes ia-nudge { 20%, 60% { translate: calc(-50% - 6px) 0; } 40%, 80% { translate: calc(-50% + 6px) 0; } }
 }
+
+/* ---------- Điểm chú thích trên vật thể 3D ---------- */
+.hotspots { position: fixed; inset: 0; z-index: 8; pointer-events: none; opacity: 0; transition: opacity 0.4s; }
+.hotspots.is-on { opacity: 1; }
+.no-webgl .hotspots { display: none; }
+.hotspot {
+  position: absolute; left: 0; top: 0; width: 0; height: 0; padding: 0; border: 0; background: none;
+  cursor: pointer; will-change: transform; transition: opacity 0.35s;
+}
+.hs-dot {
+  position: absolute; left: -9px; top: -9px; width: 18px; height: 18px; border-radius: 50%;
+  border: 1.5px solid #e9c98f; background: rgba(6, 9, 9, 0.45); box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5), 0 0 14px rgba(201, 48, 38, 0.6);
+  transition: border-color 0.3s, transform 0.35s var(--ease);
+}
+.hs-dot::before { content: ''; position: absolute; inset: 5px; border-radius: 50%; background: var(--cinnabar); transform: scale(0.35); transition: transform 0.35s var(--ease), background 0.3s; }
+.hs-dot::after { content: ''; position: absolute; inset: -7px; border-radius: 50%; border: 1px dashed rgba(223, 192, 138, 0.45); animation: ia-spin 12s linear infinite; }
+.hs-line {
+  position: absolute; left: 7px; top: -7px; width: 0; height: 1px; transform-origin: 0 0; transform: rotate(-38deg);
+  background: linear-gradient(90deg, rgba(201, 48, 38, 0.95), rgba(223, 192, 138, 0.7));
+  transition: width 0.5s var(--ease) 0.1s;
+}
+.hotspots.is-on .hs-line { width: 44px; }
+.hs-label {
+  position: absolute; left: 42px; top: -52px; white-space: nowrap; text-align: left; padding: 6px 12px 6px 10px;
+  background: rgba(6, 9, 9, 0.8); border-left: 1px solid var(--cinnabar); backdrop-filter: blur(4px);
+  font: 600 10px/1.35 var(--f-ui); letter-spacing: 0.2em; color: var(--gold-bright); text-transform: uppercase;
+  text-shadow: 0 0 8px #000, 0 0 2px #000; opacity: 0; transform: translateY(4px);
+  transition: opacity 0.35s 0.4s, transform 0.45s var(--ease) 0.4s, color 0.3s;
+}
+.hs-label small { display: block; font-size: 8px; letter-spacing: 0.26em; color: var(--ash); }
+.hotspots.is-on .hs-label { opacity: 0.8; transform: none; }
+.hotspot.is-flip .hs-line { left: -7px; transform: rotate(-142deg); }
+.hotspot.is-flip .hs-label { left: auto; right: 42px; text-align: right; padding: 6px 10px 6px 12px; border-left: 0; border-right: 1px solid var(--cinnabar); }
+.hotspot:hover .hs-dot, .hotspot.is-sel .hs-dot { border-color: var(--gold-bright); transform: scale(1.15); }
+.hotspot.is-sel .hs-dot::before { transform: scale(1); }
+.hotspots.is-on .hotspot.is-sel .hs-label, .hotspots.is-on .hotspot:hover .hs-label { opacity: 1; color: #fff3dc; }
+/* cảnh bản đồ đã có nhãn vẽ sẵn: chỉ hiện nhãn mục đang chọn / đang rê */
+.hotspots.is-quiet .hotspot:not(.is-sel):not(:hover) .hs-label, .hotspots.is-quiet .hotspot:not(.is-sel):not(:hover) .hs-line { opacity: 0; }
+@media (max-width: 760px) {
+  .hs-label { font-size: 9px; letter-spacing: 0.14em; }
+  .hotspots.is-on .hotspot:not(.is-sel) .hs-label { opacity: 0; }
+}
+
+/* ---------- Âm môn: cổng bước vào ---------- */
+html.gate-lock, html.gate-lock body { overflow: hidden; }
+.gate { position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; text-align: center; }
+/* lúc đứng trước cổng: chỉ còn cảnh 3D mờ phía sau, giao diện hiện dần khi bước qua */
+#overlay, .viewfinder, .hud-top, .strip { transition: opacity 1.2s 0.25s; }
+html.gate-lock #overlay, html.gate-lock .viewfinder, html.gate-lock .hud-top, html.gate-lock .strip { opacity: 0; transition: none; }
+.gate[hidden] { display: none; }
+.gate-veil { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 50%, rgba(4, 8, 7, 0.5) 0%, rgba(4, 8, 7, 0.9) 60%, #020403 100%); transition: opacity 1.1s; }
+.gate-glow {
+  position: absolute; left: 50%; top: 50%; width: min(78vmin, 640px); aspect-ratio: 1; translate: -50% -50%; border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 236, 200, 0.5) 0%, rgba(223, 192, 138, 0.3) 16%, rgba(79, 224, 184, 0.2) 38%, rgba(79, 224, 184, 0.06) 56%, rgba(79, 224, 184, 0) 70%);
+  filter: blur(6px); animation: gate-breathe 4.5s ease-in-out infinite;
+  transition: transform 1.2s var(--ease), opacity 1.2s;
+}
+.gate-ring {
+  position: absolute; left: 50%; top: 50%; width: min(70vmin, 560px); aspect-ratio: 1; translate: -50% -50%; border-radius: 50%;
+  /* vòng chấm như tràng hạt */
+  background: repeating-conic-gradient(rgba(223, 192, 138, 0.95) 0 0.8deg, transparent 0.8deg 3.6deg);
+  -webkit-mask: radial-gradient(circle, transparent calc(50% - 4px), #000 calc(50% - 3px), #000 calc(50% - 1px), transparent 50%);
+          mask: radial-gradient(circle, transparent calc(50% - 4px), #000 calc(50% - 3px), #000 calc(50% - 1px), transparent 50%);
+  animation: ia-spin 60s linear infinite; transition: transform 1.3s var(--ease), opacity 1s;
+}
+.gate-ring--inner { width: min(46vmin, 370px); animation-direction: reverse; animation-duration: 40s; opacity: 0.6;
+  background: repeating-conic-gradient(rgba(201, 48, 38, 0.8) 0 0.9deg, transparent 0.9deg 7.5deg); }
+.gate-body { position: relative; display: grid; gap: 22px; justify-items: center; transition: opacity 0.6s, transform 1s var(--ease); }
+.gate-kicker { margin: 0; font: 600 10px/1 var(--f-ui); letter-spacing: 0.32em; color: var(--ash); }
+.gate-enter {
+  display: grid; gap: 10px; justify-items: center; padding: 18px 26px; border: 0; background: none; cursor: pointer; color: var(--bone);
+}
+.gate-han { font: 400 clamp(54px, 9vmin, 92px)/1 "Songti SC", "STSong", "Noto Serif SC", serif; color: #f4e6c8;
+  text-shadow: 0 0 24px rgba(255, 190, 110, 0.65), 0 0 60px rgba(79, 224, 184, 0.35); transition: text-shadow 0.4s, transform 0.5s var(--ease); }
+.gate-cta { display: inline-flex; align-items: center; gap: 12px; font: 600 11px/1 var(--f-ui); letter-spacing: 0.36em; color: var(--gold-bright); }
+.gate-cta::before, .gate-cta::after { content: ''; width: 26px; height: 1px; background: var(--cinnabar); transition: width 0.4s var(--ease); }
+.gate-enter:hover .gate-han, .gate-enter:focus-visible .gate-han { transform: scale(1.06); text-shadow: 0 0 30px rgba(255, 200, 120, 0.9), 0 0 80px rgba(79, 224, 184, 0.55); }
+.gate-enter:hover .gate-cta::before, .gate-enter:hover .gate-cta::after { width: 44px; }
+.gate-enter:focus-visible { outline: 1px dashed var(--gold-bright); outline-offset: 6px; }
+.gate-note { margin: 0; font: 400 12px/1.5 var(--f-body, serif); color: var(--ash); }
+.gate-silent { padding: 0; border: 0; background: none; color: var(--bone); font: inherit; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+@keyframes gate-breathe { 50% { transform: scale(1.06); opacity: 0.8; } }
+/* bước qua: vòng chấm nở tung, ánh sáng loé rồi tan, màn che mở ra cảnh 3D */
+.gate.is-open .gate-body { opacity: 0; transform: scale(1.15); }
+.gate.is-open .gate-ring { transform: scale(3.2); opacity: 0; }
+.gate.is-open .gate-glow { animation: none; transform: scale(2.6); opacity: 0; }
+.gate.is-open .gate-veil { opacity: 0; }
+@media (prefers-reduced-motion: reduce) {
+  .gate-ring, .gate-glow { animation: none; }
+}

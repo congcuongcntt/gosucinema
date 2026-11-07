@@ -10,7 +10,7 @@ import {
 import { SHOTS, CHARACTERS, PLACES, RELICS, TIMELINE, GALLERY, MEDIA } from './data.js';
 import {
   createIncense, createSigil, createTalismans, createGhostFire, createGroundMist, createCursorFlame,
-  createGlyphGate, createSpiritStreaks
+  createSoulGlyph, createSpiritStreaks
 } from './fx.js';
 import { createLands, LANDS } from './lands.js';
 
@@ -381,15 +381,26 @@ export function createWorld({ canvas, isMobile, reduceMotion, onPick, onLoadProg
     map.mesh.rotation.x = -1.05;
     addSmoke(s.group, V(-9, 2, 2), 14, 0x5a2a22, 0.18);
     addSmoke(s.group, V(9, 1, -3), 16);
-    const pins = [];
-    for (let k = 0; k < 6; k++) {
+    // vị trí nhãn từng thế lực trên ảnh bản đồ (u, v tính từ góc trên trái), theo thứ tự FACTIONS
+    const MAP_UV = [[0.70, 0.45], [0.88, 0.13], [0.135, 0.85], [0.54, 0.89], [0.09, 0.51], [0.92, 0.78]];
+    const marks = MAP_UV.map(([u, v]) => {
+      const o = new THREE.Object3D();
+      o.position.set(u - 0.5, 0.5 - v, 0.01);
+      map.mesh.add(o);
+      return o;
+    });
+    const pins = marks.map(() => {
       const g = glowSprite(0.9, 1.4);
-      g.position.set(-8 + k * 3.2, 1.2 + Math.sin(k) * 0.3, -1.5 + (k % 2) * 2);
       s.group.add(g);
-      pins.push(g);
-    }
+      return g;
+    });
+    s.hot = marks.map((o, k) => ({ obj: o, k, up: 0.25 }));
     s.select = (k) => { s.sel = k; };
+    const mw = V();
     s.update = (dt, t) => pins.forEach((g, k) => {
+      // ánh đèn lồng nổi lơ lửng ngay trên nhãn thế lực
+      g.position.copy(s.group.worldToLocal(marks[k].getWorldPosition(mw)));
+      g.position.y += 0.35;
       const on = k === s.sel;
       const sc = (on ? 1.8 : 0.7) + Math.sin(t * 3 + k) * 0.08;
       g.scale.x = g.scale.y = damp(g.scale.x, sc, 6, dt);
@@ -408,6 +419,7 @@ export function createWorld({ canvas, isMobile, reduceMotion, onPick, onLoadProg
       s.items.push(p);
     });
     addSmoke(s.group, V(0, -4, 3), 20, 0x3d2a24, 0.22);
+    s.hot = s.items.map((p, k) => ({ obj: p.mesh, k, up: 5.8 / 2 + 0.25 }));
     s.select = (k) => {
       s.sel = k;
       s.items.forEach((p, j) => (p.focusTarget = j === k ? 1 : 0.3));
@@ -431,6 +443,7 @@ export function createWorld({ canvas, isMobile, reduceMotion, onPick, onLoadProg
     });
     const core = glowSprite(4, 0.9);
     s.group.add(core);
+    s.hot = s.items.map((p, k) => ({ obj: p.mesh, k, up: 0.9, facing: true }));
     s.rot = 0;
     s.select = (k) => {
       // quay theo đường ngắn nhất
@@ -523,11 +536,13 @@ export function createWorld({ canvas, isMobile, reduceMotion, onPick, onLoadProg
   }
 
   /* ---------------- Không khí linh dị dùng chung mọi cảnh ---------------- */
+  // tiêu cự dùng chung cho mọi hệ hạt (bokeh)
+  const dof = { uFocus: { value: 15 }, uAperture: { value: 0.5 } };
   const anchors = shots.map((s) => s.anchor);
   const fogInfo = { color: FOG_COLOR, near: FOG_NEAR, far: FOG_FAR };
   const spots = shots.map((s) => ({ a: s.camTgt, c: s.camPos }));
-  const talismans = createTalismans({ scene, spots, perShot: isMobile ? 4 : 8, sharedTime, fog: fogInfo, pixelRatio: DPR });
-  createGhostFire({ scene, spots, perShot: isMobile ? 2 : 4, sharedTime, pixelRatio: DPR });
+  const talismans = createTalismans({ scene, spots, perShot: isMobile ? 4 : 8, sharedTime, fog: fogInfo, pixelRatio: DPR, dof });
+  createGhostFire({ scene, spots, perShot: isMobile ? 2 : 4, sharedTime, pixelRatio: DPR, dof });
   createGroundMist({ scene, anchors, sharedTime, fog: fogInfo });
   const landFog = { color: FOG_COLOR, nearU: { value: FOG_NEAR }, farU: { value: FOG_FAR } };
   const lands = createLands({ scene, shots, fog: landFog, sharedTime, isMobile, pixelRatio: DPR });
@@ -563,7 +578,7 @@ export function createWorld({ canvas, isMobile, reduceMotion, onPick, onLoadProg
     geo.setAttribute('aSeed', new THREE.BufferAttribute(seed, 1));
     geo.setAttribute('aOff', new THREE.BufferAttribute(off, 1));
     const pts = new THREE.Points(geo, new THREE.ShaderMaterial({
-      uniforms: { uTime: sharedTime, uHeight: { value: H }, uSize: { value: 5.5 }, uPixelRatio: { value: DPR }, uColor: { value: new THREE.Color(1.0, 0.42, 0.14) } },
+      uniforms: { uTime: sharedTime, uHeight: { value: H }, uSize: { value: 5.5 }, uPixelRatio: { value: DPR }, uColor: { value: new THREE.Color(1.0, 0.42, 0.14) }, uFocus: dof.uFocus, uAperture: dof.uAperture },
       vertexShader: emberVertex, fragmentShader: emberFragment,
       transparent: true, depthWrite: false, blending: THREE.AdditiveBlending
     }));
@@ -680,6 +695,7 @@ export function createWorld({ canvas, isMobile, reduceMotion, onPick, onLoadProg
 
   let down = null;
   let tapAt = null;
+  const hotP = new THREE.Vector3(), hotN = new THREE.Vector3(), hotC = new THREE.Vector3();
   let flameNear = false;
   const incenseScreen = new THREE.Vector3();
   canvas.addEventListener('pointerdown', (e) => { down = { x: e.clientX, y: e.clientY, t: performance.now() }; });
@@ -721,6 +737,7 @@ export function createWorld({ canvas, isMobile, reduceMotion, onPick, onLoadProg
       // biên dịch trước mọi shader (địa hình, công trình, chữ, vệt hồn) để lần đầu bay qua không khựng
       const hidden = [];
       scene.traverse((o) => { if (!o.visible) { hidden.push(o); o.visible = true; } });
+      try { gate.warm(); } catch (_) { /* bỏ qua */ }
       try { renderer.compile(scene, camera); } catch (_) { /* bỏ qua */ }
       hidden.forEach((o) => (o.visible = false));
       veil.enabled = true; composer.render(0); veil.enabled = false;
@@ -778,6 +795,16 @@ export function createWorld({ canvas, isMobile, reduceMotion, onPick, onLoadProg
     const vel = Math.abs(sv);
     prev = current;
     gate.update(camera, trans.i, trans.f, lands.pathPoint(trans.i, 0.62, shots[trans.i].camPos, shots[trans.i + 1].camPos, gatePos));
+    // lấy nét: đứng ở cảnh thì nét vào chủ thể; khi bay thì kéo nét theo khối chữ hồn đang tụ
+    {
+      let fd = camera.position.distanceTo(T);
+      if (gate.points.visible) {
+        const gd = camera.position.distanceTo(gate.points.position);
+        fd = THREE.MathUtils.lerp(fd, Math.min(gd, 30), 0.7 * THREE.MathUtils.smoothstep(trans.f, 0.08, 0.3) * (1 - THREE.MathUtils.smoothstep(trans.f, 0.44, 0.56)));
+      }
+      dof.uFocus.value = damp(dof.uFocus.value, fd, 5, dt);
+      dof.uAperture.value = reduceMotion ? 0.2 : 0.38;
+    }
     streaks?.update(camera, dt, trans.m * 0.45, sv);
     lands.update(dt, trans.m);
     // tầm nhìn mở xa hơn khi bay qua vùng đất
@@ -812,7 +839,7 @@ export function createWorld({ canvas, isMobile, reduceMotion, onPick, onLoadProg
   // chữ Hán của cảnh sắp tới: 源 khởi nguồn · 影 bản dựng · 魂 nhân vật · 勢 thế lực · 域 địa đồ
   // 器 pháp khí · 時 thời gian · 夢 khung hình · 終 hồi kết
   // chữ Hán tên vùng đất treo lơ lửng trên trời, máy quay bay ngang bên dưới
-  const gate = createGlyphGate({ scene, chars: LANDS.map((l) => l.han), sharedTime });
+  const gate = createSoulGlyph({ scene, chars: LANDS.map((l) => l.han), sharedTime, pixelRatio: DPR, isMobile, dof });
   const gatePos = V();
   const streaks = reduceMotion ? null : createSpiritStreaks({ scene, count: isMobile ? 80 : 160 });
 
@@ -834,6 +861,32 @@ export function createWorld({ canvas, isMobile, reduceMotion, onPick, onLoadProg
       s.incense.light(sharedTime.value);
       s.sigil.pulse();
       kick = 1;
+    },
+    /** Bước qua âm môn: pháp trận bừng sáng, ngọn lửa bùng, máy quay rung nhẹ */
+    enterGate() {
+      shots[0].sigil.pulse();
+      flame?.flare(1.2);
+      kick = 0.7;
+    },
+    /** Điểm chú thích gắn trên vật thể 3D của cảnh đang dừng (toạ độ màn hình) */
+    hotspots() {
+      const s = shots[activeShot];
+      if (!s.hot || !settled) return null;
+      return {
+        shot: activeShot,
+        list: s.hot.map((h) => {
+          h.obj.getWorldPosition(hotP);
+          hotP.y += h.up;
+          let vis = 1;
+          if (h.facing) {
+            h.obj.getWorldDirection(hotN);
+            hotC.subVectors(camera.position, hotP).normalize();
+            vis = THREE.MathUtils.smoothstep(hotN.dot(hotC), 0.25, 0.75);
+          }
+          hotP.project(camera);
+          return { k: h.k, x: (hotP.x * 0.5 + 0.5) * W, y: (-hotP.y * 0.5 + 0.5) * Hh, vis: hotP.z < 1 ? vis : 0, sel: s.sel === h.k };
+        })
+      };
     },
     /** Vùng đất đang bay qua (để hiện tên vùng kiểu location title) */
     landInfo() { return { i: trans.i, f: trans.f, m: trans.m, name: LANDS[trans.i].name, han: LANDS[trans.i].han }; },

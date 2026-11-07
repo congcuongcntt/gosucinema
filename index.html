@@ -14,7 +14,7 @@
   <link rel="preload" href="assets/uploads/1793703338122-1FTV-VIP-Queen-of-Silence.ttf" as="font" type="font/ttf" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Prata&family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
   <link rel="preload" as="image" href="assets/son-ha-di-luc-title.webp?v=15" crossorigin>
-  <link rel="stylesheet" href="css/style.css?v=7">
+  <link rel="stylesheet" href="css/style.css?v=9">
   <script type="importmap">
     {
       "imports": {
@@ -67,6 +67,25 @@
     <div class="land-title" id="land-title" aria-hidden="true"><span class="lt-han" id="lt-han"></span><span class="lt-kicker">VÙNG ĐẤT <b id="lt-num"></b></span><span class="lt-name" id="lt-name"></span></div>
     <div class="vf-meta vf-meta--left"><span class="rec">● REC</span> <span id="tc">TC 00:00:00:00</span></div>
     <div class="vf-meta vf-meta--right"><span id="vf-code">SC 01</span> · <span id="vf-move">PUSH IN · 24mm</span></div>
+  </div>
+
+  <!-- điểm chú thích bám theo vật thể 3D (bản đồ thế lực, địa đồ, pháp khí) -->
+  <div class="hotspots" id="hotspots" aria-hidden="true"></div>
+
+  <!-- Âm môn: cổng bước vào (mở khoá âm thanh bằng cú bấm đầu tiên) -->
+  <div class="gate" id="gate" hidden>
+    <div class="gate-veil" aria-hidden="true"></div>
+    <div class="gate-glow" aria-hidden="true"></div>
+    <div class="gate-ring" aria-hidden="true"></div>
+    <div class="gate-ring gate-ring--inner" aria-hidden="true"></div>
+    <div class="gate-body">
+      <p class="gate-kicker">SƠN HÀ DỊ LỤC · KINH ĐÔ PHÚ XUÂN · 1836</p>
+      <button type="button" class="gate-enter" id="gate-enter">
+        <span class="gate-han" aria-hidden="true">陰門</span>
+        <span class="gate-cta">BƯỚC QUA ÂM MÔN</span>
+      </button>
+      <p class="gate-note">Trải nghiệm có âm thanh · <button type="button" class="gate-silent" id="gate-silent">vào trong im lặng</button></p>
+    </div>
   </div>
 
   <main id="overlay">
@@ -258,6 +277,6 @@
 
   <audio id="bgm" src="assets/audio/soundtrack-1836.m4a" preload="none" loop></audio>
 
-  <script type="module" src="js/main.js?v=9"></script>
+  <script type="module" src="js/main.js?v=12"></script>
 </body>
 </html>
