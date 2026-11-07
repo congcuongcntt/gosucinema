@@ -459,6 +459,12 @@ blockquote {
 }
 .incense-anchor:hover .ia-label, .incense-anchor:focus-visible .ia-label, .incense-anchor.is-out .ia-label { opacity: 1; transform: none; }
 .incense-anchor.is-out .ia-label { color: #ffb19a; border-color: rgba(201, 48, 38, 0.6); }
+.incense-anchor.is-near .ia-ring { inset: 4px; border-style: solid; border-color: #ffb46a; box-shadow: 0 0 18px rgba(255, 120, 40, 0.55); animation: ia-spin 3s linear infinite; }
+.incense-anchor.is-near .ia-label { color: #ffd6a8; border-color: rgba(255, 150, 70, 0.7); }
+.incense-anchor.is-hint .ia-label { animation: ia-nudge 0.5s var(--ease); }
+@keyframes ia-nudge { 20%, 60% { translate: -6px -50%; } 40%, 80% { translate: 6px -50%; } }
+/* có ngọn lửa theo chuột: ngọn lửa thay con trỏ trên nền 3D và ở điểm thắp nhang */
+html.has-flame canvas, html.has-flame .incense-anchor { cursor: none; }
 
 .ia-plus {
   position: absolute; left: 50%; bottom: 70%; translate: -50% 0;
@@ -545,3 +551,9 @@ blockquote {
 @media (max-width: 640px) { .land-title { top: 18%; } .lt-han { font-size: 40px; } }
 /* đang bay qua vùng đất: khung chữ lùi đi, để khung hình cho hành trình */
 html.is-moving .shot .card { opacity: 0; transition-delay: 0s; }
+
+/* màn hẹp: nhãn nén nhang xuống dưới vòng để khỏi tràn mép trái */
+@media (max-width: 760px) {
+  .ia-label { right: auto; left: 50%; top: calc(100% + 2px); translate: -50% 0; transform: translateY(-4px); }
+  @keyframes ia-nudge { 20%, 60% { translate: calc(-50% - 6px) 0; } 40%, 80% { translate: calc(-50% + 6px) 0; } }
+}

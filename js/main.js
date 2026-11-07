@@ -310,19 +310,42 @@ function lightIncense() {
     if (d && typeof d.value === 'number' && d.value > incense) { incense = d.value; showIncense(); }
   }).catch(() => {});
 }
-incenseBtn.addEventListener('click', lightIncense);
-incenseAnchor.addEventListener('click', lightIncense);
+// Có ngọn lửa theo chuột: phải đưa lửa tới đúng đầu nhang rồi bấm mới bén.
+// Cảm ứng / bàn phím (không có ngọn lửa): chạm hoặc Enter thắp trực tiếp.
+function hintIncense() {
+  restart(incenseAnchor, 'is-hint');
+  iaLabel.textContent = 'ĐƯA NGỌN LỬA ĐẾN ĐẦU NHANG';
+  incenseUi = '';
+}
+function tryLight(e) {
+  const info = world?.incenseInfo();
+  const keyboard = e && e.detail === 0; // click sinh ra từ phím Enter/Space
+  if (info && info.hasFlame && !info.near && !keyboard) { hintIncense(); return; }
+  lightIncense();
+}
+incenseBtn.addEventListener('click', (e) => {
+  const info = world?.incenseInfo();
+  if (info && info.hasFlame && active === 0) hintIncense();
+  else lightIncense(e);
+});
+incenseAnchor.addEventListener('click', tryLight);
 
 let incenseUi = '';
 function updateIncenseAnchor() {
   if (!world || active !== 0) return;
   const info = world.incenseInfo();
   incenseAnchor.style.transform = `translate(${info.x.toFixed(1)}px, ${info.y.toFixed(1)}px)`;
-  const ui = info.out ? 'out' : 'lit';
+  const ui = info.near ? 'near' : info.lit ? 'lit' : info.burn > 0 ? 'out' : 'cold';
   if (ui !== incenseUi) {
     incenseUi = ui;
-    incenseAnchor.classList.toggle('is-out', info.out);
-    iaLabel.textContent = info.out ? 'HƯƠNG ĐÃ TÀN · BẤM THẮP (+1)' : 'THẮP THÊM NÉN MỚI (+1)';
+    incenseAnchor.classList.toggle('is-out', !info.lit);
+    incenseAnchor.classList.toggle('is-near', info.near);
+    iaLabel.textContent = {
+      near: 'BẤM ĐỂ THẮP (+1)',
+      lit: info.hasFlame ? 'HƠ LỬA · BẤM THẮP THÊM (+1)' : 'THẮP THÊM NÉN MỚI (+1)',
+      out: info.hasFlame ? 'HƯƠNG ĐÃ TÀN · ĐƯA LỬA ĐẾN ĐẦU NHANG' : 'HƯƠNG ĐÃ TÀN · CHẠM ĐỂ THẮP (+1)',
+      cold: info.hasFlame ? 'ĐƯA LỬA ĐẾN ĐẦU NHANG ĐỂ THẮP' : 'CHẠM ĐỂ THẮP HƯƠNG (+1)'
+    }[ui];
   }
 }
 

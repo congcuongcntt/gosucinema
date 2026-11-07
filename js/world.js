@@ -9,7 +9,7 @@ import {
 } from './shaders.js';
 import { SHOTS, CHARACTERS, PLACES, RELICS, TIMELINE, GALLERY, MEDIA } from './data.js';
 import {
-  createIncense, createSigil, createTalismans, createGhostFire, createGroundMist, createCursorWisp,
+  createIncense, createSigil, createTalismans, createGhostFire, createGroundMist, createCursorFlame,
   createGlyphGate, createSpiritStreaks
 } from './fx.js';
 import { createLands, LANDS } from './lands.js';
@@ -526,13 +526,15 @@ export function createWorld({ canvas, isMobile, reduceMotion, onPick, onLoadProg
   const anchors = shots.map((s) => s.anchor);
   const fogInfo = { color: FOG_COLOR, near: FOG_NEAR, far: FOG_FAR };
   const spots = shots.map((s) => ({ a: s.camTgt, c: s.camPos }));
-  createTalismans({ scene, spots, perShot: isMobile ? 4 : 8, sharedTime, fog: fogInfo });
+  const talismans = createTalismans({ scene, spots, perShot: isMobile ? 4 : 8, sharedTime, fog: fogInfo, pixelRatio: DPR });
   createGhostFire({ scene, spots, perShot: isMobile ? 2 : 4, sharedTime, pixelRatio: DPR });
   createGroundMist({ scene, anchors, sharedTime, fog: fogInfo });
   const landFog = { color: FOG_COLOR, nearU: { value: FOG_NEAR }, farU: { value: FOG_FAR } };
   const lands = createLands({ scene, shots, fog: landFog, sharedTime, isMobile, pixelRatio: DPR });
   const finePointer = matchMedia('(pointer: fine)').matches;
-  const wisp = finePointer && !reduceMotion ? createCursorWisp({ scene, camera, pixelRatio: DPR }) : null;
+  // ngọn lửa theo con trỏ: thắp nhang, đốt bùa (màn cảm ứng thì chạm trực tiếp)
+  const flame = finePointer ? createCursorFlame({ scene, camera, canvas, pixelRatio: DPR, reduceMotion }) : null;
+  if (flame) document.documentElement.classList.add('has-flame');
 
   // Trạng thái chọn mặc định
   shots.forEach((s) => s.select(0));
@@ -677,6 +679,9 @@ export function createWorld({ canvas, isMobile, reduceMotion, onPick, onLoadProg
   });
 
   let down = null;
+  let tapAt = null;
+  let flameNear = false;
+  const incenseScreen = new THREE.Vector3();
   canvas.addEventListener('pointerdown', (e) => { down = { x: e.clientX, y: e.clientY, t: performance.now() }; });
   canvas.addEventListener('pointerup', (e) => {
     if (!down) return;
@@ -690,6 +695,7 @@ export function createWorld({ canvas, isMobile, reduceMotion, onPick, onLoadProg
     } else if (Math.hypot(dx, dy) < 8 && settled) {
       const obj = raycast(e.clientX, e.clientY);
       if (obj) onPick(activeShot, obj.userData.pick.item, { clicked: true });
+      else if (e.pointerType !== 'mouse') tapAt = { x: e.clientX, y: e.clientY }; // chạm vào bùa để đốt
     }
     down = null;
   });
@@ -737,9 +743,20 @@ export function createWorld({ canvas, isMobile, reduceMotion, onPick, onLoadProg
     }
     const inc = shots[0].incense;
     inc.update(dt, t, { visible: current < 0.5 && !document.hidden, camera });
+    // ngọn lửa hơ đúng đầu nhang → nhang ửng than, chờ bấm thắp
+    flameNear = false;
+    if (flame && flame.active && current < 0.5) {
+      incenseScreen.copy(inc.tipWorld()).project(camera);
+      const ix = (incenseScreen.x * 0.5 + 0.5) * W, iy = (-incenseScreen.y * 0.5 + 0.5) * Hh;
+      flameNear = Math.hypot(flame.screen.x - ix, flame.screen.y - iy) < 30;
+    }
+    inc.state.heatTarget = flameNear && !inc.state.lit ? 1 : 0;
     shots.forEach((s) => s.update(dt, t));
     smokes.forEach((m) => m.quaternion.copy(camera.quaternion));
-    wisp?.update(dt, t);
+    flame?.update(dt, t);
+    if (flame && flame.active && Math.abs(current - activeShot) < 0.5 && talismans.probe(flame.screen.x, flame.screen.y, t, camera, W, Hh)) flame.flare(1);
+    if (tapAt) { talismans.probe(tapAt.x, tapAt.y, t, camera, W, Hh); tapAt = null; }
+    talismans.update(dt, t);
 
     const wantVideo = Math.abs(current - 2) < 0.6;
     if (wantVideo !== videoWanted) {
@@ -802,7 +819,6 @@ export function createWorld({ canvas, isMobile, reduceMotion, onPick, onLoadProg
   let kick = 0;
   let ghostAt = -100;
   let nextGhost = 6;
-  const incenseScreen = new THREE.Vector3();
 
   return {
     ready,
@@ -811,7 +827,7 @@ export function createWorld({ canvas, isMobile, reduceMotion, onPick, onLoadProg
     select(shotIndex, k) { shots[shotIndex].select(k); },
     setCharView(mode) { shots[3].setView(mode); },
     resize,
-    debug: { scene, camera, shots, renderer },
+    debug: { scene, camera, shots, renderer, talismans },
     /** Thắp hương: nhang dài lại, tia lửa, sóng xung kích, pháp trận bừng sáng, máy quay rung nhẹ */
     lightIncense() {
       const s = shots[0];
@@ -828,6 +844,8 @@ export function createWorld({ canvas, isMobile, reduceMotion, onPick, onLoadProg
       incenseScreen.copy(p).project(camera);
       return {
         lit: s.incense.state.lit,
+        near: flameNear,
+        hasFlame: !!flame,
         out: s.incense.state.out,
         burn: s.incense.state.burn,
         x: (incenseScreen.x * 0.5 + 0.5) * W,

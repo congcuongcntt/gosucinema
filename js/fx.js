@@ -1,4 +1,4 @@
-// Hiệu ứng linh dị: nén nhang 3D, khói, tia lửa, pháp trận, bùa chú bay, ma trơi, sương đất, đốm hồn theo con trỏ.
+// Hiệu ứng linh dị: nén nhang 3D, khói, tia lửa, pháp trận, bùa chú bay (đốt được), ma trơi, sương đất, ngọn lửa theo con trỏ.
 import * as THREE from 'three';
 import { NOISE } from './shaders.js';
 
@@ -99,12 +99,12 @@ export function createIncense({ parent, base, length, sharedTime, pixelRatio, is
   // Thân nhang: ngà ở trên, nâu ở chân; đầu nhang có tàn tro + vùng đỏ rực
   const stickGeo = new THREE.CylinderGeometry(0.034, 0.04, 1, 12, 1);
   stickGeo.translate(0, 0.5, 0);
-  const stickUniforms = { uLen: { value: length }, uLit: { value: 1 }, uTime: sharedTime };
+  const stickUniforms = { uLen: { value: length }, uLit: { value: 0 }, uHeat: { value: 0 }, uTime: sharedTime };
   const stick = new THREE.Mesh(stickGeo, new THREE.ShaderMaterial({
     uniforms: stickUniforms,
     vertexShader: /* glsl */ `varying float vY; varying vec3 vN;
       void main(){ vY = position.y; vN = normalize(normalMatrix*normal); gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.); }`,
-    fragmentShader: /* glsl */ `uniform float uLen, uLit, uTime; varying float vY; varying vec3 vN;
+    fragmentShader: /* glsl */ `uniform float uLen, uLit, uHeat, uTime; varying float vY; varying vec3 vN;
       void main(){
         float shade = .5 + .5*max(0., dot(vN, normalize(vec3(.5,.3,1.))));
         vec3 col = mix(vec3(.55,.36,.18), vec3(1.,.92,.78), smoothstep(0., .85, vY))*shade*.9;
@@ -113,6 +113,8 @@ export function createIncense({ parent, base, length, sharedTime, pixelRatio, is
         float hot = (1. - smoothstep(.015, .08, tipD))*uLit;
         col = mix(col, vec3(.42,.38,.35), ash*(1. - uLit*.5));
         col += vec3(2.6,.7,.12)*hot*(.85 + .15*sin(uTime*14.));
+        // lửa hơ vào: đầu nhang ửng dần trước khi bén
+        col += vec3(1.4,.3,.05)*(1. - smoothstep(.0, .05, tipD))*uHeat*(1. - uLit)*(.8 + .2*sin(uTime*20.));
         gl_FragColor = vec4(col, 1.);
       }`
   }));
@@ -136,7 +138,7 @@ export function createIncense({ parent, base, length, sharedTime, pixelRatio, is
   sGeo.setAttribute('aSeed', new THREE.BufferAttribute(sSeed, 1));
   sGeo.setAttribute('aPhase', new THREE.BufferAttribute(sPhase, 1));
   const smokeU = {
-    uTime: sharedTime, uLife: { value: 6.5 }, uSurge: { value: 0 }, uLit: { value: 1 },
+    uTime: sharedTime, uLife: { value: 6.5 }, uSurge: { value: 0 }, uLit: { value: 0 },
     uTip: { value: new THREE.Vector3(0, length, 0) }, uPR: { value: pixelRatio }
   };
   const smoke = new THREE.Points(sGeo, new THREE.ShaderMaterial({
@@ -238,7 +240,8 @@ export function createIncense({ parent, base, length, sharedTime, pixelRatio, is
 
   // Trạng thái
   const BURN_S = 45;
-  const st = { lit: true, burn: 0, surge: 0, flare: 0, intensity: 1, burstAt: -100, out: false };
+  // Nhang cắm sẵn nhưng CHƯA thắp: chỉ bén lửa khi đưa ngọn lửa tới đầu nhang và bấm
+  const st = { lit: false, burn: 0, surge: 0, flare: 0, intensity: 0, burstAt: -100, out: true, heat: 0, heatTarget: 0 };
   const tip = new THREE.Vector3(0, length, 0);
   const tmp = new THREE.Vector3();
 
@@ -268,14 +271,16 @@ export function createIncense({ parent, base, length, sharedTime, pixelRatio, is
     st.intensity = damp(st.intensity, target, st.lit ? 6 : 1.4, dt);
     st.surge = damp(st.surge, 0, 0.9, dt);
     st.flare = damp(st.flare, 0, 2.6, dt);
+    st.heat = damp(st.heat, st.heatTarget, st.heatTarget > st.heat ? 3 : 2, dt);
+    stickUniforms.uHeat.value = st.heat;
     stickUniforms.uLit.value = st.intensity;
-    smokeU.uLit.value = Math.min(1, st.intensity * 1.2 + st.surge);
+    smokeU.uLit.value = Math.min(1, st.intensity * 1.2 + st.surge + st.heat * 0.22);
     smokeU.uSurge.value = st.surge;
 
     const flick = reduceMotion ? 1 : 0.86 + Math.sin(t * 11) * 0.07 + Math.sin(t * 23.7) * 0.05;
     core.position.copy(tip);
     aura.position.copy(tip);
-    const out = st.out ? 0.5 + 0.5 * Math.sin(t * 3) : 0; // đốm đỏ mời thắp
+    const out = st.lit ? 0 : st.heat * (0.55 + 0.25 * Math.sin(t * 19)); // đốm than ửng lên khi hơ lửa
     core.scale.setScalar((0.42 + st.flare * 0.45) * (st.intensity * flick + out * 0.7) + 0.001);
     aura.scale.setScalar((2.2 + st.flare * 1.8) * (st.intensity * flick + out * 0.5) + 0.001);
     core.material.opacity = Math.min(1, st.intensity + out * 0.6 + st.flare);
@@ -368,27 +373,40 @@ function talismanAtlas() {
   return t;
 }
 
-export function createTalismans({ scene, spots, perShot, sharedTime, fog }) {
+export function createTalismans({ scene, spots, perShot, sharedTime, fog, pixelRatio }) {
   const count = spots.length * perShot;
-  const geo = new THREE.PlaneGeometry(0.42, 1.16, 1, 12);
+  const PW = 0.42, PH = 1.16;
+  const BURN = 2.6, REFORM_AT = 13, REFORM = 2.2;   // giây: cháy hết · bắt đầu tụ lại · thời gian tụ
+  const geo = new THREE.PlaneGeometry(PW, PH, 4, 12);
   const seeds = new Float32Array(count);
   const variants = new Float32Array(count);
+  const burnAt = new Float32Array(count).fill(-1e4);
+  const hit = new Float32Array(count * 2);
   const mat = new THREE.ShaderMaterial({
-    uniforms: { uMap: { value: talismanAtlas() }, uTime: sharedTime, uFogColor: { value: fog.color }, uFogNear: { value: fog.near }, uFogFar: { value: fog.far } },
+    uniforms: {
+      uMap: { value: talismanAtlas() }, uTime: sharedTime, uFogColor: { value: fog.color }, uFogNear: { value: fog.near }, uFogFar: { value: fog.far },
+      uBurn: { value: BURN }, uReformAt: { value: REFORM_AT }, uReform: { value: REFORM }
+    },
     vertexShader: /* glsl */ `
-      attribute float aSeed; attribute float aVariant;
-      uniform float uTime;
-      varying vec2 vUv; varying vec2 vLocal; varying float vDepth; varying float vSeed;
+      attribute float aSeed; attribute float aVariant; attribute float aBurnAt; attribute vec2 aHit;
+      uniform float uTime, uBurn;
+      varying vec2 vUv; varying vec2 vLocal; varying float vDepth; varying float vSeed; varying float vAge; varying vec2 vHit;
       mat3 rY(float a){ float c=cos(a), s=sin(a); return mat3(c,0.,-s, 0.,1.,0., s,0.,c); }
       mat3 rZ(float a){ float c=cos(a), s=sin(a); return mat3(c,s,0., -s,c,0., 0.,0.,1.); }
       void main(){
         vLocal = uv;
         vUv = vec2((uv.x + aVariant)/3., uv.y);
         vSeed = aSeed;
+        vAge = uTime - aBurnAt;
+        vHit = aHit;
         float t = uTime*(.22 + aSeed*.22) + aSeed*40.;
         vec3 p = position;
         p.z += sin(uv.y*4.5 + t*3.2)*.07*(1.1 - uv.y*.4);
         p.x += sin(uv.y*2.7 + t*2.1)*.02;
+        // giấy quăn lại khi bén lửa
+        float burning = step(0., vAge)*(1. - smoothstep(uBurn, uBurn + .4, vAge));
+        float near = 1. - smoothstep(0., .5, length(position.xy - aHit));
+        p.z += burning*(sin(uv.y*9. + uTime*14.)*.03 + near*.12*smoothstep(0., .6, vAge));
         p = rZ(sin(t*.7)*.3)*p;
         p = rY(t*.55 + aSeed*6.283)*p;
         vec3 drift = vec3(sin(t*.31)*1.6, sin(t*.23 + aSeed*3.)*1.1, cos(t*.27)*1.4);
@@ -398,16 +416,31 @@ export function createTalismans({ scene, spots, perShot, sharedTime, fog }) {
         gl_Position = projectionMatrix*mv;
       }`,
     fragmentShader: /* glsl */ `
-      uniform sampler2D uMap; uniform float uTime;
+      uniform sampler2D uMap; uniform float uTime, uBurn, uReformAt, uReform;
       uniform vec3 uFogColor; uniform float uFogNear, uFogFar;
-      varying vec2 vUv; varying vec2 vLocal; varying float vDepth; varying float vSeed;
+      varying vec2 vUv; varying vec2 vLocal; varying float vDepth; varying float vSeed; varying float vAge; varying vec2 vHit;
       ${NOISE}
       void main(){
-        // mép dưới cháy xém, lập loè than hồng
+        // mép dưới cháy xém sẵn, lập loè than hồng
         float n = fbm(vLocal*vec2(6., 3.) + vSeed*9.);
         float burnLine = .1 + n*.12 + vSeed*.08;
         float d = vLocal.y - burnLine;
         if (d < 0.) discard;
+
+        // vệt cháy lan ra từ chỗ ngọn lửa chạm (lên trên nhanh hơn), rồi tụ lại như cũ
+        vec2 pl = (vLocal - .5)*vec2(${PW.toFixed(2)}, ${PH.toFixed(2)});
+        vec2 dv = pl - vHit;
+        dv.y *= dv.y > 0. ? .62 : 1.15;
+        float n2 = fbm(vLocal*vec2(7., 4.) + vSeed*13. + 3.);
+        float dist = length(dv) + (n2 - .5)*.16;
+        float R = -1.;
+        if (vAge >= 0.) {
+          R = 1.45*pow(clamp(vAge/uBurn, 0., 1.), 1.25) - .02;
+          R *= 1. - smoothstep(uReformAt, uReformAt + uReform, vAge);
+        }
+        float front = dist - R;
+        if (front < 0.) discard;
+
         vec3 col = texture2D(uMap, vUv).rgb;
         float glyph = smoothstep(.25, .05, col.g)*step(.4, col.r);
         col *= gl_FrontFacing ? .62 : .38;
@@ -415,6 +448,19 @@ export function createTalismans({ scene, spots, perShot, sharedTime, fog }) {
         float edge = 1. - smoothstep(0., .05, d);
         col = mix(col, vec3(.08,.04,.02), smoothstep(.0, .09, .09 - d)*.9);
         col += vec3(2.4,.6,.1)*edge*edge*(.6 + .4*sin(uTime*7. + vLocal.x*20.));
+
+        if (vAge >= 0. && vAge < uReformAt + uReform) {
+          float reforming = smoothstep(uReformAt, uReformAt + .3, vAge);
+          float fl = .7 + .3*sin(uTime*13. + vLocal.x*30. + vLocal.y*17.);
+          float scorch = 1. - smoothstep(0., .1, front);
+          float rim = 1. - smoothstep(0., .022, front);
+          col = mix(col, vec3(.05,.025,.01), scorch*.92);
+          vec3 fire = mix(vec3(3.2,1.1,.25), vec3(.4,2.2,1.8), reforming); // khi tụ lại: mép sáng xanh ngọc
+          col += fire*rim*fl;
+          col += vec3(.9,.25,.05)*(1. - smoothstep(0., .3, front))*(1. - reforming)*.5*fl;
+          // hơi nóng: cả tờ bùa ửng đỏ lúc đang cháy
+          col += vec3(.15,.04,.01)*(1. - smoothstep(0., uBurn, vAge));
+        }
         float fog = smoothstep(uFogNear, uFogFar, vDepth);
         col = mix(col, uFogColor, fog);
         gl_FragColor = vec4(col, 1. - fog*.6);
@@ -424,6 +470,7 @@ export function createTalismans({ scene, spots, perShot, sharedTime, fog }) {
   });
   const mesh = new THREE.InstancedMesh(geo, mat, count);
   const m4 = new THREE.Matrix4();
+  const bases = [];
   let i = 0;
   const P = new THREE.Vector3();
   spots.forEach(({ a, c }) => {
@@ -433,7 +480,9 @@ export function createTalismans({ scene, spots, perShot, sharedTime, fog }) {
       const near = k < perShot / 2;
       P.copy(a).lerp(c, near ? 0.35 + Math.random() * 0.3 : -0.25 - Math.random() * 0.4);
       const spread = near ? 3.5 + Math.random() * 4 : 6 + Math.random() * 10;
-      m4.makeTranslation(P.x + side * spread, P.y - 1.5 + Math.random() * 5, P.z);
+      const b = new THREE.Vector3(P.x + side * spread, P.y - 1.5 + Math.random() * 5, P.z);
+      bases.push(b);
+      m4.makeTranslation(b.x, b.y, b.z);
       mesh.setMatrixAt(i, m4);
       seeds[i] = Math.random();
       variants[i] = Math.floor(Math.random() * 3);
@@ -441,9 +490,78 @@ export function createTalismans({ scene, spots, perShot, sharedTime, fog }) {
   });
   geo.setAttribute('aSeed', new THREE.InstancedBufferAttribute(seeds, 1));
   geo.setAttribute('aVariant', new THREE.InstancedBufferAttribute(variants, 1));
+  const burnAttr = new THREE.InstancedBufferAttribute(burnAt, 1).setUsage(THREE.DynamicDrawUsage);
+  const hitAttr = new THREE.InstancedBufferAttribute(hit, 2).setUsage(THREE.DynamicDrawUsage);
+  geo.setAttribute('aBurnAt', burnAttr);
+  geo.setAttribute('aHit', hitAttr);
   mesh.frustumCulled = false;
   scene.add(mesh);
-  return mesh;
+
+  const ash = createAsh({ scene, pixelRatio });
+
+  // Bản sao chuyển động GPU trên CPU để biết bùa đang ở đâu trên màn hình
+  const C = new THREE.Vector3(), S = new THREE.Vector3(), X = new THREE.Vector3(), Q = new THREE.Vector3();
+  function center(idx, t, out, ax) {
+    const s = seeds[idx];
+    const tt = t * (0.22 + s * 0.22) + s * 40;
+    const ry = tt * 0.55 + s * 6.283;
+    out.copy(bases[idx]).add(Q.set(Math.sin(tt * 0.31) * 1.6, Math.sin(tt * 0.23 + s * 3) * 1.1, Math.cos(tt * 0.27) * 1.4));
+    if (ax) ax.set(Math.cos(ry), 0, -Math.sin(ry));
+    return ry;
+  }
+
+  /** thử đốt: (px, py) là toạ độ màn hình của ngọn lửa/ngón tay. Trả về số bùa vừa bén lửa */
+  function probe(px, py, t, camera, W, H) {
+    let lit = 0;
+    const tanH = Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2);
+    for (let k = 0; k < count; k++) {
+      if (t - burnAt[k] < REFORM_AT + REFORM) continue;
+      center(k, t, C, X);
+      S.copy(C).applyMatrix4(camera.matrixWorldInverse);
+      const depth = -S.z;
+      if (depth < 1.5 || depth > 34) continue;
+      S.copy(C).project(camera);
+      const sx = (S.x * 0.5 + 0.5) * W, sy = (-S.y * 0.5 + 0.5) * H;
+      const ppu = H / (2 * depth * tanH);          // px trên mỗi đơn vị thế giới ở độ sâu này
+      const face = Math.max(0.3, Math.abs(X.dot(Q.set(1, 0, 0).applyQuaternion(camera.quaternion))));
+      const hw = (PW / 2) * ppu * face + 16, hh = (PH / 2) * ppu * 0.95 + 12; // nới vùng chạm cho dễ đốt
+      const dx = px - sx, dy = py - sy;
+      if (Math.abs(dx) > hw || Math.abs(dy) > hh) continue;
+      burnAt[k] = t;
+      hit[k * 2] = THREE.MathUtils.clamp(dx / ppu / face, -PW / 2, PW / 2);
+      hit[k * 2 + 1] = THREE.MathUtils.clamp(-dy / ppu, -PH / 2, PH / 2);
+      for (let e = 0; e < 14; e++) ash.spawn(C.x + X.x * hit[k * 2], C.y + hit[k * 2 + 1], C.z + X.z * hit[k * 2], 1);
+      lit++;
+    }
+    if (lit) { burnAttr.needsUpdate = true; hitAttr.needsUpdate = true; }
+    return lit;
+  }
+
+  const acc = new Float32Array(count);
+  function update(dt, t) {
+    for (let k = 0; k < count; k++) {
+      const age = t - burnAt[k];
+      if (age < 0 || age > BURN + 0.6) continue;
+      // tro rơi từ đường cháy đang lan
+      acc[k] += dt * (age < BURN ? 55 : 12);
+      let n = Math.floor(acc[k]);
+      if (!n) continue;
+      acc[k] -= n;
+      center(k, t, C, X);
+      const R = 1.45 * Math.pow(Math.min(1, age / BURN), 1.25);
+      while (n--) {
+        const a = Math.random() * Math.PI * 2;
+        const r = R * (0.85 + Math.random() * 0.2);
+        const lx = hit[k * 2] + Math.cos(a) * r;
+        const ly = hit[k * 2 + 1] + Math.sin(a) * r * (Math.sin(a) > 0 ? 1.6 : 0.87);
+        if (Math.abs(lx) > PW / 2 || Math.abs(ly) > PH / 2) continue;
+        ash.spawn(C.x + X.x * lx, C.y + ly, C.z + X.z * lx, Math.random() < 0.18 ? 1 : 0);
+      }
+    }
+    ash.update(dt, t);
+  }
+
+  return { mesh, probe, update, bases };
 }
 
 /* ======================================================================
@@ -546,66 +664,266 @@ export function createGroundMist({ scene, anchors, sharedTime, fog }) {
 }
 
 /* ======================================================================
-   ĐỐM HỒN theo con trỏ (thay cursor-orbit của bản cũ)
+   NGỌN LỬA theo con trỏ — "hồn đăng": lửa nhỏ chân xanh ngọc, nghiêng theo
+   hướng di chuyển, toé tàn lửa. Dùng để thắp nhang và đốt bùa.
    ====================================================================== */
-export function createCursorWisp({ scene, camera, pixelRatio }) {
-  const N = 28;
-  const tex = radialTexture([[0, 'rgba(230,255,250,1)'], [0.2, 'rgba(120,255,220,.7)'], [0.55, 'rgba(40,160,140,.18)'], [1, 'rgba(0,60,60,0)']]);
-  const head = sprite(tex, 0.55, 1.6);
-  scene.add(head);
-  const pos = new Float32Array(N * 3);
-  const idx = new Float32Array(N);
-  for (let i = 0; i < N; i++) idx[i] = i / N;
-  const geo = new THREE.BufferGeometry();
-  const posAttr = new THREE.BufferAttribute(pos, 3);
-  posAttr.setUsage(THREE.DynamicDrawUsage);
-  geo.setAttribute('position', posAttr);
-  geo.setAttribute('aIdx', new THREE.BufferAttribute(idx, 1));
-  const trail = new THREE.Points(geo, new THREE.ShaderMaterial({
-    uniforms: { uPR: { value: pixelRatio }, uAlpha: { value: 0 } },
-    vertexShader: `attribute float aIdx; uniform float uPR; varying float vA;
-      void main(){ vec4 mv = modelViewMatrix*vec4(position,1.); gl_Position = projectionMatrix*mv;
-        gl_PointSize = (130.*(1. - aIdx) + 10.)*uPR/max(.5, -mv.z); vA = (1. - aIdx)*(1. - aIdx); }`,
-    fragmentShader: `uniform float uAlpha; varying float vA;
-      void main(){ float d = length(gl_PointCoord - .5); float a = smoothstep(.5, 0., d);
-        gl_FragColor = vec4(vec3(.5,1.,.88)*1.4, a*a*vA*uAlpha*.7); }`,
-    transparent: true, depthWrite: false, blending: THREE.AdditiveBlending
+export function createCursorFlame({ scene, camera, canvas, pixelRatio, reduceMotion }) {
+  const D = 6;                         // khoảng cách ngọn lửa trước máy quay
+  const FH = 0.3, FW = 0.17;
+  const geo = new THREE.PlaneGeometry(FW, FH, 1, 8);
+  geo.translate(0, FH * 0.5 - 0.03, 0); // chân lửa nằm ngay điểm con trỏ
+  const u = { uTime: { value: 0 }, uLean: { value: 0 }, uAlpha: { value: 0 }, uFlare: { value: 0 }, uStretch: { value: 0 } };
+  const flame = new THREE.Mesh(geo, new THREE.ShaderMaterial({
+    uniforms: u,
+    vertexShader: /* glsl */ `
+      uniform float uLean, uStretch; varying vec2 vUv;
+      void main(){
+        vUv = uv;
+        vec3 p = position;
+        p.y = (p.y + .03)*(1. + uStretch*.7) - .03;
+        p.x += uLean*uv.y*uv.y*.16;
+        gl_Position = projectionMatrix*modelViewMatrix*vec4(p,1.);
+      }`,
+    fragmentShader: /* glsl */ `
+      uniform float uTime, uAlpha, uFlare; varying vec2 vUv;
+      ${NOISE}
+      void main(){
+        float y = vUv.y;
+        float n = vnoise(vec2(vUv.x*4., y*5. - uTime*8.));
+        float x = vUv.x - .5 + (n - .5)*.18*y;
+        float w = .44*pow(max(0., 1. - y), .62)*smoothstep(0., .2, y + .03);
+        float body = 1. - smoothstep(w*.4, w, abs(x));
+        body *= 1. - smoothstep(.5, .98, y + (n - .5)*.25);
+        float core = (1. - smoothstep(0., w*.55, abs(x)))*(1. - smoothstep(.1, .5, y));
+        float foot = 1. - smoothstep(0., .2, y);
+        vec3 col = mix(vec3(.95,.22,.05), vec3(1.,.6,.16), body);
+        col = mix(col, vec3(1.,.95,.8), core);
+        col = mix(col, vec3(.2,.9,.85), foot*.75);
+        gl_FragColor = vec4(col*(1.5 + uFlare*1.6), body*uAlpha);
+      }`,
+    transparent: true, depthWrite: false, depthTest: false, blending: THREE.AdditiveBlending
   }));
-  trail.frustumCulled = false;
-  scene.add(trail);
+  flame.renderOrder = 20;
+  flame.frustumCulled = false;
+  scene.add(flame);
+
+  const halo = sprite(radialTexture([[0, 'rgba(255,200,120,.7)'], [0.3, 'rgba(255,110,40,.22)'], [1, 'rgba(120,20,10,0)']]), 0.9, 1);
+  halo.material.depthTest = false;
+  halo.renderOrder = 19;
+  scene.add(halo);
+
+  // tàn lửa bốc lên từ ngọn
+  const N = 48;
+  const pos = new Float32Array(N * 3);
+  const life = new Float32Array(N);       // 0..1, >=1 là chết
+  const vel = new Float32Array(N * 3);
+  const dur = new Float32Array(N);
+  life.fill(1);
+  const geoE = new THREE.BufferGeometry();
+  const posAttr = new THREE.BufferAttribute(pos, 3).setUsage(THREE.DynamicDrawUsage);
+  const lifeAttr = new THREE.BufferAttribute(life, 1).setUsage(THREE.DynamicDrawUsage);
+  geoE.setAttribute('position', posAttr);
+  geoE.setAttribute('aLife', lifeAttr);
+  const embers = new THREE.Points(geoE, new THREE.ShaderMaterial({
+    uniforms: { uPR: { value: pixelRatio }, uAlpha: u.uAlpha },
+    vertexShader: `attribute float aLife; uniform float uPR; varying float vK;
+      void main(){ vK = aLife; vec4 mv = modelViewMatrix*vec4(position,1.); gl_Position = projectionMatrix*mv;
+        gl_PointSize = aLife >= 1. ? 0. : (9.*(1. - aLife) + 2.)*uPR*6./max(.5, -mv.z); }`,
+    fragmentShader: `uniform float uAlpha; varying float vK;
+      void main(){ float d = length(gl_PointCoord - .5); float a = smoothstep(.5, 0., d);
+        vec3 c = mix(vec3(3.,1.9,.8), vec3(1.8,.35,.08), vK);
+        gl_FragColor = vec4(c, a*(1. - vK)*uAlpha); }`,
+    transparent: true, depthWrite: false, depthTest: false, blending: THREE.AdditiveBlending
+  }));
+  embers.renderOrder = 21;
+  embers.frustumCulled = false;
+  scene.add(embers);
 
   const ndc = new THREE.Vector2(0, 0);
-  const target = new THREE.Vector3();
+  const sm = new THREE.Vector2(0, 0);
+  const prevSm = new THREE.Vector2(0, 0);
   const cur = new THREE.Vector3();
-  const tmp = new THREE.Vector3();
-  let active = false, alpha = 0, init = false;
+  const dir = new THREE.Vector3();
+  const up = new THREE.Vector3();
+  const right = new THREE.Vector3();
+  const screen = { x: -1e4, y: -1e4 };
+  let active = false, alpha = 0, init = false, lean = 0, stretch = 0, flare = 0, spawnAcc = 0, next = 0;
   addEventListener('pointermove', (e) => {
     if (e.pointerType !== 'mouse') return;
     ndc.set((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
-    active = true;
+    if (!init) { sm.copy(ndc); prevSm.copy(ndc); init = true; }
+    // chỉ cháy trên nền 3D (và điểm thắp nhang); rê lên thẻ chữ/nút thì lửa lụi, hiện con trỏ thường
+    active = e.target === canvas || !!e.target.closest?.('.incense-anchor');
   }, { passive: true });
   document.addEventListener('pointerleave', () => { active = false; });
+  addEventListener('blur', () => { active = false; });
+
+  function emit(n, speed = 1) {
+    for (let k = 0; k < n; k++) {
+      const i = next; next = (next + 1) % N;
+      const o = i * 3;
+      pos[o] = cur.x + up.x * 0.17; pos[o + 1] = cur.y + up.y * 0.17; pos[o + 2] = cur.z + up.z * 0.17;
+      const side = (Math.random() - 0.5) * 0.35 * speed;
+      const rise = (0.25 + Math.random() * 0.45) * speed;
+      vel[o] = up.x * rise + right.x * side; vel[o + 1] = up.y * rise + right.y * side; vel[o + 2] = up.z * rise + right.z * side;
+      life[i] = 0;
+      dur[i] = 0.5 + Math.random() * 0.8;
+    }
+  }
 
   return {
+    /** toạ độ màn hình (px) của chân ngọn lửa — điểm "chạm" */
+    screen,
+    get active() { return alpha > 0.4; },
+    flare(k = 1) { flare = Math.max(flare, k); },
     update(dt, t) {
-      // điểm trên tia từ camera qua con trỏ, cách camera 6 đơn vị
-      tmp.set(ndc.x, ndc.y, 0.5).unproject(camera).sub(camera.position).normalize();
-      target.copy(camera.position).addScaledVector(tmp, 6);
-      target.y += Math.sin(t * 2.1) * 0.05;
-      if (!init) { cur.copy(target); for (let i = 0; i < N; i++) pos.set([cur.x, cur.y, cur.z], i * 3); init = true; }
-      cur.lerp(target, 1 - Math.exp(-dt * 7));
-      for (let i = N - 1; i > 0; i--) {
-        pos[i * 3] = damp(pos[i * 3], pos[(i - 1) * 3], 22, dt);
-        pos[i * 3 + 1] = damp(pos[i * 3 + 1], pos[(i - 1) * 3 + 1], 22, dt) + dt * 0.12;
-        pos[i * 3 + 2] = damp(pos[i * 3 + 2], pos[(i - 1) * 3 + 2], 22, dt);
+      sm.x = damp(sm.x, ndc.x, 16, dt);
+      sm.y = damp(sm.y, ndc.y, 16, dt);
+      const vx = dt > 0 ? (sm.x - prevSm.x) / dt : 0;
+      const vy = dt > 0 ? (sm.y - prevSm.y) / dt : 0;
+      prevSm.copy(sm);
+      screen.x = (sm.x * 0.5 + 0.5) * innerWidth;
+      screen.y = (-sm.y * 0.5 + 0.5) * innerHeight;
+
+      dir.set(sm.x, sm.y, 0.5).unproject(camera).sub(camera.position).normalize();
+      cur.copy(camera.position).addScaledVector(dir, D);
+      up.set(0, 1, 0).applyQuaternion(camera.quaternion);
+      right.set(1, 0, 0).applyQuaternion(camera.quaternion);
+
+      const speed = Math.hypot(vx * camera.aspect, vy);
+      lean = damp(lean, THREE.MathUtils.clamp(-vx * 0.9, -1.4, 1.4), 9, dt);
+      stretch = damp(stretch, Math.min(1, Math.max(0, -vy) * 0.5 + speed * 0.15), 8, dt);
+      flare = damp(flare, 0, 2.2, dt);
+      alpha = damp(alpha, active ? 1 : 0, 4, dt);
+      const flick = reduceMotion ? 1 : 0.9 + Math.sin(t * 17) * 0.06 + Math.sin(t * 31.3) * 0.04;
+
+      flame.position.copy(cur);
+      flame.quaternion.copy(camera.quaternion);
+      flame.scale.setScalar((1 + flare * 0.45) * flick);
+      u.uTime.value = t;
+      u.uLean.value = lean;
+      u.uStretch.value = stretch;
+      u.uAlpha.value = alpha;
+      u.uFlare.value = flare;
+      halo.position.copy(cur).addScaledVector(up, 0.08);
+      halo.material.opacity = alpha * (0.55 + flare * 0.4) * flick;
+      halo.scale.setScalar(0.8 + flare * 0.8);
+
+      if (alpha > 0.05 && !reduceMotion) {
+        spawnAcc += dt * (5 + speed * 14 + flare * 30);
+        const n = Math.floor(spawnAcc);
+        if (n) { spawnAcc -= n; emit(n, 1 + flare); }
       }
-      pos[0] = cur.x; pos[1] = cur.y; pos[2] = cur.z;
+      for (let i = 0; i < N; i++) {
+        if (life[i] >= 1) continue;
+        life[i] = Math.min(1, life[i] + dt / dur[i]);
+        const o = i * 3;
+        pos[o] += vel[o] * dt + Math.sin(t * 9 + i) * 0.002;
+        pos[o + 1] += vel[o + 1] * dt;
+        pos[o + 2] += vel[o + 2] * dt;
+      }
       posAttr.needsUpdate = true;
-      alpha = damp(alpha, active ? 1 : 0, 3, dt);
-      trail.material.uniforms.uAlpha.value = alpha;
-      head.position.copy(cur);
-      head.material.opacity = alpha * (0.8 + Math.sin(t * 9) * 0.12);
-      head.scale.setScalar(0.5 + Math.sin(t * 5.3) * 0.05);
+      lifeAttr.needsUpdate = true;
+    }
+  };
+}
+
+/* ======================================================================
+   TRO BÙA — tàn giấy rơi lả tả (xám tro, mép còn ửng than hồng) + tia lửa bay lên
+   ====================================================================== */
+function createAsh({ scene, pixelRatio, count = 420 }) {
+  const pos = new Float32Array(count * 3);
+  const vel = new Float32Array(count * 3);
+  const life = new Float32Array(count).fill(1);
+  const dur = new Float32Array(count);
+  const kind = new Float32Array(count);   // 0 tro, 1 tia lửa
+  const seed = new Float32Array(count);
+  for (let i = 0; i < count; i++) seed[i] = Math.random();
+  const geo = new THREE.BufferGeometry();
+  const pA = new THREE.BufferAttribute(pos, 3).setUsage(THREE.DynamicDrawUsage);
+  const lA = new THREE.BufferAttribute(life, 1).setUsage(THREE.DynamicDrawUsage);
+  const kA = new THREE.BufferAttribute(kind, 1).setUsage(THREE.DynamicDrawUsage);
+  geo.setAttribute('position', pA);
+  geo.setAttribute('aLife', lA);
+  geo.setAttribute('aKind', kA);
+  geo.setAttribute('aSeed', new THREE.BufferAttribute(seed, 1));
+  const uTime = { value: 0 };
+  const pts = new THREE.Points(geo, new THREE.ShaderMaterial({
+    uniforms: { uPR: { value: pixelRatio }, uTime },
+    vertexShader: /* glsl */ `
+      attribute float aLife, aKind, aSeed; uniform float uPR, uTime;
+      varying float vK; varying float vKind; varying float vRot; varying float vSeed;
+      void main(){
+        vK = aLife; vKind = aKind; vSeed = aSeed;
+        vRot = uTime*(1.5 + aSeed*3.) + aSeed*6.283;
+        vec4 mv = modelViewMatrix*vec4(position,1.);
+        gl_Position = projectionMatrix*mv;
+        float s = aKind > .5 ? (4. + aSeed*3.)*(1. - aLife) : (3.5 + aSeed*4.5);
+        gl_PointSize = aLife >= 1. ? 0. : s*uPR*7./max(.5, -mv.z);
+      }`,
+    fragmentShader: /* glsl */ `
+      varying float vK; varying float vKind; varying float vRot; varying float vSeed;
+      void main(){
+        vec2 p = gl_PointCoord - .5;
+        if (vKind > .5) {
+          float a = smoothstep(.5, 0., length(p));
+          gl_FragColor = vec4(mix(vec3(3.,2.,.9), vec3(2.,.4,.08), vK), a*(1. - vK));
+          return;
+        }
+        // mảnh tro: hình dẹt xoay lật (giả lập cánh giấy lật trong gió)
+        float c = cos(vRot), s = sin(vRot);
+        p = mat2(c, -s, s, c)*p;
+        p.y /= .35 + .65*abs(sin(vRot*1.3));
+        float ang = atan(p.y, p.x);
+        float d = max(abs(p.x)*1.3, abs(p.y)) + (sin(ang*5. + vSeed*40.)*.5 + .5)*.12;  // mép rách nham nhở
+        float a = smoothstep(.5, .32, d);
+        float ember = 1. - smoothstep(.0, .22, vK);
+        vec3 ash = mix(vec3(.13,.12,.11), vec3(.38,.36,.33), vSeed);
+        vec3 col = mix(ash, vec3(2.2,.7,.15), ember*.85);
+        col += vec3(1.4,.35,.05)*smoothstep(.3, .5, d)*(1. - smoothstep(0., .5, vK))*.8;
+        gl_FragColor = vec4(col, a*(1. - smoothstep(.75, 1., vK))*.9);
+      }`,
+    transparent: true, depthWrite: false
+  }));
+  pts.frustumCulled = false;
+  pts.renderOrder = 6;
+  scene.add(pts);
+  let next = 0, alive = 0;
+  return {
+    spawn(x, y, z, k = 0) {
+      const i = next; next = (next + 1) % count;
+      const o = i * 3;
+      pos[o] = x; pos[o + 1] = y; pos[o + 2] = z;
+      if (k) {
+        vel[o] = (Math.random() - 0.5) * 1.2; vel[o + 1] = 0.6 + Math.random() * 1.4; vel[o + 2] = (Math.random() - 0.5) * 1.2;
+        dur[i] = 0.4 + Math.random() * 0.8;
+      } else {
+        vel[o] = (Math.random() - 0.5) * 0.5; vel[o + 1] = 0.15 + Math.random() * 0.45; vel[o + 2] = (Math.random() - 0.5) * 0.5;
+        dur[i] = 3.5 + Math.random() * 3;
+      }
+      kind[i] = k;
+      life[i] = 0;
+      alive = 8;
+    },
+    update(dt, t) {
+      uTime.value = t;
+      if (alive <= 0) return;
+      alive -= dt;
+      for (let i = 0; i < count; i++) {
+        if (life[i] >= 1) continue;
+        life[i] = Math.min(1, life[i] + dt / dur[i]);
+        const o = i * 3;
+        if (kind[i]) {
+          vel[o + 1] -= 0.4 * dt;
+        } else {
+          // hơi nóng đẩy lên lúc đầu, rồi rơi chậm, đung đưa như lá
+          vel[o + 1] = damp(vel[o + 1], -0.32 - seed[i] * 0.25, 0.9, dt);
+          vel[o] = damp(vel[o], Math.sin(t * (1.2 + seed[i]) + i) * 0.35, 1.5, dt);
+          vel[o + 2] = damp(vel[o + 2], Math.cos(t * (0.9 + seed[i]) + i) * 0.25, 1.5, dt);
+        }
+        pos[o] += vel[o] * dt; pos[o + 1] += vel[o + 1] * dt; pos[o + 2] += vel[o + 2] * dt;
+      }
+      pA.needsUpdate = true; lA.needsUpdate = true; kA.needsUpdate = true;
     }
   };
 }
