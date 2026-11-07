@@ -670,7 +670,7 @@ export function createGroundMist({ scene, anchors, sharedTime, fog }) {
 export function createCursorFlame({ scene, camera, canvas, pixelRatio, reduceMotion }) {
   const D = 6;                         // khoảng cách ngọn lửa trước máy quay
   // Khung vẽ rộng hơn thân lửa để lưỡi lửa có chỗ uốn, tách ngọn
-  const FH = 0.42, FW = 0.26, BASE = 0.1; // BASE: phần khung dưới chân lửa (cho đáy tròn mềm)
+  const FH = 0.22, FW = 0.136, BASE = 0.1; // BASE: phần khung dưới chân lửa (cho đáy tròn mềm)
   const geo = new THREE.PlaneGeometry(FW, FH, 6, 24);
   geo.translate(0, FH * 0.5 - FH * BASE, 0); // chân lửa nằm ngay điểm con trỏ
   const u = {
@@ -757,7 +757,7 @@ export function createCursorFlame({ scene, camera, canvas, pixelRatio, reduceMot
     uniforms: { uPR: { value: pixelRatio }, uAlpha: u.uAlpha },
     vertexShader: `attribute float aLife; uniform float uPR; varying float vK;
       void main(){ vK = aLife; vec4 mv = modelViewMatrix*vec4(position,1.); gl_Position = projectionMatrix*mv;
-        gl_PointSize = aLife >= 1. ? 0. : (9.*(1. - aLife) + 2.)*uPR*6./max(.5, -mv.z); }`,
+        gl_PointSize = aLife >= 1. ? 0. : (6.*(1. - aLife) + 1.5)*uPR*6./max(.5, -mv.z); }`,
     fragmentShader: `uniform float uAlpha; varying float vK;
       void main(){ float d = length(gl_PointCoord - .5); float a = smoothstep(.5, 0., d);
         vec3 c = mix(vec3(3.,1.9,.8), vec3(1.8,.35,.08), vK);
@@ -796,8 +796,8 @@ export function createCursorFlame({ scene, camera, canvas, pixelRatio, reduceMot
       const o = i * 3;
       const tx = bend.x * FH * 0.8, ty = FH * 0.62;
       pos[o] = cur.x + up.x * ty + right.x * tx; pos[o + 1] = cur.y + up.y * ty + right.y * tx; pos[o + 2] = cur.z + up.z * ty + right.z * tx;
-      const side = (Math.random() - 0.5) * 0.35 * speed;
-      const rise = (0.25 + Math.random() * 0.45) * speed;
+      const side = (Math.random() - 0.5) * 0.2 * speed;
+      const rise = (0.15 + Math.random() * 0.3) * speed;
       vel[o] = up.x * rise + right.x * side; vel[o + 1] = up.y * rise + right.y * side; vel[o + 2] = up.z * rise + right.z * side;
       life[i] = 0;
       dur[i] = 0.5 + Math.random() * 0.8;
@@ -855,7 +855,7 @@ export function createCursorFlame({ scene, camera, canvas, pixelRatio, reduceMot
       u.uFlare.value = flare;
       halo.position.copy(cur).addScaledVector(up, FH * 0.3).addScaledVector(right, bend.x * FH * 0.3);
       halo.material.opacity = alpha * (0.42 + flare * 0.4) * (0.85 + (breathe - 1) * 1.5);
-      halo.scale.setScalar(0.85 + flare * 0.8);
+      halo.scale.setScalar(0.45 + flare * 0.5);
 
       if (alpha > 0.05 && !reduceMotion) {
         spawnAcc += dt * (1.2 + speed * 9 + flare * 30);
