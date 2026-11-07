@@ -212,20 +212,71 @@ const showIncense = () => (incenseCount.textContent = incense ? incense.toLocale
 fetch(INCENSE_GET, { cache: 'no-store' }).then((r) => (r.ok ? r.json() : null)).then((d) => {
   if (d && typeof d.value === 'number') { incense = Math.max(incense, d.value); showIncense(); }
 }).catch(() => {});
+// ?nocount — thử hiệu ứng mà không cộng vào bộ đếm thật
+const COUNT_ENABLED = !new URLSearchParams(location.search).has('nocount');
+const incenseAnchor = $('#incense-anchor');
+const iaLabel = $('#ia-label');
+
+const restart = (el, cls) => { el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); };
+
+// Tiếng chuông chùa ngân (tổng hợp bằng WebAudio, chỉ phát khi người xem bấm)
+let actx = null;
+function templeBell() {
+  try {
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    const t = actx.currentTime;
+    const out = actx.createGain();
+    out.gain.value = 0.14;
+    out.connect(actx.destination);
+    // các bội âm không điều hoà đặc trưng của chuông đồng
+    [[196, 1, 4.2], [196 * 2.76, 0.42, 2.6], [196 * 5.4, 0.2, 1.6], [196 * 1.5, 0.25, 3.2], [196 * 8.93, 0.08, 0.9]].forEach(([f, a, d]) => {
+      const o = actx.createOscillator();
+      const g = actx.createGain();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(f, t);
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(a, t + 0.012);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+      o.connect(g).connect(out);
+      o.start(t);
+      o.stop(t + d + 0.05);
+    });
+  } catch (_) { /* không có WebAudio: bỏ qua */ }
+}
+
 let incenseLock = 0;
-incenseBtn.addEventListener('click', () => {
+function lightIncense() {
   const now = Date.now();
-  if (now - incenseLock < 1200) return;
+  if (now - incenseLock < 900) return;
   incenseLock = now;
+  world?.lightIncense();
   incense += 1;
   showIncense();
-  incenseBtn.classList.remove('is-lit');
-  void incenseBtn.offsetWidth;
-  incenseBtn.classList.add('is-lit');
+  restart(incenseBtn, 'is-lit');
+  restart(incenseCount, 'is-pop');
+  restart(incenseAnchor, 'is-burst');
+  templeBell();
+  navigator.vibrate?.(18);
+  if (!COUNT_ENABLED) return;
   fetch(INCENSE_HIT, { cache: 'no-store' }).then((r) => (r.ok ? r.json() : null)).then((d) => {
     if (d && typeof d.value === 'number' && d.value > incense) { incense = d.value; showIncense(); }
   }).catch(() => {});
-});
+}
+incenseBtn.addEventListener('click', lightIncense);
+incenseAnchor.addEventListener('click', lightIncense);
+
+let incenseUi = '';
+function updateIncenseAnchor() {
+  if (!world || active !== 0) return;
+  const info = world.incenseInfo();
+  incenseAnchor.style.transform = `translate(${info.x.toFixed(1)}px, ${info.y.toFixed(1)}px)`;
+  const ui = info.out ? 'out' : 'lit';
+  if (ui !== incenseUi) {
+    incenseUi = ui;
+    incenseAnchor.classList.toggle('is-out', info.out);
+    iaLabel.textContent = info.out ? 'HƯƠNG ĐÃ TÀN · BẤM THẮP (+1)' : 'THẮP THÊM NÉN MỚI (+1)';
+  }
+}
 
 /* ============ Fallback khi không có WebGL ============ */
 const fallbackBg = $('.fallback-bg');
@@ -261,6 +312,7 @@ try {
     },
     onLoadProgress: (p) => { $('#loader-fill').style.transform = `scaleX(${p})`; }
   });
+  if (new URLSearchParams(location.search).has('debug')) window.__world = world;
   $('#loader-text').textContent = 'ĐANG DỰNG CẢNH MỞ MÀN…';
   Promise.race([world.ready, new Promise((r) => setTimeout(r, 7000))]).then(hideLoader, hideLoader);
 } catch (err) {
@@ -312,7 +364,7 @@ function setActive(i) {
   });
   codeEl.textContent = SHOTS[i].code;
   moveEl.textContent = SHOTS[i].move;
-  history.replaceState(null, '', i === 0 ? location.pathname : '#' + sections[i].dataset.anchor);
+  history.replaceState(null, '', location.pathname + location.search + (i === 0 ? '' : '#' + sections[i].dataset.anchor));
   updateFallbackBg();
 }
 
@@ -341,6 +393,7 @@ function frame(now) {
   if ((tcTick += dt) > 1 / 24) { tcTick = 0; tcEl.textContent = timecode(now); }
 
   world?.render(current, dt, now / 1000);
+  updateIncenseAnchor();
   requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);

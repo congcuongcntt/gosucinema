@@ -1,6 +1,6 @@
 // GLSL dùng chung: noise, panel "đốt giấy" (burn reveal), tàn nhang, khói, film pass.
 
-const NOISE = /* glsl */ `
+export const NOISE = /* glsl */ `
 float hash(vec2 p){ p = fract(p*vec2(123.34, 456.21)); p += dot(p, p+45.32); return fract(p.x*p.y); }
 float vnoise(vec2 p){
   vec2 i = floor(p), f = fract(p);
@@ -32,6 +32,8 @@ void main(){
 export const panelFragment = /* glsl */ `
 uniform sampler2D uTex;
 uniform float uHasTex, uUseAlpha, uReveal, uTime, uFocus, uHover, uOpacity, uSeed, uGain;
+uniform vec3 uGlow;      // xy = uv của nguồn sáng (đầu nhang), z = cường độ
+uniform float uAspect;
 uniform vec3 uFogColor; uniform float uFogNear, uFogFar;
 varying vec2 vUv;
 varying float vDepth;
@@ -52,6 +54,8 @@ void main(){
   col *= .38 + .62*uFocus + .18*uHover;
   vec2 q = uv - .5;
   col *= (1. - dot(q,q)*.85)*uGain;
+  vec2 gd = (uv - uGlow.xy)*vec2(uAspect, 1.);
+  col += vec3(1.,.42,.12)*uGlow.z*(exp(-dot(gd,gd)*60.)*1.1 + exp(-dot(gd,gd)*9.)*.12);
 
   vec3 ember = mix(vec3(1.,.28,.06), vec3(1.,.82,.45), edge*edge);
   col += ember*edge*3.2;
@@ -124,27 +128,41 @@ export const FilmShader = {
     uGrain: { value: 0.07 },
     uAberration: { value: 0 },
     uDip: { value: 0 },
-    uVignette: { value: 1 }
+    uVignette: { value: 1 },
+    uHaze: { value: 1 },
+    uGhost: { value: 0 }
   },
   vertexShader: /* glsl */ `varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.); }`,
   fragmentShader: /* glsl */ `
 uniform sampler2D tDiffuse;
-uniform float uTime, uGrain, uAberration, uDip, uVignette;
+uniform float uTime, uGrain, uAberration, uDip, uVignette, uHaze, uGhost;
 uniform vec2 uRes;
 varying vec2 vUv;
 float h(vec2 p){ return fract(sin(dot(p, vec2(12.9898, 78.233)))*43758.5453); }
 void main(){
   vec2 c = vUv - .5;
+  // khí âm: không gian gợn nhẹ như hơi nóng trên lư hương, mạnh hơn ở rìa khung
+  vec2 w = vec2(sin(vUv.y*23. + uTime*1.3) + sin(vUv.y*61. - uTime*.8)*.5,
+                cos(vUv.x*19. + uTime*1.1) + cos(vUv.x*47. + uTime*.6)*.5);
+  vec2 uv = vUv + w*.0011*uHaze*(.3 + smoothstep(.2, .75, length(c))*1.4);
+
   float ab = (.0015 + uAberration*.012)*length(c);
   vec3 col;
-  col.r = texture2D(tDiffuse, vUv + c*ab*4.).r;
-  col.g = texture2D(tDiffuse, vUv).g;
-  col.b = texture2D(tDiffuse, vUv - c*ab*4.).b;
+  col.r = texture2D(tDiffuse, uv + c*ab*4.).r;
+  col.g = texture2D(tDiffuse, uv).g;
+  col.b = texture2D(tDiffuse, uv - c*ab*4.).b;
 
-  // grade: đẩy bóng tối về nâu đỏ, highlight ngà
+  // hồn lướt qua: bóng nhân đôi lệch, ngả xanh ngọc
+  if (uGhost > .001) {
+    vec3 g = texture2D(tDiffuse, uv + vec2(.014, -.003)*uGhost).rgb;
+    col = mix(col, max(col, g*vec3(.5, 1., .92)), .55*uGhost);
+  }
+
+  // split-tone: bóng tối xanh ngọc âm u, vùng sáng ngả hổ phách
   float l = dot(col, vec3(.299,.587,.114));
-  col = mix(col, col*vec3(1.08,.95,.86), .55);
-  col += vec3(.018,.006,.0)*(1. - l);
+  vec3 shadow = col*vec3(.84, 1.02, 1.) + vec3(0., .012, .011);
+  vec3 light = col*vec3(1.08, .96, .86);
+  col = mix(shadow, light, smoothstep(.12, .55, l));
   col = pow(col, vec3(1.06));
 
   float vig = smoothstep(.95, .2, length(c*vec2(1.15, 1.)));

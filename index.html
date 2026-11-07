@@ -11,9 +11,10 @@
   <meta name="theme-color" content="#070505">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600&family=Prata&family=Spectral:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+  <link rel="preload" href="assets/uploads/1793703338122-1FTV-VIP-Queen-of-Silence.ttf" as="font" type="font/ttf" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Prata&family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
   <link rel="preload" as="image" href="assets/son-ha-di-luc-title.webp?v=15" crossorigin>
-  <link rel="stylesheet" href="css/style.css?v=1">
+  <link rel="stylesheet" href="css/style.css?v=3">
   <script type="importmap">
     {
       "imports": {
@@ -70,6 +71,12 @@
   <main id="overlay">
     <!-- SC01 -->
     <section class="shot shot--center" data-shot="0" id="mo-man" aria-labelledby="h-open">
+      <!-- điểm chạm bám theo đầu nhang 3D -->
+      <button type="button" class="incense-anchor" id="incense-anchor" aria-label="Thắp một nén hương cho dự án (+1)">
+        <span class="ia-ring" aria-hidden="true"></span>
+        <span class="ia-label" id="ia-label">BẤM THẮP HƯƠNG (+1)</span>
+        <span class="ia-plus" aria-hidden="true">+1 NÉN HƯƠNG</span>
+      </button>
       <div class="card card--bare">
         <p class="kicker">MỘT TÁC PHẨM ĐIỆN ẢNH CỦA <b>GOSU CINEMA</b> · KINH ĐÔ PHÚ XUÂN</p>
         <h1 id="h-open" class="sr-only">Sơn Hà Dị Lục 1836</h1>
@@ -77,8 +84,10 @@
         <p class="logline">“Ma quỷ không tự nhiên sinh ra để hủy diệt nhân gian — chính lòng tham, sự tàn nhẫn và nỗi oan khuất chưa được tháo gỡ của con người mới là mầm mống nuôi dưỡng tà vật.”</p>
         <div class="actions">
           <button type="button" class="btn btn--primary" data-goto="1">Bắt đầu hành trình <span aria-hidden="true">↓</span></button>
-          <button type="button" class="btn btn--ghost" id="incense-btn" title="Thắp một nén hương cho dự án (+1)">
-            <span class="incense-dot" aria-hidden="true"></span> Thắp hương · <b id="incense-count">—</b>
+          <button type="button" class="btn btn--ghost incense-btn" id="incense-btn" title="Thắp một nén hương cho dự án (+1)">
+            <span class="incense-dot" aria-hidden="true"></span>
+            <span>Đã thắp <b id="incense-count">—</b> nén hương</span>
+            <span class="incense-cta" aria-hidden="true">✦ +1</span>
           </button>
         </div>
         <p class="scroll-hint" aria-hidden="true">CUỘN · VUỐT · PHÍM ↓ ĐỂ CHUYỂN CẢNH</p>
@@ -248,6 +257,6 @@
 
   <audio id="bgm" src="assets/audio/soundtrack-1836.m4a" preload="none" loop></audio>
 
-  <script type="module" src="js/main.js?v=1"></script>
+  <script type="module" src="js/main.js?v=3"></script>
 </body>
 </html>

@@ -8,13 +8,16 @@ import {
   panelVertex, panelFragment, emberVertex, emberFragment, smokeVertex, smokeFragment, FilmShader
 } from './shaders.js';
 import { SHOTS, CHARACTERS, PLACES, RELICS, TIMELINE, GALLERY, MEDIA } from './data.js';
+import {
+  createIncense, createSigil, createTalismans, createGhostFire, createGroundMist, createCursorWisp
+} from './fx.js';
 
 const V = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z);
 const damp = (a, b, k, dt) => a + (b - a) * (1 - Math.exp(-k * dt));
 const tmpV = new THREE.Vector3();
 const easeInOut = (f) => (f < 0.5 ? 4 * f * f * f : 1 - Math.pow(-2 * f + 2, 3) / 2);
 
-const FOG_COLOR = new THREE.Color(0x070505);
+const FOG_COLOR = new THREE.Color(0x040807); // đen ngọc bích như bản gốc (--abyss / --jade-shadow)
 const FOG_NEAR = 24;
 const FOG_FAR = 78;
 
@@ -104,6 +107,8 @@ export function createWorld({ canvas, isMobile, reduceMotion, onPick, onLoadProg
         uHover: { value: 0 },
         uOpacity: { value: 1 },
         uSeed: { value: Math.random() },
+        uGlow: { value: new THREE.Vector3(0, 0, 0) },
+        uAspect: { value: aspect },
         uGain: { value: gain },
         uBend: { value: bend },
         uFogColor: { value: FOG_COLOR },
@@ -128,6 +133,7 @@ export function createWorld({ canvas, isMobile, reduceMotion, onPick, onLoadProg
       const w = this.fit === 'width' ? this.size : this.size * a;
       const h = this.fit === 'width' ? this.size / a : this.size;
       this.mesh.scale.set(w, h, 1);
+      this.uniforms.uAspect.value = a;
     }
     load() {
       if (this.loading) return;
@@ -257,24 +263,39 @@ export function createWorld({ canvas, isMobile, reduceMotion, onPick, onLoadProg
     bg.focusTarget = 0.62;
     s.title = addPanel(s, { src: MEDIA.titleArt, aspect: 732 / 832, height: TITLE_H, alpha: true, gain: 1.3 }, V(0, 0.75, 0));
     s.title.uniforms.uFocus.value = 1;
-    addSmoke(s.group, V(-7, -3, -4), 16);
+    addSmoke(s.group, V(-7, -3, -4), 16, 0x2c3d3a, 0.24);
     addSmoke(s.group, V(8, -2, -6), 18, 0x5a2a22, 0.2);
-    addSmoke(s.group, V(0, -5, 2), 14, 0x3d2a24, 0.25);
-    const ember = glowSprite(1.6, 2.2);
-    // đốm nhang cháy giữa chữ "DỊ" và "LỤC" (toạ độ lấy từ SVG gốc 366×416)
-    ember.position.set((148.5 / 366 - 0.5) * TITLE_H * (732 / 832), 0, 0.1);
-    ember.scale.setScalar(1.2);
-    s.group.add(ember);
+    addSmoke(s.group, V(0, -5, 2), 14, 0x24332f, 0.28);
+
+    // Nén nhang 3D cắm giữa chữ "DỊ" và "LỤC" (toạ độ lấy từ SVG gốc 366×416:
+    // x = 148.5, thân nhang từ y = 237.5 đến chân đỏ y = 337.5)
+    const TITLE_W = TITLE_H * (732 / 832);
+    const FOOT = 337.5 / 416;
+    const STICK_LEN = (FOOT - 237.5 / 416) * TITLE_H;
+    const incX = (148.5 / 366 - 0.5) * TITLE_W;
+    s.incense = createIncense({
+      parent: s.group, base: V(incX, 0, 0.06), length: STICK_LEN,
+      sharedTime, pixelRatio: DPR, isMobile, reduceMotion
+    });
+    s.sigil = createSigil({ parent: s.group, position: V(0, 0.75, -0.8), size: 8.5 });
+
     s.update = (dt, t) => {
       s.title.mesh.position.y = 0.75 + Math.sin(t * 0.6) * 0.06;
-      ember.position.y = s.title.mesh.position.y + (0.5 - 237.5 / 416) * TITLE_H;
+      const titleY = s.title.mesh.position.y;
+      s.incense.group.position.y = titleY + (0.5 - FOOT) * TITLE_H;
+      s.sigil.mesh.position.y = titleY;
+      s.sigil.update(dt, t);
+      // ánh lửa đầu nhang hắt lên mặt chữ; chữ bừng sáng khi vừa thắp
+      const st = s.incense.state;
+      const tipY = s.incense.group.position.y + s.incense.tipLocal().y;
+      s.title.uniforms.uGlow.value.set(148.5 / 366, 0.5 + (tipY - titleY) / TITLE_H, st.intensity * 0.55 + st.flare * 0.6);
+      s.title.uniforms.uGain.value = 1.3 + st.flare * 0.35;
       // backdrop luôn phủ kín khung hình (kể cả màn dọc)
       const d = camera.position.distanceTo(bg.mesh.getWorldPosition(tmpV));
       const vh = 2 * d * Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2) * 1.12;
       const k = Math.max(1, vh / 24, (vh * camera.aspect) / (24 * bg.aspect));
       bg.applyAspect(bg.aspect);
       bg.mesh.scale.multiplyScalar(k);
-      ember.material.opacity = 0.75 + Math.sin(t * 7) * 0.12 + Math.sin(t * 13) * 0.08;
     };
   }
 
@@ -493,6 +514,16 @@ export function createWorld({ canvas, isMobile, reduceMotion, onPick, onLoadProg
     s.update = (dt, t) => { s.title.mesh.position.y = 1.4 + Math.sin(t * 0.5) * 0.08; };
   }
 
+  /* ---------------- Không khí linh dị dùng chung mọi cảnh ---------------- */
+  const anchors = shots.map((s) => s.anchor);
+  const fogInfo = { color: FOG_COLOR, near: FOG_NEAR, far: FOG_FAR };
+  const spots = shots.map((s) => ({ a: s.camTgt, c: s.camPos }));
+  createTalismans({ scene, spots, perShot: isMobile ? 4 : 8, sharedTime, fog: fogInfo });
+  createGhostFire({ scene, spots, perShot: isMobile ? 2 : 4, sharedTime, pixelRatio: DPR });
+  createGroundMist({ scene, anchors, sharedTime, fog: fogInfo });
+  const finePointer = matchMedia('(pointer: fine)').matches;
+  const wisp = finePointer && !reduceMotion ? createCursorWisp({ scene, camera, pixelRatio: DPR }) : null;
+
   // Trạng thái chọn mặc định
   shots.forEach((s) => s.select(0));
   shots.forEach((s) => { s.fPos.copy(s.wPos); s.fTgt.copy(s.wTgt); });
@@ -669,8 +700,11 @@ export function createWorld({ canvas, isMobile, reduceMotion, onPick, onLoadProg
       else if (d > 1.3) p.revealTarget = 0;
       p.update(dt);
     }
+    const inc = shots[0].incense;
+    inc.update(dt, t, { visible: current < 0.5 && !document.hidden, camera });
     shots.forEach((s) => s.update(dt, t));
     smokes.forEach((m) => m.quaternion.copy(camera.quaternion));
+    wisp?.update(dt, t);
 
     const wantVideo = Math.abs(current - 2) < 0.6;
     if (wantVideo !== videoWanted) {
@@ -681,16 +715,36 @@ export function createWorld({ canvas, isMobile, reduceMotion, onPick, onLoadProg
 
     updateCamera(current, dt, t);
 
+    // rung nhẹ máy quay khi hương bùng lên
+    kick = damp(kick, 0, 5, dt);
+    if (kick > 0.001 && !reduceMotion) {
+      camera.position.x += Math.sin(t * 71) * kick * 0.035;
+      camera.position.y += Math.sin(t * 53 + 1) * kick * 0.03;
+    }
+
     const vel = dt > 0 ? Math.abs(current - prev) / dt : 0;
     prev = current;
     const u = film.uniforms;
     u.uTime.value = t;
-    u.uAberration.value = damp(u.uAberration.value, Math.min(1, vel * 0.9), 6, dt);
+    u.uAberration.value = damp(u.uAberration.value, Math.min(1, vel * 0.9 + inc.state.flare * 0.5), 6, dt);
     u.uDip.value = damp(u.uDip.value, reduceMotion ? 0 : Math.min(0.3, vel * 0.22), 6, dt);
     u.uGrain.value = reduceMotion ? 0.035 : 0.07;
+    u.uHaze.value = reduceMotion ? 0 : 1;
+
+    // "hồn lướt qua": thỉnh thoảng một bóng nhân đôi xanh ngọc vụt qua khung hình
+    if (!reduceMotion && t > nextGhost) { ghostAt = t; nextGhost = t + 9 + Math.random() * 12; }
+    const ga = t - ghostAt;
+    u.uGhost.value = ga >= 0 && ga < 0.5 ? Math.sin((ga / 0.5) * Math.PI) : 0;
+
+    bloom.strength = 0.6 + inc.state.flare * 0.35;
 
     composer.render(dt);
   }
+
+  let kick = 0;
+  let ghostAt = -100;
+  let nextGhost = 6;
+  const incenseScreen = new THREE.Vector3();
 
   return {
     ready,
@@ -698,6 +752,28 @@ export function createWorld({ canvas, isMobile, reduceMotion, onPick, onLoadProg
     video,
     select(shotIndex, k) { shots[shotIndex].select(k); },
     setCharView(mode) { shots[3].setView(mode); },
-    resize
+    resize,
+    debug: { scene, camera, shots, renderer },
+    /** Thắp hương: nhang dài lại, tia lửa, sóng xung kích, pháp trận bừng sáng, máy quay rung nhẹ */
+    lightIncense() {
+      const s = shots[0];
+      s.incense.light(sharedTime.value);
+      s.sigil.pulse();
+      kick = 1;
+    },
+    /** Trạng thái nhang + toạ độ màn hình của đầu nhang (để đặt nút/nhãn DOM) */
+    incenseInfo() {
+      const s = shots[0];
+      const p = s.incense.tipWorld();
+      incenseScreen.copy(p).project(camera);
+      return {
+        lit: s.incense.state.lit,
+        out: s.incense.state.out,
+        burn: s.incense.state.burn,
+        x: (incenseScreen.x * 0.5 + 0.5) * W,
+        y: (-incenseScreen.y * 0.5 + 0.5) * Hh,
+        onScreen: incenseScreen.z < 1
+      };
+    }
   };
 }
