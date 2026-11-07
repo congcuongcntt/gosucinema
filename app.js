@@ -893,7 +893,7 @@ if (openTrailerBtn) {
 }
 
 if (trailerWatchOpeningBtn) {
-  trailerWatchOpeningBtn.onclick = () => openTrailerModal('assets/video/opening-1836.mp4');
+  trailerWatchOpeningBtn.onclick = () => openTrailerModal('assets/scene1-render.mp4');
 }
 
 if (closeTrailerBtn && trailerDialog) {
@@ -1265,6 +1265,7 @@ if (soundtrackToggleBtn && bgSoundtrackEl) {
 }
 
 // Tự động giảm âm lượng nhạc nền khi người dùng bật tiếng video Hồi Đầu
+const openingVideo = document.querySelector('.opening-video-box video');
 if (openingVideo && bgSoundtrackEl) {
   openingVideo.addEventListener('volumechange', () => {
     if (!bgSoundtrackEl.paused && !userMutedSoundtrack) {
