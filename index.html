@@ -2,1378 +2,252 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="Khám phá Sơn Hà Dị Lục (1836) — dự án điện ảnh cổ trang, linh dị dân gian và trinh thám Việt Nam của GOSU Studio.">
-  <title>Gosu Cinema | Sơn Hà Dị Lục · 1836 — Linh Dị Cổ Trang Việt Nam</title>
-  <link rel="preload" href="assets/uploads/1793703338122-1FTV-VIP-Queen-of-Silence.ttf" as="font" type="font/ttf" crossorigin>
-  <link rel="preload" href="assets/son-ha-di-luc-title.webp?v=15" as="image" type="image/webp">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Sơn Hà Dị Lục · 1836 — Storyboard</title>
+  <meta name="description" content="Sơn Hà Dị Lục (1836) — storyboard điện ảnh tương tác: cổ trang, linh dị dân gian và trinh thám Việt Nam của GOSU Studio.">
+  <meta property="og:title" content="Sơn Hà Dị Lục · 1836 — Storyboard">
+  <meta property="og:description" content="Hồ sơ pitching dự án điện ảnh linh dị cổ trang Việt Nam của GOSU Studio.">
+  <meta property="og:image" content="https://gosucinema.web.id/assets/still-frame/09.webp">
+  <meta name="theme-color" content="#070505">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Prata&family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=19">
-  <link rel="stylesheet" href="visual-editor.css?v=19">
-  <script>
-    (function() {
-      try {
-        var cleanFont = function(val) {
-          if (!val || /cormorant/i.test(val)) return "";
-          return val;
-        };
-        ['gosu_visual_editor_overrides_v1', 'gosu_shdl_overrides_v1'].forEach(function(key) {
-          var raw = localStorage.getItem(key);
-          if (!raw) return;
-          var data = JSON.parse(raw);
-          var f = data && data.fonts;
-          if (!f) return;
-          var changed = false;
-          ['subhead', 'body', 'serifAlt', 'sc'].forEach(function(k) {
-            if (f[k] && /cormorant/i.test(f[k])) {
-              f[k] = '';
-              changed = true;
-            }
-          });
-          if (changed) {
-            localStorage.setItem(key, JSON.stringify(data));
-          }
-          var root = document.documentElement;
-          if (Array.isArray(f.customFaces) && f.customFaces.length) {
-            var st = document.getElementById('ve-custom-font-faces') || document.createElement('style');
-            st.id = 've-custom-font-faces';
-            st.textContent = f.customFaces.map(function(cf) {
-              return "@font-face{font-family:'" + cf.name + "';src:url('" + cf.url + "');font-weight:normal;font-style:normal;font-display:block;unicode-range:U+0000-002F,U+003A-10FFFF;}";
-            }).join('\n');
-            if (!st.parentNode) document.head.appendChild(st);
-          }
-          if (f.display) root.style.setProperty('--font-display', f.display);
-          if (cleanFont(f.subhead)) root.style.setProperty('--font-subhead', f.subhead);
-          if (cleanFont(f.body)) {
-            root.style.setProperty('--font-body', f.body);
-            root.style.setProperty('--font-serif-alt', f.body);
-          }
-          if (cleanFont(f.sc)) root.style.setProperty('--font-sc', f.sc);
-        });
-      } catch (e) {}
-    })();
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600&family=Prata&family=Spectral:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+  <link rel="preload" as="image" href="assets/son-ha-di-luc-title.webp?v=15" crossorigin>
+  <link rel="stylesheet" href="css/style.css?v=1">
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
   </script>
 </head>
 <body>
-  <div class="horror-grain" aria-hidden="true"></div>
-  <div class="horror-vignette" aria-hidden="true"></div>
-  <div class="cursor-orbit" aria-hidden="true"></div>
-  <div class="progress" aria-hidden="true"></div>
+  <canvas id="gl" aria-hidden="true"></canvas>
+  <div class="fallback-bg" aria-hidden="true"></div>
 
-  <header>
-    <a class="brand" href="#">
-      <img class="brand-logo" src="assets/gosu-logo.png" alt="GOSU" height="30" style="height:30px;width:auto"><span>CINEMA · ĐẠI NAM 1836</span>
-    </a>
-    <nav aria-label="Điều hướng chính">
-      <a href="#story">Khởi nguồn</a>
-      <div class="nav-dropdown">
-        <a href="#script" class="nav-drop-trigger" aria-expanded="false">Kịch bản <span>▾</span></a>
-        <div class="nav-drop-menu" role="menu">
-          <button type="button" data-script-jump="tab-opening">
-            <small>01 · MỞ ĐẦU &amp; HỒI ĐẦU</small>
-            <strong>Video Render Mở Đầu &amp; Làng Long Thọ</strong>
-          </button>
-          <button type="button" data-script-jump="tab-relations">
-            <small>02 · MẠNG LƯỚI NHÂN VẬT</small>
-            <strong>Sơ Đồ Quan Hệ &amp; 6 Thế Lực Lớn</strong>
-          </button>
-          <button type="button" data-script-jump="tab-timeline">
-            <small>03 · TRỤC THỜI GIAN</small>
-            <strong>Timeline Hành Trình (1818 → 1836 → Kết Cục)</strong>
-          </button>
-          <button type="button" data-script-jump="tab-next-acts">
-            <small>04 · ĐẠI TRUYỆN VỀ SAU</small>
-            <strong>Kịch Bản Thiên II, Thiên III &amp; Ngoại Truyện</strong>
-          </button>
+  <div class="letterbox letterbox--top" aria-hidden="true"></div>
+  <div class="letterbox letterbox--bottom" aria-hidden="true"></div>
+
+  <!-- Clapperboard loader -->
+  <div id="loader" role="status" aria-live="polite">
+    <div class="clapper">
+      <div class="clapper-arm"></div>
+      <div class="clapper-board">
+        <div class="clapper-row"><span>PROD.</span><strong>SƠN HÀ DỊ LỤC</strong></div>
+        <div class="clapper-row clapper-grid">
+          <span>SCENE<b>01</b></span><span>TAKE<b>1</b></span><span>ROLL<b>1836</b></span>
         </div>
+        <div class="clapper-row"><span>DIR.</span><strong>GIHOT · GOSU CINEMA</strong></div>
       </div>
-      <a href="#characters">Nhân vật</a>
-      <a href="#world">Bối cảnh</a>
-      <a href="#relics">Pháp khí</a>
-      <a href="#gallery">Still Frame</a>
-    </nav>
-    <div class="header-actions">
-      <button type="button" class="soundtrack-toggle is-playing" id="soundtrack-toggle" aria-pressed="true" aria-label="Bật hoặc tắt nhạc nền Sơn Hà Dị Lục" title="Bật / Tắt nhạc nền Sơn Hà Dị Lục (từ 1:44 · Tự động lặp lại)">
-        <span class="eq-bars" aria-hidden="true">
-          <i></i><i></i><i></i><i></i>
-        </span>
-        <span class="st-label" id="soundtrack-label">NHẠC NỀN: BẬT</span>
-      </button>
-      <button class="menu-toggle" aria-expanded="false" aria-controls="film-menu">
-        MỤC LỤC HỒ SƠ <span>☰</span>
+    </div>
+    <div class="loader-bar"><i id="loader-fill"></i></div>
+    <p class="loader-text" id="loader-text">ĐANG CHUẨN BỊ PHIM TRƯỜNG…</p>
+  </div>
+
+  <header class="hud-top">
+    <a class="brand" href="#mo-man" data-goto="0">
+      <img src="assets/gosu-logo.png" alt="GOSU" width="66" height="22">
+      <span>CINEMA · ĐẠI NAM 1836</span>
+    </a>
+    <p class="hud-title">HỒ SƠ PITCHING · <b>STORYBOARD</b> — KHÔNG PHẢI WEBSITE CHÍNH THỨC</p>
+    <div class="hud-actions">
+      <a class="chip chip--link" href="classic.html" title="Xem phiên bản trang dài trước đây">BẢN CỔ ĐIỂN</a>
+      <button type="button" class="chip" id="sound-btn" aria-pressed="false">
+        <span class="eq" aria-hidden="true"><i></i><i></i><i></i></span><span class="chip-label">NHẠC: TẮT</span>
       </button>
     </div>
   </header>
 
-  <aside id="film-menu" hidden>
-    <div class="menu-backdrop-seal" aria-hidden="true">欽天監</div>
-    <span class="eyebrow">GOSU CINEMA / HỒ SƠ DỊ SỰ NĂM BÍNH THÂN 1836</span>
-    <a href="#story"><small>CHƯƠNG I</small> Khởi nguồn oán niệm</a>
-    <a href="#script"><small>HỒ SƠ KỊCH BẢN</small> Kịch bản · Sơ đồ · Timeline</a>
-    <a href="#characters"><small>CHƯƠNG II</small> Hồ sơ nhân vật</a>
-    <a href="#world"><small>CHƯƠNG III</small> Địa đồ linh dị</a>
-    <a href="#relics"><small>CHƯƠNG IV</small> Pháp khí khởi đầu</a>
-    <a href="#gallery"><small>CHƯƠNG V</small> Trình chiếu Still Frame</a>
-  </aside>
+  <div class="viewfinder" aria-hidden="true">
+    <i class="vf-c tl"></i><i class="vf-c tr"></i><i class="vf-c bl"></i><i class="vf-c br"></i>
+    <i class="vf-cross"></i>
+    <div class="vf-meta vf-meta--left"><span class="rec">● REC</span> <span id="tc">TC 00:00:00:00</span></div>
+    <div class="vf-meta vf-meta--right"><span id="vf-code">SC 01</span> · <span id="vf-move">PUSH IN · 24mm</span></div>
+  </div>
 
-  <main>
-    <section class="hero">
-      <img class="heroart" src="assets/uploads/1793706265279-9.jpg" alt="Đêm Hổ Quyền — Khâm Thiên Sứ dán bùa chu sa trấn yểm chuồng hổ">
-      <div class="shade"></div>
-      <div class="hero-mist" aria-hidden="true"></div>
-      <div class="hero-copy">
-        <div class="hero-meta">
-          <span>MỘT TÁC PHẨM ĐIỆN ẢNH CỦA<br><strong>GOSU CINEMA</strong></span>
-          <span class="hero-seal-badge">欽天監 · BÍNH THÂN 1836</span>
-          <span>LINH DỊ DÂN GIAN VIỆT NAM<br><strong>KINH ĐÔ PHÚ XUÂN · HUẾ</strong></span>
-        </div>
-        <div class="hero-pitch-tag" data-ve-id="hero.pitch.tag">HỒ SƠ PITCHING DECK DỰ ÁN · KHÔNG PHẢI WEBSITE CHÍNH THỨC</div>
-        <p class="hero-kicker">NHÂN TÂM DẬY SÓNG · MẠCH KHÍ SUY TÀN · SƠN HÀ THỨC GIẤC</p>
-        <h1 id="hero-main-title">
-          <span class="sr-only">SƠN HÀ</span>
-          <div class="hero-title-art-wrap">
-            <div class="hero-title-lit-aura" id="hero-title-lit-aura" aria-hidden="true"></div>
-            <img class="hero-title-art" src="assets/son-ha-di-luc-title.webp?v=15" alt="Sơn Hà Dị Lục 1836" width="366" height="416" decoding="async" fetchpriority="high">
-            <svg class="hero-incense-fx-svg" viewBox="0 0 366 416" fill="none" aria-hidden="true">
-              <defs>
-                <linearGradient id="inc-stick-grad" gradientUnits="userSpaceOnUse" x1="148.5" y1="237" x2="148.5" y2="338">
-                  <stop offset="0%" stop-color="#fff8e8"/>
-                  <stop offset="60%" stop-color="#f2dab0"/>
-                  <stop offset="100%" stop-color="#d8af6c"/>
-                </linearGradient>
-                <radialGradient id="inc-ember-glow" cx="50%" cy="50%" r="50%">
-                  <stop offset="0%" stop-color="#fffbe6" stop-opacity="1"/>
-                  <stop offset="22%" stop-color="#ff7a33" stop-opacity="0.88"/>
-                  <stop offset="52%" stop-color="#d4241a" stop-opacity="0.45"/>
-                  <stop offset="82%" stop-color="#961b15" stop-opacity="0.08"/>
-                  <stop offset="100%" stop-color="#961b15" stop-opacity="0"/>
-                </radialGradient>
-                <linearGradient id="inc-smoke-callig" gradientUnits="userSpaceOnUse" x1="148.5" y1="238" x2="148.5" y2="76">
-                  <stop offset="0%" stop-color="#f9f1e0" stop-opacity="0"/>
-                  <stop offset="10%" stop-color="#f9f1e0" stop-opacity="0.88"/>
-                  <stop offset="50%" stop-color="#dfc08a" stop-opacity="0.55"/>
-                  <stop offset="82%" stop-color="#d89b6c" stop-opacity="0.2"/>
-                  <stop offset="100%" stop-color="#f9f1e0" stop-opacity="0"/>
-                </linearGradient>
-                <linearGradient id="inc-smoke-crimson" gradientUnits="userSpaceOnUse" x1="148.5" y1="238" x2="148.5" y2="82">
-                  <stop offset="0%" stop-color="#ff8c52" stop-opacity="0"/>
-                  <stop offset="12%" stop-color="#ff8c52" stop-opacity="0.72"/>
-                  <stop offset="52%" stop-color="#d4241a" stop-opacity="0.38"/>
-                  <stop offset="85%" stop-color="#961b15" stop-opacity="0.12"/>
-                  <stop offset="100%" stop-color="#961b15" stop-opacity="0"/>
-                </linearGradient>
-              </defs>
-
-              <!-- Thân nhang màu ngà cháy ngắn dần theo thời gian, bấm thắp hương sẽ dài và sáng lại -->
-              <line id="incense-stick-body" x1="148.5" y1="237.5" x2="148.5" y2="337.5" stroke="url(#inc-stick-grad)" stroke-width="2.55" stroke-linecap="butt"/>
-
-              <!-- Cụm đầu nhang di chuyển xuống theo mức độ cháy của nén hương -->
-              <g id="incense-burning-head" transform="translate(0, 0)">
-                <!-- Đầu tàn tro nhang -->
-                <line id="incense-ash-tip" x1="148.5" y1="235.8" x2="148.5" y2="238.5" stroke="#857567" stroke-width="2.6" stroke-linecap="round"/>
-
-                <!-- Vòng tròn chấm 360 độ sắc nét quanh đầu nhang -->
-                <circle class="incense-dotted-ring" cx="148.5" cy="240.5" r="18.5" stroke="#dfc08a" stroke-width="1.05" stroke-dasharray="1.3 3.6" stroke-linecap="round"/>
-
-                <!-- Đốm tàn hương khi nhang đã tàn / chưa thắp -->
-                <g class="incense-unlit-invite" id="incense-unlit-invite">
-                  <circle class="unlit-tip-dot" cx="148.5" cy="237.5" r="2.3" fill="#e85838"/>
-                </g>
-
-                <!-- Tầng khói nhang uốn lượn (gradientUnits="userSpaceOnUse" không bao giờ bị cắt viền) -->
-                <g class="incense-smoke-layer" id="incense-smoke-layer">
-                  <g class="smoke-unit su-1">
-                    <path d="M 148.5 235 C 136 216, 161 194, 144 168 C 131 146, 159 120, 146 88" stroke="url(#inc-smoke-callig)" stroke-width="5.5" stroke-opacity="0.22" stroke-linecap="round" fill="none"/>
-                    <path d="M 148.5 235 C 139 221, 158 207, 145 191 C 134 176, 157 158, 146 138 C 138 122, 154 104, 147 84" stroke="url(#inc-smoke-callig)" stroke-width="1.65" stroke-linecap="round" fill="none"/>
-                    <circle cx="144" cy="208" r="1.25" fill="#ffd27d" fill-opacity="0.85"/>
-                  </g>
-                  <g class="smoke-unit su-2">
-                    <path d="M 148.5 235 C 160 214, 136 190, 153 162 C 165 138, 138 112, 151 82" stroke="url(#inc-smoke-crimson)" stroke-width="4.6" stroke-opacity="0.2" stroke-linecap="round" fill="none"/>
-                    <path d="M 148.5 235 C 157 220, 138 204, 152 186 C 162 170, 140 152, 151 132 C 159 116, 143 98, 150 80" stroke="url(#inc-smoke-crimson)" stroke-width="1.35" stroke-linecap="round" fill="none"/>
-                    <circle cx="153" cy="192" r="1.1" fill="#ff6b35" fill-opacity="0.85"/>
-                  </g>
-                  <g class="smoke-unit su-3">
-                    <path d="M 148.5 233 C 142 216, 154 198, 143 178 C 135 162, 151 144, 145 122" stroke="url(#inc-smoke-callig)" stroke-width="1.2" stroke-linecap="round" fill="none"/>
-                    <circle cx="145" cy="172" r="1" fill="#fff0b8" fill-opacity="0.8"/>
-                  </g>
-                </g>
-
-                <!-- Quầng lửa đỏ chu sa & đầu nhang cháy sáng tại (148.5, 237.5) -->
-                <g class="incense-halo-layer" id="incense-halo-layer">
-                  <circle class="ember-aura" cx="148.5" cy="237.5" r="26" fill="url(#inc-ember-glow)"/>
-                  <circle class="ember-core" cx="148.5" cy="237.5" r="3.3" fill="#ff4d1c"/>
-                  <circle class="ember-hot" cx="148.5" cy="237.5" r="1.6" fill="#fffbe0"/>
-                </g>
-              </g>
-            </svg>
-            <button type="button" class="hero-incense-ritual" id="hero-incense-btn" aria-pressed="false" aria-label="Bấm vào cây nhang giữa chữ Dị và Lục để thắp hương (+1)" title="Bấm vào cây nhang để thắp hương (+1)">
-              <i class="incense-hint">BẤM THẮP HƯƠNG (+1)</i>
-            </button>
-          </div>
-          <span class="sr-only">DỊ LỤC<sup>1836</sup></span>
-        </h1>
-        <div class="hero-incense-counter-bar" id="hero-incense-counter-bar">
-          <button type="button" class="incense-counter-btn" id="hero-incense-counter-btn" title="Bấm để thắp nén hương cho dự án (+1)">
-            <span class="incense-counter-dot" aria-hidden="true"></span>
-            <span class="incense-counter-label" data-ve-id="hero.incense.label">ĐÃ THẮP:</span>
-            <strong class="incense-counter-num" id="incense-count-value">1</strong>
-            <span class="incense-counter-unit" data-ve-id="hero.incense.unit">NÉN HƯƠNG CHO DỰ ÁN</span>
-            <span class="incense-counter-cta" id="incense-counter-cta">✦ BẤM THẮP HƯƠNG (+1)</span>
-            <span class="incense-plus-float" id="incense-plus-float" aria-hidden="true">+1 NÉN HƯƠNG</span>
+  <main id="overlay">
+    <!-- SC01 -->
+    <section class="shot shot--center" data-shot="0" id="mo-man" aria-labelledby="h-open">
+      <div class="card card--bare">
+        <p class="kicker">MỘT TÁC PHẨM ĐIỆN ẢNH CỦA <b>GOSU CINEMA</b> · KINH ĐÔ PHÚ XUÂN</p>
+        <h1 id="h-open" class="sr-only">Sơn Hà Dị Lục 1836</h1>
+        <img class="fallback-title" src="assets/son-ha-di-luc-title.webp?v=15" alt="" width="366" height="416">
+        <p class="logline">“Ma quỷ không tự nhiên sinh ra để hủy diệt nhân gian — chính lòng tham, sự tàn nhẫn và nỗi oan khuất chưa được tháo gỡ của con người mới là mầm mống nuôi dưỡng tà vật.”</p>
+        <div class="actions">
+          <button type="button" class="btn btn--primary" data-goto="1">Bắt đầu hành trình <span aria-hidden="true">↓</span></button>
+          <button type="button" class="btn btn--ghost" id="incense-btn" title="Thắp một nén hương cho dự án (+1)">
+            <span class="incense-dot" aria-hidden="true"></span> Thắp hương · <b id="incense-count">—</b>
           </button>
         </div>
-        <p class="hero-sub">“Ma quỷ không tự nhiên sinh ra để hủy diệt nhân gian — chính lòng tham, sự tàn nhẫn và nỗi oan khuất chưa được tháo gỡ của con người mới là mầm mống nuôi dưỡng tà vật.”</p>
-        <div class="hero-actions">
-          <button type="button" class="hero-trailer-btn" id="open-trailer-btn">
-            <span class="play-icon" aria-hidden="true">▶</span>
-            <span class="trailer-btn-label">XEM TRAILER · MOODBOARD DỰ ÁN</span>
-          </button>
-        </div>
-        <a class="round-link" href="#story" aria-label="Khám phá câu chuyện">↘</a>
-      </div>
-      <div class="hero-bottom">
-        <span>CỔ TRANG · LINH DỊ DÂN GIAN · TRINH THÁM</span>
-        <a href="#relics">KHÁM PHÁ CÁC PHÁP KHÍ ĐẦU TIÊN ↓</a>
-        <span>NIÊN ĐẠI MINH MẠNG THỨ 17</span>
+        <p class="scroll-hint" aria-hidden="true">CUỘN · VUỐT · PHÍM ↓ ĐỂ CHUYỂN CẢNH</p>
       </div>
     </section>
 
-    <div class="ticker" aria-hidden="true">
-      <div>
-        SƠN HÀ DỊ LỤC · NĂM BÍNH THÂN 1836 &nbsp; ✦ &nbsp; KHI MẠCH KHÍ SUY TÀN, NGƯỜI CHẾT LÊN TIẾNG &nbsp; ✦ &nbsp; KHÂM THIÊN GIÁM MẬT ÁN &nbsp; ✦ &nbsp; GIẢI · DIỆT · TRẤN · AN &nbsp; ✦ &nbsp; SƠN HÀ DỊ LỤC · NĂM BÍNH THÂN 1836 &nbsp; ✦ &nbsp; KHI MẠCH KHÍ SUY TÀN, NGƯỜI CHẾT LÊN TIẾNG &nbsp; ✦ &nbsp;
-      </div>
-    </div>
-
-    <section id="story" class="story section">
-      <div class="reveal story-left">
+    <!-- SC02 -->
+    <section class="shot shot--right" data-shot="1" id="khoi-nguon" aria-labelledby="h-story">
+      <div class="card">
         <p class="eyebrow">CHƯƠNG I — KHỞI NGUỒN ÁN MẠNG LONG THỌ</p>
-        <span class="chapter-mark" aria-hidden="true">冤</span>
-        <h2>Có những nỗi oan<br><em>không thể ngủ yên.</em></h2>
-        <div class="story-talisman">
-          <span>HỒ SƠ MẬT: LONG THỌ — NGUYỆT BIỀU</span>
-          <span>TRạng thái: MẠCH KHÍ SUY KIỆT</span>
-        </div>
-      </div>
-      <div class="reveal prose">
-        <p class="lead-drop">Năm Minh Mạng thứ 17 (1836). Làng Long Thọ ven bờ Nam sông Hương bỗng chìm trong chứng dịch bệnh kỳ quái: lúa trên đồng khô quắt rỉ khói đen, dân lành ho ra máu, còn trong chuồng hổ số 3 tại Đấu trường Hổ Quyền xuất hiện những cái xác mang vết cào mãnh thú cùng chùm năm chìa khóa sắt nhét chặt trong miệng.</p>
-        <p>Thiếu niên mang <em>Mệnh Âm</em> <strong>Mót</strong> cùng sư huynh <strong>Đại Sơn</strong> thuộc nhánh mật <strong>Khâm Thiên Sứ</strong> lần theo dấu tà khí từ Điện Voi Ré đến mật thất trăm bộ da hổ. Nhưng càng đào sâu dưới ánh hào quang vương triều, họ càng nhận ra thứ đáng sợ hơn cả Đại Ma Hổ chính là khế ước máu của lòng người.</p>
-        <span class="small">HÀNH TRÌNH ĐIỀU TRA GIỮA HAI CÕI ÂM — DƯƠNG · LẤY CẢM HỨNG TỪ DÃ SỬ VIỆT NAM</span>
+        <h2 id="h-story">Có những nỗi oan <em>không thể ngủ yên.</em></h2>
+        <p>Năm Minh Mạng thứ 17 (1836). Làng Long Thọ ven bờ Nam sông Hương chìm trong chứng dịch kỳ quái: lúa khô quắt rỉ khói đen, dân lành ho ra máu, còn trong chuồng hổ số 3 tại Đấu trường Hổ Quyền xuất hiện những cái xác ngậm chùm năm chìa khóa sắt.</p>
+        <p class="long">Thiếu niên mang Mệnh Âm <strong>Mót</strong> cùng sư huynh <strong>Đại Sơn</strong> thuộc nhánh mật Khâm Thiên Sứ lần theo dấu tà khí. Càng đào sâu, họ càng nhận ra thứ đáng sợ hơn cả Đại Ma Hổ chính là khế ước máu của lòng người.</p>
+        <p class="note">↳ Truck trái theo bông lúa rỉ khói đen — điềm báo Khí suy.</p>
       </div>
     </section>
 
-    <!-- MỤC MỚI: HỒ SƠ KỊCH BẢN, SƠ ĐỒ MỐI QUAN HỆ & TIMELINE HÀNH TRÌNH PHIM -->
-    <section id="script" class="script-hub section">
-      <div class="script-hub-header reveal">
-        <div class="talisman-crest" aria-hidden="true">
-          <span>卷宗</span>
-          <i></i>
-          <strong>HỒ SƠ KỊCH BẢN &amp; ĐẠI TRUYỆN 1836</strong>
-          <i></i>
-          <span>山河</span>
-        </div>
-        <p class="eyebrow">CẤU TRÚC TỰ SỰ · MẠNG LƯỚI NHÂN VẬT · TRỤC THỜI GIAN ĐIỆN ẢNH</p>
-        <h2>Kịch bản &amp; <em>Hành trình Sơn Hà.</em></h2>
-        <p class="script-hub-sub">Từ bản dựng điện ảnh mở màn khi Mót và Đại Sơn trở về làng Long Thọ đến đại cục ba Thiên giữa Khâm Thiên Giám, Thương Hội Vạn Kim và nhánh Huyền Uyên.</p>
-
-        <div class="script-tabs" role="tablist" aria-label="Danh mục hồ sơ kịch bản">
-          <button type="button" class="script-tab active" role="tab" aria-selected="true" data-script-tab="tab-opening">
-            <small>PHẦN 01</small>
-            <strong>Mở Đầu (Render) &amp; Hồi I Long Thọ</strong>
-          </button>
-          <button type="button" class="script-tab" role="tab" aria-selected="false" data-script-tab="tab-relations">
-            <small>PHẦN 02</small>
-            <strong>Sơ Đồ Quan Hệ &amp; 6 Thế Lực</strong>
-          </button>
-          <button type="button" class="script-tab" role="tab" aria-selected="false" data-script-tab="tab-timeline">
-            <small>PHẦN 03</small>
-            <strong>Timeline Hành Trình (1818 → 1837)</strong>
-          </button>
-          <button type="button" class="script-tab" role="tab" aria-selected="false" data-script-tab="tab-next-acts">
-            <small>PHẦN 04</small>
-            <strong>Kịch Bản Thiên II, III &amp; Ngoại Truyện</strong>
-          </button>
-        </div>
+    <!-- SC03 -->
+    <section class="shot shot--right" data-shot="2" id="ban-dung" aria-labelledby="h-render">
+      <div class="card">
+        <p class="eyebrow">MỞ ĐẦU PHIM · SCENE 01 RENDER</p>
+        <h2 id="h-render">Mạch đất rỉ máu <em>bên bờ Nam sông Hương.</em></h2>
+        <p class="long">Hai huynh đệ Khâm Thiên Sứ cưỡi ngựa trở về Long Thọ. Từ cuộc khám nghiệm tử thi bằng kim bạc đến đêm huyết chiến Đại Ma Hổ, thân thế từng người lần lượt lộ diện.</p>
+        <ol class="beats">
+          <li>Tiền truyện bẻ nanh hổ Hổ Quyền</li>
+          <li>Kỵ mã trở về làng Long Thọ</li>
+          <li>Kim bạc hóa đen &amp; 5 chìa khóa sắt</li>
+          <li>Nụ cười Kim Lan, 3 mũi tên</li>
+          <li>Chưởng Cổ Phù cứu Đại Sơn</li>
+          <li>Huyền Uyên trên bờ thành cao</li>
+        </ol>
+        <button type="button" class="btn btn--ghost" id="video-sound-btn" aria-pressed="false">🔈 Bật tiếng bản dựng</button>
       </div>
+    </section>
 
-      <!-- TAB 01: MỞ ĐẦU VIDEO RENDER & HỒI ĐẦU LÀNG LONG THỌ -->
-      <div class="script-panel active" id="tab-opening" role="tabpanel">
-        <div class="opening-render-showcase">
-          <div class="opening-video-box">
-            <video src="assets/scene1-render.mp4" poster="assets/still-frame/04.webp" autoplay muted loop playsinline controls></video>
-            <div class="video-badge">BẢN DỰNG MỞ ĐẦU · SCENE 01 RENDER</div>
-          </div>
-          <div class="opening-narrative">
-            <span class="small">MỞ ĐẦU PHIM · KHI MÓT &amp; ĐẠI SƠN TRỞ VỀ LÀNG LONG THỌ</span>
-            <h3>Mạch đất rỉ máu bên bờ Nam sông Hương</h3>
-            <p>Phim mở màn từ chính <strong>bản render đầu tiên</strong>: giữa năm Minh Mạng thứ 17 (1836), chỉ cách hoàng cung Phú Xuân bốn dặm, làng <strong>Long Thọ</strong> bỗng rơi vào đại dịch <em>Khí suy</em>. Lúa đang thì con gái khô quắt rỉ khói đen, dân lành ho ra máu, còn trong chuồng hổ số 3 tại Đấu trường Hổ Quyền xuất hiện xác gã Quản Chuồng Hổ bị xé xác và nhét nguyên chùm <strong>5 chiếc chìa khóa sắt</strong> vào miệng.</p>
-            <p>Hai huynh đệ Khâm Thiên Sứ — <strong>Mót</strong> và <strong>Đại Sơn</strong> — cưỡi ngựa trở về quê nhà Long Thọ điều tra. Từ cuộc khám nghiệm tử thi bằng kim bạc tại Điện Voi Ré đến đêm huyết chiến <strong>Đại Ma Hổ</strong>, thân thế thật sự của từng người lần lượt lộ diện:</p>
-            <div class="opening-beats">
-              <span>01 · Tiền truyện bẻ nanh hổ Hổ Quyền</span>
-              <span>02 · Kỵ mã trở về làng Long Thọ Khí suy</span>
-              <span>03 · Kim bạc hóa đen &amp; 5 chìa khóa sắt</span>
-              <span>04 · Nụ cười Kim Lan bắn 3 mũi tên</span>
-              <span>05 · Chưởng Cổ Phù cứu Đại Sơn</span>
-              <span>06 · Huyền Uyên trên bờ thành cao</span>
-            </div>
-          </div>
+    <!-- SC04 -->
+    <section class="shot shot--right" data-shot="3" id="nhan-vat" aria-labelledby="h-chars">
+      <div class="card">
+        <p class="eyebrow">NHỮNG KẺ BƯỚC ĐI TRONG ĐÊM DÀI</p>
+        <h2 id="h-chars" class="h-small">Mỗi số phận. <em>Một nghiệp chướng.</em></h2>
+        <div class="tabs" role="tablist" aria-label="Nhân vật" data-list="3"></div>
+        <div class="detail" aria-live="polite">
+          <span class="detail-sub" data-bind="char-sub"></span>
+          <h3><span data-bind="char-name"></span> <span class="seal" data-bind="char-seal"></span></h3>
+          <p data-bind="char-bio"></p>
+          <blockquote data-bind="char-quote"></blockquote>
         </div>
-
-        <!-- 5 CĂN NGUYÊN NHÂN VẬT CỐT LÕI TẠI LONG THỌ -->
-        <div class="origin-cards-grid">
-          <article class="origin-card">
-            <span class="origin-tag">CĂN NGUYÊN 01 · CON NUÔI ÔNG AN</span>
-            <h4>Mót — Đứa trẻ trong chiếc bình vỡ Điện Voi Ré</h4>
-            <p>Đêm mưa bão năm 1818, <strong>Ông An</strong> (vị quan thanh liêm vừa cáo quan về quê dạy chữ) nghe tiếng khóc trong <strong>Điện Voi Ré</strong> và nhặt được đứa bé sơ sinh lăn ra từ chiếc bình gốm vỡ cùng nửa chiếc vòng ngọc, đặt tên là <strong>Mót</strong>. Ký ức về <em>“nắm xôi ấm”</em> ông An trao cho đứa bé ăn xin đêm mưa đã khắc vào lòng Mót lời thề: không để ai phải tuyệt vọng chờ một may mắn tình cờ.</p>
-          </article>
-
-          <article class="origin-card">
-            <span class="origin-tag">CĂN NGUYÊN 02 · SƯ HUYNH DẪN ĐƯỜNG</span>
-            <h4>Đại Sơn — Kiếm khách Hỏa Phù trọng nghĩa khí</h4>
-            <p>Chàng võ quan Khâm Thiên Sứ 21 tuổi xuất thân từ gia đình nông dân nghèo, tính tình bộc trực, luôn đứng mũi chịu sào che chở đàn em. Đại Sơn là người phát hiện Mót mang <strong>Mệnh Âm</strong>, trao sổ tay dẫn dắt Mót vào nghề, và vì liều mình đỡ đòn cho Mót ở Hổ Quyền mà bị tà khí Ma Hổ xâm nhập trước khi được Cổ Phù trên tay Mót cứu tỉnh.</p>
-          </article>
-
-          <article class="origin-card">
-            <span class="origin-tag">CĂN NGUYÊN 03 · CON GÁI QUAN XẤU</span>
-            <h4>Kim Lan &amp; Lão Phú — Cái giá đau đớn của công lý</h4>
-            <p><strong>Kim Lan</strong> là tiểu thư 20 tuổi tài sắc (giỏi thơ phú, bắn 3 mũi tên chụm hồng tâm), mối rung động đầu đời của Mót, nhưng lại là con gái ruột của <strong>Lão Phú</strong> — tên quan tham địa phương. Vì sợ bị thanh tra tội ăn chặn thuế dân và muốn giữ suất cho con gái vào phủ Quận chúa, Lão Phú ký khế ước nộp <strong>100 bộ da hổ</strong> cho Vạn Kim. Khi Mót tố giác Lão Phú để cứu làng, ước mơ của Kim Lan sụp đổ ngay trước mắt cậu.</p>
-          </article>
-
-          <article class="origin-card">
-            <span class="origin-tag">CĂN NGUYÊN 04 · NỖI ĐAU MẤT CHA</span>
-            <h4>Linh (Huyền Uyên) — 18 năm mặc áo tang đen</h4>
-            <p>Thiếu nữ gánh lư hương khói đỏ đứng trên thành Hổ Quyền mang bi kịch đẫm máu từ năm 10 tuổi (1818): cha ruột cô chết oan trong vụ nổ phá hủy ma trận của cha Mót. Khi sát thủ Vạn Kim kề đao lên cổ, Linh phải nuốt ngược nước mắt, thề tiếp quản công trình điều khiển quỷ để giữ mạng. Cô mặc đồ đen đội tang cha suốt 18 năm và giữ nửa kia chiếc vòng tín vật của Mót.</p>
-          </article>
-        </div>
-
-        <!-- BỐ CỤC 6 HỒI CHƯƠNG I: LÀNG LONG THỌ -->
-        <div class="act1-breakdown">
-          <div class="act1-header">
-            <span class="small">BỐ CỤC KỊCH BẢN CHƯƠNG I · LÀNG LONG THỌ (DẪN NHẬP 1818 &amp; 6 HỒI CHÍNH)</span>
-            <p>Bấm vào từng hồi để xem diễn biến và trích đoạn thoại trọng tâm:</p>
-          </div>
-          <div class="act-accordions">
-            <details class="act-item" open>
-              <summary>
-                <span class="act-code">DẪN NHẬP · 1818</span>
-                <strong>Đứa Trẻ Trong Chiếc Bình Vỡ Tại Điện Voi Ré</strong>
-                <span class="act-place">ĐIỆN VOI RÉ · ĐÊM MƯA BÃO</span>
-              </summary>
-              <div class="act-body">
-                <p>Năm Gia Long thứ 17 (1818). Giữa sấm chớp giật liên hồi tại Long Châu Miếu (Điện Voi Ré), chiếc bình gốm lớn tự nứt vỡ. Đứa bé sơ sinh lăn ra nền gạch lạnh cùng nửa chiếc vòng ngọc khắc cổ văn và vệt Cổ Phù ẩn vào cánh tay. Ông An (47 tuổi) cởi áo tơi ấp đứa trẻ vào ngực: <em>“Người ta bỏ con, nhưng trời đất còn thương con, cho ta mót được con giữa đêm mưa này... Ta đặt tên con là Mót.”</em></p>
-              </div>
-            </details>
-
-            <details class="act-item">
-              <summary>
-                <span class="act-code">HỒI I · 1836</span>
-                <strong>Một Ngôi Nhà Cạnh Kinh Thành &amp; Giao Kèo Ở Bến Sông</strong>
-                <span class="act-place">NHÀ ÔNG AN · BẾN CHỢ · HỔ QUYỀN</span>
-              </summary>
-              <div class="act-body">
-                <p>18 năm sau, Ông An dạy học ở làng nhưng mang nỗi buồn về hai người con ruột (anh cả sa ngã thành tham quan bị ông từ mặt; anh hai Hương làm quan Án Sứ cô độc trên Kinh). Ngoài bến sông, Mót ra tay đỡ kiện hàng gốm cứu cha mẹ Cu Báu (đang ho rũ rượi vì Khí suy) và kết giao với công tử <strong>Khánh Vũ</strong>. Chiều hôm đó tại rừng thưa Hổ Quyền, Mót lần đầu nhìn thấy lũ Ma Hổ bằng mắt thường và vô thức phát sáng Cổ Phù trên tay cứu mạng <strong>Đại Sơn</strong>.</p>
-              </div>
-            </details>
-
-            <details class="act-item">
-              <summary>
-                <span class="act-code">HỒI II</span>
-                <strong>Những Điều Mắt Thường Không Thấy — Hai Chữ “Mệnh Âm”</strong>
-                <span class="act-place">NHÀ ÔNG AN · RỪNG VEN SÔNG HƯƠNG</span>
-              </summary>
-              <div class="act-body">
-                <p>Đại Sơn tiết lộ thân phận mật viện <strong>Khâm Thiên Sứ</strong> và giải thích việc Mót nhìn thấu linh thể là do bẩm sinh mang <strong>Mệnh Âm</strong>, đồng thời ngỏ ý tiến cử Mót lên Kinh. Ông An kịch liệt phản đối vì sợ quan trường lại cướp mất đứa con cuối cùng. Để cứu Đại Sơn bị hàn khí xâm nhập, Mót cầm sổ tay của Sơn vào rừng tìm thảo dược và lần đầu nhìn thấy thế giới linh dị quanh làng.</p>
-              </div>
-            </details>
-
-            <details class="act-item">
-              <summary>
-                <span class="act-code">HỒI III</span>
-                <strong>Vết Hổ Trên Vùng Đất Quen &amp; Mật Thất Trăm Bộ Da Hổ</strong>
-                <span class="act-place">BÃI SĂN · MẬT THẤT ĐIỆN VOI RÉ</span>
-              </summary>
-              <div class="act-body">
-                <p>Mót đổi chim trĩ lấy thuốc quý từ Khánh Vũ, cùng <strong>Kim Lan</strong> đi săn và phát hiện những chiếc rương gỗ rỉ máu. Đêm đó, đàn voi chiến quỳ rống bi thiết trước Điện Voi Ré. Mót lẻn vào mật thất sau điện thờ, phanh phui <strong>100 bộ da hổ đẫm máu</strong>, lệnh bài giả và khế ước của <strong>Lão Phú</strong> với Thương hội Vạn Kim. Dù Lão Phú quỳ lạy van xin vì tương lai của Kim Lan, Mót quyết định giao nộp tang vật để cứu dân làng — chấp nhận nhìn Kim Lan ôm mặt khóc trong tuyệt vọng.</p>
-              </div>
-            </details>
-
-            <details class="act-item">
-              <summary>
-                <span class="act-code">HỒI IV &amp; V</span>
-                <strong>Bi Kịch Người Cha Già &amp; Đại Chiến Đấu Trường Hổ Quyền</strong>
-                <span class="act-place">NHÀ ÔNG AN · LÒNG CHẢO HỔ QUYỀN</span>
-              </summary>
-              <div class="act-body">
-                <p>Ông An trút nỗi đau mất hai người con vì quan trường nhưng Mót vẫn quyết cùng Đại Sơn ra Hổ Quyền diệt <strong>Đại Ma Hổ</strong> để khơi thông mạch Địa. Giữa trận huyết chiến, Đại Sơn bị tà khí Ma Hổ nhập làm đỏ ngầu đôi mắt; Mót kết Ấn Quyết Tam Giác tung <strong>Chưởng Cổ Phù Kim Quang</strong> cứu tỉnh sư huynh và chém tan Đại Ma Hổ. Ngay sau đó, Cổ Phù trên tay Mót hóa đen (Hắc Ấn) phản phệ rút cạn sinh lực, dưới ánh nhìn lạnh lùng của <strong>Linh (Huyền Uyên)</strong> trên bờ thành.</p>
-              </div>
-            </details>
-
-            <details class="act-item">
-              <summary>
-                <span class="act-code">HỒI VI</span>
-                <strong>Bữa Cơm Cuối Với Cha &amp; Đoàn Thuyền Lên Kinh Phú Xuân</strong>
-                <span class="act-place">NHÀ ÔNG AN · BẾN SÔNG LONG THỌ</span>
-              </summary>
-              <div class="act-body">
-                <p>Để giải trừ Hắc Ấn trước khi mất mạng và thực hiện lý tưởng cứu người từ ký ức “nắm xôi đêm mưa”, Mót xin phép cha nuôi lên Kinh. Bên mâm cơm sáng giản dị, Ông An rơi nước mắt gật đầu, trao lại <strong>nửa chiếc vòng tín vật năm 1818</strong> với lời dặn: <em>“Chữa khỏi vết đen trên tay rồi nhớ về nhà ăn cơm với cha.”</em> Tại bến sông, Khánh Vũ hé lộ gia thế khổng lồ khi mời Mót và Đại Sơn lên đoàn đại thuyền buôn tiến về Phú Xuân.</p>
-              </div>
-            </details>
-          </div>
-        </div>
-      </div>
-
-      <!-- TAB 02: SƠ ĐỒ MỐI QUAN HỆ TOÀN BỘ NHÂN VẬT & 6 THẾ LỰC -->
-      <div class="script-panel" id="tab-relations" role="tabpanel" hidden>
-        <div class="relation-map-container">
-          <div class="relation-header">
-            <span class="small">SƠ ĐỒ ĐƯỜNG DÂY KẾT NỐI · BẤM CHỌN NHÂN VẬT ĐỂ PHÁT SÁNG MẠCH LIÊN QUAN &amp; DÌM CÁC MỐI KHÔNG LIÊN QUAN</span>
-            <h3>Mạng lưới Ân Oán — Gia Tộc — Thế Lực</h3>
-            <div class="rel-legend" aria-label="Chú giải đường dây quan hệ">
-              <span class="leg-item leg-kin"><i></i> Gia tộc · Sư môn · Chính nghĩa</span>
-              <span class="leg-item leg-bond"><i></i> Tình cảm · Tri kỷ · Định mệnh 1818</span>
-              <span class="leg-item leg-feud"><i></i> Ân oán máu · Khế ước ngầm · Phản bội</span>
-            </div>
-            <div class="rel-focus-bar">
-              <span class="rel-focus-status" id="rel-focus-status">ĐANG SOI TÂM ĐIỂM: <strong>MÓT (HUYỀN QUANG)</strong> — Bấm vào bất kỳ nhân vật nào để lọc riêng mạch quan hệ</span>
-              <button type="button" class="rel-reset-btn" id="rel-reset-btn">✦ HIỆN TOÀN BỘ SƠ ĐỒ (BỎ LỌC)</button>
-            </div>
-          </div>
-
-          <div class="rel-board-scroll">
-            <div class="rel-board" id="rel-board">
-              <!-- Lớp đường dây kết nối SVG có mũi tên & nhãn trực tiếp trên dây -->
-              <svg class="rel-wires" viewBox="0 0 1280 880" preserveAspectRatio="none" aria-hidden="true">
-                <defs>
-                  <marker id="arrow-kin" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-                    <path d="M 0 1 L 9 5 L 0 9 z" fill="#dfc08a"/>
-                  </marker>
-                  <marker id="arrow-bond" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-                    <path d="M 0 1 L 9 5 L 0 9 z" fill="#ef8e7d"/>
-                  </marker>
-                  <marker id="arrow-feud" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-                    <path d="M 0 1 L 9 5 L 0 9 z" fill="#d93829"/>
-                  </marker>
-                </defs>
-
-                <!-- 1. Cha Mẹ Ruột (1818) -> Mót -->
-                <g class="wire-group wire-kin" data-from="chame1818" data-to="mot">
-                  <path d="M 640 130 L 640 458" marker-end="url(#arrow-kin)"/>
-                  <rect x="515" y="192" width="250" height="24" rx="3"/>
-                  <text x="640" y="208">Phong ấn Cổ Phù · Giấu vào bình gốm</text>
-                </g>
-
-                <!-- 2. Ông An -> Mót -->
-                <g class="wire-group wire-kin" data-from="ongan" data-to="mot">
-                  <path d="M 240 130 C 305 260, 325 385, 500 490" marker-end="url(#arrow-kin)"/>
-                  <rect x="200" y="365" width="210" height="24" rx="3"/>
-                  <text x="305" y="381">Nhặt ở Điện Voi Ré · Cha nuôi</text>
-                </g>
-
-                <!-- 3. Ông An -> Anh Hai Hương -->
-                <g class="wire-group wire-kin" data-from="ongan" data-to="huong">
-                  <path d="M 185 130 L 154 240" marker-end="url(#arrow-kin)"/>
-                  <rect x="64" y="172" width="180" height="22" rx="3"/>
-                  <text x="154" y="187">Cha con · Dạy đạo vì dân</text>
-                </g>
-
-                <!-- 4. Anh Hai Hương -> Mót -->
-                <g class="wire-group wire-kin" data-from="huong" data-to="mot">
-                  <path d="M 190 340 C 260 440, 380 490, 500 512" marker-end="url(#arrow-kin)"/>
-                  <rect x="135" y="426" width="234" height="24" rx="3"/>
-                  <text x="252" y="442">Anh hai nuôi · Trao sổ mật trước lúc chết</text>
-                </g>
-
-                <!-- 5. Đại Sơn <-> Mót -->
-                <g class="wire-group wire-kin" data-from="daison" data-to="mot">
-                  <path d="M 465 340 L 565 460" marker-start="url(#arrow-kin)" marker-end="url(#arrow-kin)"/>
-                  <rect x="396" y="394" width="218" height="24" rx="3"/>
-                  <text x="505" y="410">Sư huynh đệ · Cổ Phù cứu mạng</text>
-                </g>
-
-                <!-- 6. Linh (Huyền Uyên) <-> Mót -->
-                <g class="wire-group wire-bond" data-from="linh" data-to="mot">
-                  <path d="M 815 340 L 715 460" marker-start="url(#arrow-bond)" marker-end="url(#arrow-bond)"/>
-                  <rect x="664" y="394" width="222" height="24" rx="3"/>
-                  <text x="775" y="410">2 nửa vòng ngọc · Thù hóa Tri kỷ</text>
-                </g>
-
-                <!-- 7. Cha Mẹ 1818 -> Linh -->
-                <g class="wire-group wire-feud" data-from="chame1818" data-to="linh">
-                  <path d="M 730 130 L 815 240" marker-end="url(#arrow-feud)"/>
-                  <rect x="665" y="148" width="210" height="22" rx="3"/>
-                  <text x="770" y="163">Vụ nổ 1818 · Cha Linh chết oan</text>
-                </g>
-
-                <!-- 8. Hội Trưởng Vạn Kim -> Linh -->
-                <g class="wire-group wire-feud" data-from="hoitruong" data-to="linh">
-                  <path d="M 1020 130 L 860 240" marker-end="url(#arrow-feud)"/>
-                  <rect x="838" y="192" width="210" height="22" rx="3"/>
-                  <text x="943" y="207">Kề đao năm 10 tuổi · Ép luyện quỷ</text>
-                </g>
-
-                <!-- 9. Hội Trưởng Vạn Kim -> Khánh Vũ -->
-                <g class="wire-group wire-feud" data-from="hoitruong" data-to="khanhvu">
-                  <path d="M 1095 130 L 1126 240" marker-end="url(#arrow-feud)"/>
-                  <rect x="1032" y="156" width="218" height="22" rx="3"/>
-                  <text x="1141" y="171">Cha ruột · Giam mẹ ép chứa Quỷ</text>
-                </g>
-
-                <!-- 10. Khánh Vũ <-> Mót -->
-                <g class="wire-group wire-bond" data-from="khanhvu" data-to="mot">
-                  <path d="M 1090 340 C 1020 440, 900 490, 780 512" marker-start="url(#arrow-bond)" marker-end="url(#arrow-bond)"/>
-                  <rect x="852" y="426" width="246" height="24" rx="3"/>
-                  <text x="975" y="442">Tri kỷ · Nuôi Mót mạnh để giết mình</text>
-                </g>
-
-                <!-- 11. Mót <-> Kim Lan -->
-                <g class="wire-group wire-bond" data-from="mot" data-to="kimlan">
-                  <path d="M 535 568 L 265 730" marker-start="url(#arrow-bond)" marker-end="url(#arrow-bond)"/>
-                  <rect x="262" y="632" width="215" height="24" rx="3"/>
-                  <text x="369" y="648">Tình đầu · Lỡ dở vì công lý</text>
-                </g>
-
-                <!-- 12. Lão Phú -> Kim Lan -->
-                <g class="wire-group wire-kin" data-from="laophu" data-to="kimlan">
-                  <path d="M 518 779 L 310 779" marker-end="url(#arrow-kin)"/>
-                  <rect x="322" y="767" width="184" height="24" rx="3"/>
-                  <text x="414" y="783">Cha ruột làm liên lụy con</text>
-                </g>
-
-                <!-- 13. Mót -> Lão Phú -->
-                <g class="wire-group wire-feud" data-from="mot" data-to="laophu">
-                  <path d="M 640 570 L 640 728" marker-end="url(#arrow-feud)"/>
-                  <rect x="528" y="632" width="224" height="24" rx="3"/>
-                  <text x="640" y="648">Phanh phui 100 da hổ · Giao nha môn</text>
-                </g>
-
-                <!-- 14. Lão Phú -> Đại Ma Hổ -->
-                <g class="wire-group wire-feud" data-from="laophu" data-to="maho">
-                  <path d="M 762 779 L 970 779" marker-end="url(#arrow-feud)"/>
-                  <rect x="769" y="767" width="194" height="24" rx="3"/>
-                  <text x="866" y="783">Bẻ nanh lột da → Ma Hổ đòi mạng</text>
-                </g>
-
-                <!-- 15. Khánh Vũ -> Quỷ Xương Cuồng -->
-                <g class="wire-group wire-feud" data-from="khanhvu" data-to="maho">
-                  <path d="M 1120 342 L 1085 728" marker-end="url(#arrow-feud)"/>
-                  <rect x="992" y="642" width="215" height="24" rx="3"/>
-                  <text x="1099" y="658">Phá ấn hóa Quỷ Xương Cuồng</text>
-                </g>
-
-                <!-- 16. Hội Trưởng Vạn Kim -> Cha Mẹ 1818 -->
-                <g class="wire-group wire-feud" data-from="hoitruong" data-to="chame1818">
-                  <path d="M 960 84 L 768 84" marker-end="url(#arrow-feud)"/>
-                  <rect x="772" y="72" width="184" height="22" rx="3"/>
-                  <text x="864" y="87">Truy sát 1818 · Phá ma trận</text>
-                </g>
-
-                <!-- 17. Đại Sơn <-> Đại Ma Hổ -->
-                <g class="wire-group wire-feud" data-from="daison" data-to="maho">
-                  <path d="M 495 340 C 660 510, 830 610, 1020 730" marker-end="url(#arrow-feud)"/>
-                  <rect x="772" y="596" width="205" height="24" rx="3"/>
-                  <text x="874" y="612">Hỏa Phù Kiếm · Trấn Ma Hổ</text>
-                </g>
-              </svg>
-
-              <!-- HÀNG 1: THẾ HỆ TRƯỚC & THƯỢNG TẦNG -->
-              <button type="button" class="rel-node rel-pos-ongan" data-node="ongan">
-                <span class="rel-conn-badge" aria-hidden="true"></span>
-                <span class="rel-role">CHA NUÔI · QUAN LIÊM</span>
-                <strong>Ông An (Cụ An)</strong>
-                <small>Nhặt Mót ở Điện Voi Ré (1818)</small>
-              </button>
-
-              <button type="button" class="rel-node rel-pos-chame1818" data-node="chame1818">
-                <span class="rel-conn-badge" aria-hidden="true"></span>
-                <span class="rel-role">BI KỊCH ĐÊM MƯA 1818</span>
-                <strong>Cha Mẹ Mót &amp; Cha Linh</strong>
-                <small>Phá hủy ma trận · Để lại 2 nửa vòng ngọc</small>
-              </button>
-
-              <button type="button" class="rel-node rel-pos-hoitruong" data-node="hoitruong">
-                <span class="rel-conn-badge" aria-hidden="true"></span>
-                <span class="rel-role">TRÙM CUỐI · BÁ QUYỀN KIM TIỀN</span>
-                <strong>Hội Trưởng Vạn Kim</strong>
-                <small>Cha ruột Khánh Vũ · Chủ mưu 1818</small>
-              </button>
-
-              <!-- HÀNG 2: ĐỒNG MINH CHÍNH NGHĨA vs. VẠN KIM / HUYỀN UYÊN -->
-              <button type="button" class="rel-node rel-pos-huong" data-node="huong">
-                <span class="rel-conn-badge" aria-hidden="true"></span>
-                <span class="rel-role">ANH HAI · QUAN ÁN SỨ</span>
-                <strong>Hương (27 tuổi)</strong>
-                <small>“Pháp bất vị thân” · Hy sinh ở Kinh</small>
-              </button>
-
-              <button type="button" class="rel-node rel-pos-daison" data-node="daison">
-                <span class="rel-conn-badge" aria-hidden="true"></span>
-                <span class="rel-role">SƯ HUYNH · HỎA PHÙ KIẾM</span>
-                <strong>Đại Sơn (21 tuổi)</strong>
-                <small>Dẫn dắt Mót · Nặng gánh chữ Hiếu</small>
-              </button>
-
-              <button type="button" class="rel-node rel-pos-linh" data-node="linh">
-                <span class="rel-conn-badge" aria-hidden="true"></span>
-                <span class="rel-role">HUYỀN UYÊN · LƯ HƯƠNG ĐỎ</span>
-                <strong>Linh (25 tuổi)</strong>
-                <small>Đội tang cha 18 năm · Giữ nửa vòng kia</small>
-              </button>
-
-              <button type="button" class="rel-node rel-pos-khanhvu" data-node="khanhvu">
-                <span class="rel-conn-badge" aria-hidden="true"></span>
-                <span class="rel-role">THIẾU GIA · CHIẾC BÌNH SỐNG</span>
-                <strong>Khánh Vũ (24 tuổi)</strong>
-                <small>Bị cha phong ấn Quỷ Xương Cuồng</small>
-              </button>
-
-              <!-- HÀNG 3: TÂM ĐIỂM MÓT -->
-              <button type="button" class="rel-node rel-node-core rel-pos-mot active" data-node="mot">
-                <span class="rel-conn-badge" aria-hidden="true"></span>
-                <span class="rel-seal">命陰</span>
-                <span class="rel-role">TÂM ĐIỂM MẠNG LƯỚI · KHÂM THIÊN SỨ</span>
-                <strong>MÓT (Huyền Quang · 18 tuổi)</strong>
-                <small>Mệnh Âm · Cổ Phù Phong Ấn · Giữ nửa vòng 1818</small>
-              </button>
-
-              <!-- HÀNG 4: BI KỊCH LÀNG LONG THỌ & TÀ VẬT -->
-              <button type="button" class="rel-node rel-pos-kimlan" data-node="kimlan">
-                <span class="rel-conn-badge" aria-hidden="true"></span>
-                <span class="rel-role">NÀNG THƠ ĐẦU ĐỜI · CUNG TIỄN</span>
-                <strong>Kim Lan (20 tuổi)</strong>
-                <small>Con gái Lão Phú · Sụp đổ ước mơ lên Kinh</small>
-              </button>
-
-              <button type="button" class="rel-node rel-pos-laophu" data-node="laophu">
-                <span class="rel-conn-badge" aria-hidden="true"></span>
-                <span class="rel-role">QUAN XẤU &amp; CAI NGỤC HỔ QUYỀN</span>
-                <strong>Lão Phú &amp; Quản Chuồng Hổ</strong>
-                <small>Khế ước 100 da hổ · Nhét 5 chìa khóa sắt</small>
-              </button>
-
-              <button type="button" class="rel-node rel-pos-maho" data-node="maho">
-                <span class="rel-conn-badge" aria-hidden="true"></span>
-                <span class="rel-role">TÀ VẬT &amp; ĐẠI CỔ QUỶ</span>
-                <strong>Đại Ma Hổ &amp; Xương Cuồng</strong>
-                <small>Kết tụ từ oán niệm &amp; tham vọng con người</small>
-              </button>
-            </div>
-          </div>
-
-          <!-- Khung giải thích chi tiết mối quan hệ khi bấm vào từng nút -->
-          <div class="relation-detail-box" id="relation-detail-box" aria-live="polite">
-            <div class="rel-detail-head">
-              <span class="small" id="rel-detail-tag">TRỤC TRUNG TÂM · KHÂM THIÊN SỨ</span>
-              <h4 id="rel-detail-name">Mót (Huyền Quang) — Điểm giao của mọi ân oán năm 1818 &amp; 1836</h4>
-            </div>
-            <p id="rel-detail-desc">Con ruột của nữ Khâm Thiên Sứ và học giả Huyền Uyên phản tỉnh đêm mưa 1818; được Ông An nhặt trong chiếc bình gốm vỡ tại Điện Voi Ré. Mót kết nối tất cả các tuyến: là đệ tử sinh tử của Đại Sơn, em nuôi của Án Sứ Hương, mang vết thương lòng đầu đời với Kim Lan khi tố giác Lão Phú, chia sẻ hai nửa chiếc vòng định mệnh với Linh (Huyền Uyên), và là người duy nhất Khánh Vũ tin tưởng giao phó nhát kiếm giải thoát cuối cùng.</p>
-            <div class="rel-links-list" id="rel-detail-links">
-              <span><strong>Với Ông An &amp; Hương:</strong> Cha nuôi &amp; Anh hai nuôi dạy đạo làm người, làm quan vì dân.</span>
-              <span><strong>Với Đại Sơn:</strong> Sư huynh dẫn đường, vào sinh ra tử tại Hổ Quyền.</span>
-              <span><strong>Với Kim Lan:</strong> Mối tình đầu trong sáng dang dở vì tội ác của Lão Phú.</span>
-              <span><strong>Với Linh (Huyền Uyên):</strong> Từ kẻ thù sát phụ năm 1818 trở thành tri kỷ đồng hành sinh tử.</span>
-              <span><strong>Với Khánh Vũ:</strong> Tri kỷ bến sông nhưng phải tự tay kết liễu Vũ khi Quỷ Xương Cuồng thức tỉnh.</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- BẢN ĐỒ ĐỊA THẾ & SƠ ĐỒ 6 THẾ LỰC LỚN (TINH GỌN, TRỰC QUAN) -->
-        <div class="faction-web-box">
-          <div class="relation-header">
-            <span class="small">BẢN ĐỒ ĐỊA THẾ PHÚ XUÂN 1836 · CỤC DIỆN 6 THẾ LỰC</span>
-            <h3>Bản Đồ &amp; Tổng Quan 6 Thế Lực</h3>
-            <p class="relation-sub">Mọi mũi tên trên bản đồ đều hội tụ về <strong>Làng Long Thọ &amp; Đấu trường Hổ Quyền</strong> — nơi mở màn đại án năm Bính Thân 1836.</p>
-          </div>
-
-          <!-- Bản đồ cổ vẽ tay 6 Thế Lực -->
-          <figure class="faction-map-showcase">
-            <div class="faction-map-frame">
-              <picture>
-                <source srcset="assets/bando-6-the-luc.webp" type="image/webp">
-                <img src="assets/bando-6-the-luc.jpg" alt="Bản đồ 6 Thế Lực tại Kinh đô Phú Xuân — Khâm Thiên Giám, Thương Hội Vạn Kim, Viện Bách Uyên Huyền Uyên, Bách Tạo Đường, Vô Danh Ty Trảm Thiên và Quy Nguyên Giáo" width="1024" height="571" loading="lazy" decoding="async">
-              </picture>
-            </div>
-            <figcaption class="faction-map-legend">
-              <span><i class="map-dot dot-crimson"></i> <strong>Mũi tên Đỏ (Kinh Thành &amp; Long Thọ):</strong> Khâm Thiên Giám &amp; Huyền Uyên tiến vào Hổ Quyền</span>
-              <span><i class="map-dot dot-river"></i> <strong>Mũi tên Xanh Đen (Sông Hương):</strong> Thuyền buôn Vạn Kim từ Cảng Bao Vinh áp sát Long Thọ</span>
-              <span><i class="map-dot dot-dark"></i> <strong>Mũi tên Đỏ Thẫm (Ngự Bình):</strong> Quy Nguyên Giáo rình rập từ phía Nam</span>
-            </figcaption>
-          </figure>
-
-          <!-- Lưới 6 Thế Lực tinh gọn (3 cột x 2 hàng cân xứng) -->
-          <div class="factions-clean-grid">
-            <article class="faction-card fc-item">
-              <div class="fc-top">
-                <span class="fc-num">01</span>
-                <span class="fc-loc">HOÀNG THÀNH PHÚ XUÂN</span>
-              </div>
-              <h4>Khâm Thiên Giám</h4>
-              <p>Cơ quan chính thống của triều đình, chuyên điều tra dị sự và trấn yểm tà vật theo 4 phép: <em>Giải · Diệt · Trấn · An</em>.</p>
-              <div class="fc-meta"><strong>Nhân sự:</strong> Mót, Đại Sơn · <strong>Phe:</strong> Chính phái triều đình</div>
-            </article>
-
-            <article class="faction-card fc-item">
-              <div class="fc-top">
-                <span class="fc-num">02</span>
-                <span class="fc-loc">CẢNG BAO VINH</span>
-              </div>
-              <h4>Thương Hội Vạn Kim</h4>
-              <p>Hội kín phú thương dùng tiền bạc mua chuộc quan lại và lập ma trận thâu tóm đại cổ quỷ <strong>Xương Cuồng</strong>.</p>
-              <div class="fc-meta"><strong>Nhân sự:</strong> Hội Trưởng, Khánh Vũ · <strong>Phe:</strong> Trùm phản diện</div>
-            </article>
-
-            <article class="faction-card fc-item">
-              <div class="fc-top">
-                <span class="fc-num">03</span>
-                <span class="fc-loc">LÀNG LONG THỌ</span>
-              </div>
-              <h4>Viện Bách Uyên · Huyền Uyên</h4>
-              <p>Nhánh học giả cổ thuật dùng <strong>lư hương đỏ</strong> dẫn dụ và điều khiển Vong – Ma – Quỷ; bị Vạn Kim khống chế từ vụ nổ 1818.</p>
-              <div class="fc-meta"><strong>Nhân sự:</strong> Linh, Cha Mót · <strong>Phe:</strong> Bí thuật nửa chính nửa tà</div>
-            </article>
-
-            <article class="faction-card fc-item">
-              <div class="fc-top">
-                <span class="fc-num">04</span>
-                <span class="fc-loc">NAM SÔNG HƯƠNG</span>
-              </div>
-              <h4>Bách Tạo Đường</h4>
-              <p>Phường hội nghệ nhân cơ khí chuyên chế tạo binh khí, cơ quan và pháp khí vật lý cho người không có Mệnh Âm.</p>
-              <div class="fc-meta"><strong>Vai trò:</strong> Hậu phương rèn đúc pháp khí hỗ trợ Khâm Thiên Sứ</div>
-            </article>
-
-            <article class="faction-card fc-item">
-              <div class="fc-top">
-                <span class="fc-num">05</span>
-                <span class="fc-loc">KIM LONG · THIÊN MỤ</span>
-              </div>
-              <h4>Vô Danh &amp; Ty Trảm Thiên</h4>
-              <p><strong>Vô Danh</strong> là mạng lưới trẻ mồ côi đưa tin mật; <strong>Ty Trảm Thiên</strong> là nhóm hiệp khách ngầm tự xử quan tham.</p>
-              <div class="fc-meta"><strong>Vai trò:</strong> Tai mắt tình báo &amp; lưỡi gươm hành hiệp giang hồ</div>
-            </article>
-
-            <article class="faction-card fc-item">
-              <div class="fc-top">
-                <span class="fc-num">06</span>
-                <span class="fc-loc">NÚI NGỰ BÌNH · BIÊN VIỄN</span>
-              </div>
-              <h4>Quy Nguyên Giáo</h4>
-              <p>Tà giáo cực đoan ẩn mình nơi rừng núi biên viễn, lợi dụng dịch bệnh <em>Khí suy</em> để mê hoặc dân chúng và gieo rắc tai ương.</p>
-              <div class="fc-meta"><strong>Vai trò:</strong> Tà phái ngoại đạo rình rập xâm nhập Kinh kỳ</div>
-            </article>
-          </div>
-        </div>
-      </div>
-
-      <!-- TAB 03: TIMELINE HÀNH TRÌNH PHIM -->
-      <div class="script-panel" id="tab-timeline" role="tabpanel" hidden>
-        <div class="timeline-track">
-          <div class="timeline-node">
-            <div class="tl-year">1818 · GIA LONG THỨ 17</div>
-            <div class="tl-content">
-              <span class="small">ĐÊM MƯA BÃO · KHỞI NGUỒN MỌI ĐỊNH MỆNH</span>
-              <h4>Vụ nổ ma trận Huyền Uyên &amp; Đứa trẻ trong chiếc bình vỡ Điện Voi Ré</h4>
-              <p>Cha Mót (học giả Huyền Uyên) vì yêu mẹ Mót (nữ Khâm Thiên Sứ) nên phản tỉnh, kích nổ phá hủy ma trận điều khiển Quỷ Xương Cuồng của Vạn Kim. Cha mẹ Mót phong ấn năng lượng vào tay con, giấu Mót trong chiếc bình gốm tại <strong>Điện Voi Ré</strong> trước khi bị sát hại; <strong>Ông An</strong> nhặt Mót về nuôi. Cùng đêm đó, cha của <strong>Linh</strong> chết oan, cô bé Linh 10 tuổi phải nuốt máu thề phục vụ Vạn Kim để giữ mạng; còn <strong>Khánh Vũ</strong> đã bị chính cha ruột phong ấn Quỷ Xương Cuồng vào cơ thể từ lúc sơ sinh.</p>
-            </div>
-          </div>
-
-          <div class="timeline-node">
-            <div class="tl-year">1830 – 1835 · MINH MẠNG</div>
-            <div class="tl-content">
-              <span class="small">KIẾN THIẾT HỔ QUYỀN &amp; ĐÚC CỬU ĐỈNH</span>
-              <h4>Đấu trường gạch vồ Hổ Quyền &amp; Khế ước ngầm 100 bộ da hổ</h4>
-              <p>Triều đình xây dựng Đấu trường Hổ Quyền (1830) và khởi đúc Cửu Đỉnh (cuối 1835). Tại làng Long Thọ, <strong>Lão Phú</strong> vì sợ bị Án Sứ <strong>Hương</strong> thanh tra tội ăn chặn thuế dân và muốn giữ suất cho con gái <strong>Kim Lan</strong> vào phủ Quận chúa nên ký khế ước mật nộp 100 bộ da hổ cho Vạn Kim. Gã <strong>Quản Chuồng Hổ</strong> bẻ nanh, nhổ móng, đâm chết mãnh hổ trong chuồng số 3 — kết tụ thành <strong>Đại Ma Hổ</strong> làm nghẽn mạch Địa, gây dịch bệnh <em>Khí suy</em>.</p>
-            </div>
-          </div>
-
-          <div class="timeline-node">
-            <div class="tl-year">XUÂN – HẠ 1836 · MỞ ĐẦU PHIM</div>
-            <div class="tl-content">
-              <span class="small">CHƯƠNG I · ĐẠI ÁN LÀNG LONG THỌ &amp; HỔ QUYỀN</span>
-              <h4>Mót &amp; Đại Sơn điều tra dịch Khí suy — Phanh phui Lão Phú &amp; Trấn yểm Đại Ma Hổ</h4>
-              <p>Như trong <strong>bản video render đầu tiên</strong>: Mót và Đại Sơn cưỡi ngựa trở về Long Thọ, dùng kim bạc và La Bàn Tầm Khí khám nghiệm xác Quản Chuồng Hổ ngậm 5 chìa khóa sắt. Mót tìm ra mật thất trăm bộ da hổ ở Điện Voi Ré và tố giác Lão Phú (khiến ước mơ của Kim Lan tan vỡ). Đêm quyết chiến tại Hổ Quyền, Mót kích hoạt <strong>Cổ Phù Kim Quang</strong> cứu Đại Sơn và chém tan Đại Ma Hổ, nhưng bị <strong>Hắc Ấn</strong> phản phệ. Ông An trao nửa vòng ngọc năm 1818, tiễn Mót lên đoàn thuyền của Khánh Vũ về Kinh.</p>
-            </div>
-          </div>
-
-          <div class="timeline-node">
-            <div class="tl-year">THU – ĐÔNG 1836 · THIÊN II</div>
-            <div class="tl-content">
-              <span class="small">KINH THÀNH PHÚ XUÂN &amp; HÀNH TRÌNH 12 VÙNG ĐẤT CỬU ĐỈNH</span>
-              <h4>Gia nhập Khâm Thiên Sứ — Cái chết của Anh Hai Hương &amp; Sự rút lui của Đại Sơn</h4>
-              <p>Mót chính thức nhận ngọc lệnh <strong>欽天監</strong>. Anh hai <strong>Hương</strong> vì đơn độc vạch mặt danh sách đại quan nhận hối lộ của Vạn Kim nên bị sát hại ngay đêm trước buổi thiết triều, trối trăng lại ngọn đuốc công lý cho Mót. Gia đình <strong>Đại Sơn</strong> ở quê bị đe dọa khiến Sơn phải cáo quan về quê giữ chữ Hiếu. Mót cùng Khánh Vũ đi qua 12 vùng đất khắc trên Cửu Đỉnh (Thiên Mụ, Bao Vinh, Hải Vân Quan, Hội An, Cổ Loa...) truy tìm cách giải Hắc Ấn.</p>
-            </div>
-          </div>
-
-          <div class="timeline-node">
-            <div class="tl-year">ĐẦU NĂM 1837 · THIÊN III</div>
-            <div class="tl-content">
-              <span class="small">CAO TRÀO ĐỈNH THÁP VẠN KIM · QUỶ XƯƠNG CUỒNG THỨC TỈNH</span>
-              <h4>Hai nửa vòng ngọc khớp lại với Linh &amp; Cú lật mặt đẫm nước mắt của Khánh Vũ</h4>
-              <p>Tại phế tích Huyền Uyên, hai nửa chiếc vòng của <strong>Mót</strong> và <strong>Linh</strong> khớp lại, phơi bày sự thật đêm mưa 1818 và hóa giải hận thù 18 năm thành tình tri kỷ sinh tử. Nhưng ngay trước lõi Đại Ma Trận Vạn Kim, <strong>Khánh Vũ</strong> rơi nước mắt điểm vỡ Cổ Phù trên tay Mót để kích hoạt ma trận cứu người mẹ đang bị cha ruột giam trên đỉnh tháp. Vũ hóa thành <strong>Quỷ Xương Cuồng</strong> và cầu xin Mót tự tay kết liễu mình như lời hẹn ước từ ngày đầu gặp gỡ.</p>
-            </div>
-          </div>
-
-          <div class="timeline-node">
-            <div class="tl-year">MÙA THU NĂM SAU · VĨ THANH</div>
-            <div class="tl-content">
-              <span class="small">ĐẠI KẾT CỤC · BÔNG LÚA VÀNG TRĨU HẠT</span>
-              <h4>Trở về bến sông Long Thọ ăn bữa cơm chiều với Cha</h4>
-              <p>Sau khi đánh bại âm mưu của Hội trưởng Vạn Kim và giải cứu mẹ Khánh Vũ, mạch Khí toàn cõi thông suốt. Mùa thu năm sau, cánh đồng Long Thọ chín vàng rực rỡ. <strong>Kim Lan</strong> mở lớp dạy chữ cho trẻ nghèo bên hiên nhà <strong>Ông An</strong>. <strong>Mót</strong> cầm cành đào và chiếc vòng ngọc đã ghép tròn vẹn bước xuống bến đò, trở về ăn bữa cơm chiều đã hứa với cha nuôi.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- TAB 04: KỊCH BẢN CÁC HỒI TIẾP THEO (THIÊN II, THIÊN III, 2 NHÁNH KẾT & NGOẠI TRUYỆN) -->
-      <div class="script-panel" id="tab-next-acts" role="tabpanel" hidden>
-        <div class="next-acts-grid">
-          <article class="next-act-card">
-            <div class="next-act-meta">
-              <span>THIÊN THỨ HAI · KINH ĐÔ PHÚ XUÂN &amp; CỬU ĐỈNH</span>
-              <strong>Dưới Bóng Khâm Thiên Giám</strong>
-            </div>
-            <p>Rời bến sông Long Thọ lên Kinh thành Huế, Mót đối diện với <strong>ba quan điểm làm quan</strong> trái ngược: sự sắt đá tuyệt đối <em>“Pháp bất vị thân”</em> của anh hai <strong>Hương</strong>, sự thực tế của <strong>Đại Sơn</strong>, và lòng trắc ẩn của chính mình.</p>
-            <ul>
-              <li><strong>Bi kịch của Anh Hai Hương:</strong> Đêm trước buổi thiết triều vạch mặt các đại thần ăn tiền của Vạn Kim, Hương bị phục kích sát hại, nắm chặt cuốn sổ chứng cứ đẫm máu trong tay Mót: <em>“Đừng nói cho cha biết anh chết thế nào... Hãy cầm lấy ngọn đuốc của anh mà đi tiếp.”</em></li>
-              <li><strong>Ngả rẽ chữ Hiếu của Đại Sơn:</strong> Khi thế lực ngầm dò la về quê nhà đe dọa cha mẹ già, Đại Sơn buộc phải từ quan về quê giữ trọn đạo hiếu, hẹn ngày tái ngộ trong trận chiến cuối cùng.</li>
-              <li><strong>Hành trình 12 Vùng Đất &amp; 162 Mảng Chạm Cửu Đỉnh:</strong> Mót và Khánh Vũ đi qua Đồi Hà Khê – Chùa Thiên Mụ (năm 1836 chưa có tháp Phước Duyên), thương cảng Bao Vinh – Thanh Hà, Hải Vân Quan, Hội An – Thanh Chiêm, đến Thành Cổ Loa &amp; Sơn Tây.</li>
-            </ul>
-          </article>
-
-          <article class="next-act-card">
-            <div class="next-act-meta">
-              <span>THIÊN THỨ BA · ĐỈNH THÁP VẠN KIM</span>
-              <strong>Những Vết Nứt Dưới Sơn Hà</strong>
-            </div>
-            <p>Mọi vụ án nghẽn mạch Khí khắp Đại Nam đều dẫn về <strong>Đại Ma Trận Khống Chế Quỷ</strong> do Linh (Huyền Uyên) và Vạn Kim dựng lên:</p>
-            <ul>
-              <li><strong>Sự thật đêm mưa 1818 (Mót &amp; Linh):</strong> Hai nửa chiếc vòng ngọc khớp lại dưới mưa. Linh biết cha Mót phá hủy ma trận để cứu cả hai gia đình khỏi kiếp nô lệ Vạn Kim. Mót bất chấp làn khói đỏ cứa da thịt để bảo vệ Linh, biến thù hận 18 năm thành sợi dây tình cảm sinh tử.</li>
-              <li><strong>Cú lật mặt đã báo trước của Khánh Vũ:</strong> Để cứu người mẹ bị cha ruột giam trên đỉnh tháp, Vũ đẫm lệ điểm vỡ Cổ Phù trên tay Mót, rót năng lượng kích hoạt ma trận. Khi Quỷ Xương Cuồng nuốt chửng nửa gương mặt, Vũ mỉm cười trong nước mắt: <em>“Suốt bao tháng ngày qua ta đi cùng đệ, tặng thuốc cho đệ... chỉ là để nuôi cho đệ đủ mạnh đến ngày hôm nay! Cầm kiếm lên đi Mót... Giết ta đi, trước khi ta không còn là Khánh Vũ nữa!!”</em></li>
-              <li><strong>Lời trăng trối cuối cùng:</strong> Mót cùng Linh và Đại Sơn đánh tan Quỷ Xương Cuồng; Vũ thanh thản nhắm mắt trong tay Mót và gửi gắm tâm nguyện giải cứu người mẹ thích ngắm hoa đào bên sông Hương.</li>
-            </ul>
-          </article>
-
-          <article class="next-act-card">
-            <div class="next-act-meta">
-              <span>ĐẠI KẾT CỤC &amp; VĨ THANH</span>
-              <strong>Hai Nhánh Kết Mở &amp; Bông Lúa Vàng</strong>
-            </div>
-            <p>Trên đỉnh tháp cao nhất của Vạn Kim, kịch bản thiết kế <strong>2 nhánh kết cục</strong> linh hoạt cùng Vĩ thanh giàu cảm xúc:</p>
-            <ul>
-              <li><strong>Nhánh Kết 1 (Trọn vẹn Mùa 1 — Công lý thực thi):</strong> Mót xông lên đỉnh tháp phế truất Hội trưởng Vạn Kim, cứu mẹ già mù lòa của Khánh Vũ và giao toàn bộ bằng chứng tội ác cho triều đình Minh Mạng xét xử.</li>
-              <li><strong>Nhánh Kết 2 (Mở sang Phần 2 — Thế lực lớn):</strong> Giải cứu thành công mẹ Khánh Vũ nhưng Hội trưởng Vạn Kim rút lui qua mật đạo, lộ diện các thiếu chủ chính thất của Vạn Kim cho mùa tiếp theo.</li>
-              <li><strong>Vĩ Thanh “Lúa Vàng”:</strong> Lúa chín vàng ấm no đối lập với vàng kim loại tham tàn của Vạn Kim. Kim Lan tự đứng dậy mở lớp dạy chữ cho trẻ nghèo tại quê nhà; Mót trở về bến nước Long Thọ ăn bữa cơm chiều với Ông An.</li>
-            </ul>
-          </article>
-
-          <article class="next-act-card">
-            <div class="next-act-meta">
-              <span>HỆ THỐNG NGOẠI TRUYỆN · 80% TRẢI NGHIỆM VĂN HÓA</span>
-              <strong>2 Sidequests Lớn &amp; 12 Miniquests Dân Sinh</strong>
-            </div>
-            <p>Khắc họa chiều sâu văn hóa – lịch sử Phú Xuân 1836 ngay tại vùng đất Long Thọ:</p>
-            <ul>
-              <li><strong>Sidequest Lớn 1 — “Nghê Trộm Ngói”:</strong> Điều tra vụ mất trộm ngói men <em>Thanh lưu ly – Hoàng lưu ly</em> tại Tượng Cục Long Thọ, gặp linh vật <strong>Tiểu Nghê</strong> cô đơn canh giữ nền nhà quàn Chúa Nguyễn xưa trên đồi Long Thọ Cương và nung tặng nó một bức tượng Nghê lưu ly bầu bạn.</li>
-              <li><strong>Sidequest Lớn 2 — “Con Trai Nhà Làm Ngói”:</strong> Giải cứu chàng thợ gốm <strong>Tài</strong> bị <strong>Ma Lọ</strong> nuốt chửng bên bờ sông Hương vì áp lực khoa cử Thi Hương; khép lại bằng hình ảnh người mẹ ghép mảnh sứ vỡ thành chiếc bình mới — triết lý <em>Khảm sành sứ Huế</em>: <em>“Vỡ ra không phải là hỏng đi, mà là để ghép thành một thứ lớn hơn, đẹp đẽ hơn.”</em></li>
-              <li><strong>12 Miniquests Dân Sinh – Linh Dị:</strong> <em>Mộng Lớn Vạn Kim, Mật Thư Bách Uyên, Khách Lạ Ngoài Vườn (Vong cây mít), Thợ Săn Vọng Thành, Ác Bá Về Làng, Bóng Ma Hồ Voi Ré (Ma Da), Gà Lạc Quanh Thôn, Chén Rượu Làng Chuồn, Đổ Xúc Xắc Xăm Hường, Oán Dưới Lòng Sông (Quái Miết), Bánh Bèo Huế Biếu Ông An, Lửa Lạnh Nghĩa Trang (Ma Trơi)</em>.</li>
-            </ul>
-          </article>
+        <div class="seg" role="group" aria-label="Chế độ xem tạo hình">
+          <button type="button" data-view="avatar" aria-pressed="true">Chân dung</button>
+          <button type="button" data-view="turnaround" aria-pressed="false">Full 3 mặt</button>
+          <button type="button" data-view="sheet" aria-pressed="false">Bảng thiết kế</button>
         </div>
       </div>
     </section>
 
-    <section class="wide-image reveal">
-      <img src="assets/uploads/1793706299387-Scene7_26_Toan_Canh_Voi_Chien_Tan_Cong_Nguoc_Quat_Voi_Va_Nga_Huc_Vang_Ho.webp" alt="Khám nghiệm tử thi bằng kim bạc và La bàn Tầm Khí trong Sơn Hà Dị Lục" loading="lazy">
-      <div class="wide-caption">
-        <p class="eyebrow">BÊN DƯỚI ÁNH HÀO QUANG THỊNH TRỊ</p>
-        <h2>Nghe vẻ ngè ve.<br><em>Nghe vè oán hổ.</em></h2>
-      </div>
-    </section>
-
-    <section id="characters" class="section characters">
-      <p class="eyebrow reveal">02 / NHỮNG KẺ BƯỚC ĐI TRONG ĐÊM DÀI</p>
-      <div class="section-title">
-        <h2>Mỗi số phận.<br><em>Một nghiệp chướng.</em></h2>
-        <p>Chọn hồ sơ nhân vật để lật mở thân thế và chấp niệm.</p>
-      </div>
-      <div class="character-layout" id="character-layout">
-        <div class="tabs" role="tablist" aria-label="Nhân vật"></div>
-        <div class="portrait-stage">
-          <div class="portrait" id="portrait-box">
-            <div class="portrait-frame-corner" aria-hidden="true"></div>
-            <img id="portrait" src="assets/159.jpg" alt="Mót" decoding="sync" fetchpriority="high">
-            <span class="portrait-seal" id="portrait-seal">命陰</span>
-          </div>
-          <div class="char-view-links" role="group" aria-label="Chế độ xem tạo hình nhân vật">
-            <button type="button" class="char-view-btn active" data-char-view="avatar" aria-pressed="true">Chân dung</button>
-            <span class="char-link-sep" aria-hidden="true">/</span>
-            <button type="button" class="char-view-btn" data-char-view="turnaround" aria-pressed="false">Full 3 mặt</button>
-            <span class="char-link-sep" aria-hidden="true">/</span>
-            <button type="button" class="char-view-btn" data-char-view="sheet" aria-pressed="false">Bảng thiết kế</button>
-            <span class="char-link-sep" aria-hidden="true">·</span>
-            <button type="button" class="char-text-zoom" id="char-zoom-btn">Phóng to 4K ↗</button>
-          </div>
-        </div>
-        <article id="character-info" aria-live="polite"></article>
-      </div>
-    </section>
-
-    <section id="world" class="section world">
-      <p class="eyebrow">03 / ĐỊA ĐỒ LINH DỊ PHÚ XUÂN 1836</p>
-      <h2>Một Đại Nam cổ kính.<br><em>Một cõi âm rình rập.</em></h2>
-      <div class="places">
-        <button class="place active" data-place="0">
-          <img src="assets/still-frame/01.webp" alt="Đấu trường Hổ Quyền" loading="lazy">
-          <span>01 / ĐẤU TRƯỜNG HỔ QUYỀN ↗</span>
-        </button>
-        <button class="place" data-place="1">
-          <img src="assets/120.jpg" alt="Điện Voi Ré — Long Châu Miếu" loading="lazy">
-          <span>02 / ĐIỆN VOI RÉ ↗</span>
-        </button>
-        <button class="place" data-place="2">
-          <img src="assets/still-frame/06.webp" alt="Làng Long Thọ trong cơn tai ương" loading="lazy">
-          <span>03 / LÀNG LONG THỌ ↗</span>
-        </button>
-      </div>
-      <div class="world-detail" aria-live="polite">
-        <h3 id="place-title">Đấu trường Hổ Quyền</h3>
-        <p id="place-description">Đấu trường lộ thiên hình vành khăn bằng gạch vồ xây dựng năm Canh Dần (1830). Đằng sau tiếng trống lễ tế uy nghi là năm chuồng hổ tối tăm — nơi những con mãnh hổ bị bẻ nanh, nhổ móng, đâm chết trong đêm tối đã kết tụ thành Đại Ma Hổ khổng lồ bằng khói đen và mắt máu.</p>
-      </div>
-    </section>
-
-    <!-- MỤC 04: TỨ ĐẠI PHÁP KHÍ — DECOR ĐẶC BIỆT -->
-    <section id="relics" class="relics section">
-      <div class="relic-ambient-bg" aria-hidden="true">
-        <svg class="bagua-watermark" viewBox="0 0 400 400" fill="none">
-          <circle cx="200" cy="200" r="190" stroke="currentColor" stroke-width="1" stroke-dasharray="4 6"/>
-          <circle cx="200" cy="200" r="155" stroke="currentColor" stroke-width="1.5"/>
-          <circle cx="200" cy="200" r="110" stroke="currentColor" stroke-width="0.75"/>
-          <polygon points="200,20 327,73 380,200 327,327 200,380 73,327 20,200 73,73" stroke="currentColor" stroke-width="1"/>
-          <polygon points="200,55 302,98 345,200 302,302 200,345 98,302 55,200 98,98" stroke="currentColor" stroke-width="0.75" stroke-dasharray="3 3"/>
-        </svg>
-      </div>
-
-      <div class="relic-heading reveal">
-        <div class="talisman-crest" aria-hidden="true">
-          <span>敕令</span>
-          <i></i>
-          <strong>PHÁP KHÍ KHỞI ĐẦU · CHƯƠNG I</strong>
-          <i></i>
-          <span>鎮邪</span>
-        </div>
-        <p class="eyebrow">04 / TÀNG PHÁP KHÍ · NHỮNG PHÁP KHÍ ĐẦU TIÊN LỘ DIỆN GIỮA HAI CÕI ÂM DƯƠNG</p>
-        <h2>Vật hữu hình.<br><em>Quyền năng vô ảnh.</em></h2>
-        <p class="relic-intro">Đây là <strong>bốn pháp khí đầu tiên xuất hiện ở Chương I</strong> — chỉ là phần mở màn trong hàng loạt pháp khí, tín vật và cơ quan cổ vật xuyên suốt hành trình năm Minh Mạng thứ 17. Đặc biệt, cả <strong>Túi Vải Pháp Khí</strong> lẫn <strong>Lư Hương Huyết Khói</strong> đều là pháp khí của <strong>Linh (Huyền Uyên)</strong>, treo đối xứng trên hai đầu chiếc đòn gánh gỗ mun chạm rồng của nàng.</p>
-
-        <div class="relic-filter-bar" role="toolbar" aria-label="Bộ lọc pháp khí">
-          <button class="relic-filter active" data-filter="all">PHÁP KHÍ ĐẦU TIÊN XUẤT HIỆN (04)</button>
-          <button class="relic-filter" data-filter="0">01 · TÚI VẢI CỦA LINH</button>
-          <button class="relic-filter" data-filter="1">02 · LƯ HƯƠNG CỦA LINH</button>
-          <button class="relic-filter" data-filter="2">03 · LA BÀN CỦA MÓT</button>
-          <button class="relic-filter" data-filter="3">04 · NGỌC LỆNH KHÂM THIÊN</button>
-        </div>
-      </div>
-
-      <div class="relic-shrine-grid">
-        <!-- Pháp khí 01: Túi vải của Linh (vật thể bên trái, nội dung đặt bên phải) -->
-        <article class="relic-card relic-left reveal" data-relic-index="0">
-          <div class="relic-frame-ornament" aria-hidden="true">
-            <span class="corner tl"></span><span class="corner tr"></span>
-            <span class="corner bl"></span><span class="corner br"></span>
-            <span class="frame-line-top"></span>
-            <span class="frame-line-bottom"></span>
-          </div>
-          <div class="relic-media">
-            <img src="assets/phap-khi/1.webp" loading="lazy" alt="Túi Vải Pháp Khí của Linh (Huyền Uyên) buộc trên đầu đòn gánh chạm rồng">
-            <div class="relic-torch" aria-hidden="true"></div>
-            <div class="relic-embers" aria-hidden="true"></div>
-          </div>
-          <div class="relic-dossier">
-            <div class="relic-top-meta">
-              <span class="relic-number">PHÁP KHÍ MỞ ĐẦU · 01</span>
-              <span class="relic-seal" title="Huyền Uyên">玄淵</span>
-            </div>
-            <p class="eyebrow">PHÁP KHÍ CỦA LINH (HUYỀN UYÊN) · ĐẦU ĐÒN GÁNH CHẠM RỒNG</p>
-            <h3>Túi Vải Pháp Khí</h3>
-            <p class="relic-subtitle">Túi Vải Thô Nhuộm Huyết Chu Sa · Song Hành Cùng Lư Hương Trên Đòn Gánh Đầu Rồng</p>
-            <p class="relic-lore">Treo bằng dây gai cổ trên một đầu đòn gánh gỗ mun chạm rồng của <strong>Linh (Huyền Uyên)</strong> — đối xứng với <em>Lư Hương Huyết Khói</em> ở đầu bên kia. Bên trong túi vải nhuộm chu sa sẫm máu cất giữ thảo dược dẫn hồn, cổ trùng, huyết phù và tro cốt oán linh dùng để nạp vào lư hương, triệu hồi và sai khiến Vong — Ma — Quỷ.</p>
-            <dl class="relic-specs">
-              <div><dt>CHỦ SỞ HỮU</dt><dd>Linh (Huyền Uyên)</dd></div>
-              <div><dt>CÔNG NĂNG</dt><dd>Chứa thảo dược huyết hương · Nuôi &amp; Dẫn tà vật</dd></div>
-              <div><dt>NGŨ HÀNH</dt><dd>Âm Mộc · Huyết Khí</dd></div>
-            </dl>
-            <button class="relic-inspect-btn" data-relic-open="0">SOI CHI TIẾT PHÁP KHÍ ↗</button>
-          </div>
-        </article>
-
-        <!-- Pháp khí 02: Lư hương của Linh (vật thể bên phải, nội dung đặt bên trái) -->
-        <article class="relic-card relic-right reveal" data-relic-index="1">
-          <div class="relic-frame-ornament" aria-hidden="true">
-            <span class="corner tl"></span><span class="corner tr"></span>
-            <span class="corner bl"></span><span class="corner br"></span>
-            <span class="frame-line-top"></span>
-            <span class="frame-line-bottom"></span>
-          </div>
-          <div class="relic-media">
-            <img src="assets/phap-khi/2.webp" loading="lazy" alt="Lư Hương Huyết Khói treo trên đòn gánh đầu rồng của Linh (Huyền Uyên)">
-            <div class="relic-torch" aria-hidden="true"></div>
-            <div class="relic-embers" aria-hidden="true"></div>
-          </div>
-          <div class="relic-dossier">
-            <div class="relic-top-meta">
-              <span class="relic-number">PHÁP KHÍ MỞ ĐẦU · 02</span>
-              <span class="relic-seal" title="Huyết Hương">血香</span>
-            </div>
-            <p class="eyebrow">PHÁP KHÍ CỦA LINH (HUYỀN UYÊN) · ĐẦU ĐÒN GÁNH CHẠM RỒNG</p>
-            <h3>Lư Hương Huyết Khói</h3>
-            <p class="relic-subtitle">Đỉnh Đồng Tụ Oán · Cặp Pháp Khí Song Hành Trên Đòn Gánh Của Linh</p>
-            <p class="relic-lore">Pháp khí thứ hai của <strong>Linh (Huyền Uyên)</strong>, treo lơ lửng bằng xích đồng ở đầu còn lại trên chiếc đòn gánh gỗ mun chạm rồng. Khi đốt trầm hương trộn huyết dược lấy từ <em>Túi Vải Pháp Khí</em>, làn khói trắng pha sắc đỏ máu từ lỗ thoát khói sẽ đánh thức chấp niệm người chết và thao túng Vong — Ma — Quỷ.</p>
-            <dl class="relic-specs">
-              <div><dt>CHỦ SỞ HỮU</dt><dd>Linh (Huyền Uyên)</dd></div>
-              <div><dt>CÔNG NĂNG</dt><dd>Đốt trầm huyết khói · Thao túng Oán linh</dd></div>
-              <div><dt>NGŨ HÀNH</dt><dd>Âm Hỏa · Oán Khí</dd></div>
-            </dl>
-            <button class="relic-inspect-btn" data-relic-open="1">SOI CHI TIẾT PHÁP KHÍ ↗</button>
-          </div>
-        </article>
-
-        <!-- Pháp khí 03: La bàn (vật thể bên phải, nội dung đặt bên trái) -->
-        <article class="relic-card relic-right reveal" data-relic-index="2">
-          <div class="relic-frame-ornament" aria-hidden="true">
-            <span class="corner tl"></span><span class="corner tr"></span>
-            <span class="corner bl"></span><span class="corner br"></span>
-            <span class="frame-line-top"></span>
-            <span class="frame-line-bottom"></span>
-          </div>
-          <div class="relic-media">
-            <img src="assets/phap-khi/3.webp" loading="lazy" alt="La Bàn Tầm Khí Bát Quái bằng đồng cổ với tua rua đỏ máu">
-            <div class="relic-torch" aria-hidden="true"></div>
-            <div class="relic-embers" aria-hidden="true"></div>
-          </div>
-          <div class="relic-dossier">
-            <div class="relic-top-meta">
-              <span class="relic-number">PHÁP KHÍ MỞ ĐẦU · 03</span>
-              <span class="relic-seal" title="Tầm Khí">尋氣</span>
-            </div>
-            <p class="relic-ebrow eyebrow">PHONG THỦY CỔ BÀN · THIÊN ĐỊA NHÂN</p>
-            <h3>La Bàn Tầm Khí</h3>
-            <p class="relic-subtitle">Bát Quái Đồng Cổ &amp; Tua Rua Chu Sa</p>
-            <p class="relic-lore">Đĩa đồng cổ khắc 8 quẻ Tiên Thiên và 24 sơn hướng của <strong>Mót (Huyền Quang)</strong>. Không chỉ phương vị trần gian, chiếc kim đồng chỉ xoay tít và rực sáng khi chạm vào long mạch bị bức tử hoặc tử thi còn vương oán khí chưa siêu thoát.</p>
-            <dl class="relic-specs">
-              <div><dt>CHỦ SỞ HỮU</dt><dd>Mót (Huyền Quang)</dd></div>
-              <div><dt>CÔNG NĂNG</dt><dd>Dò mạch Khí suy · Định vị Tà vật</dd></div>
-              <div><dt>NGŨ HÀNH</dt><dd>Kim · Linh Khí</dd></div>
-            </dl>
-            <button class="relic-inspect-btn" data-relic-open="2">SOI CHI TIẾT PHÁP KHÍ ↗</button>
-          </div>
-        </article>
-
-        <!-- Pháp khí 04: Ngọc lệnh (vật thể bên trái, nội dung đặt bên phải) -->
-        <article class="relic-card relic-left reveal" data-relic-index="3">
-          <div class="relic-frame-ornament" aria-hidden="true">
-            <span class="corner tl"></span><span class="corner tr"></span>
-            <span class="corner bl"></span><span class="corner br"></span>
-            <span class="frame-line-top"></span>
-            <span class="frame-line-bottom"></span>
-          </div>
-          <div class="relic-media">
-            <img src="assets/phap-khi/4.webp" loading="lazy" alt="Ngọc Lệnh Khâm Thiên Giám chạm song long thếp chữ vàng">
-            <div class="relic-torch" aria-hidden="true"></div>
-            <div class="relic-embers" aria-hidden="true"></div>
-          </div>
-          <div class="relic-dossier">
-            <div class="relic-top-meta">
-              <span class="relic-number">PHÁP KHÍ MỞ ĐẦU · 04</span>
-              <span class="relic-seal" title="Khâm Thiên Giám">欽天</span>
-            </div>
-            <p class="eyebrow">TÍN VẬT VƯƠNG TRIỀU · MINH MẠNG THỨ 17</p>
-            <h3>Ngọc Lệnh Khâm Thiên</h3>
-            <p class="relic-subtitle">Thẻ Bạch Ngọc Chạm Song Long · Khắc Chữ Vàng “欽天監”</p>
-            <p class="relic-lore">Lệnh bài bạch ngọc nguyên khối chạm lộng đôi rồng chầu mây, chính giữa thếp vàng ba chữ Hán <strong>欽天監 (Khâm Thiên Giám)</strong>. Trao quyền cho các Khâm Thiên Sứ khám nghiệm hiện trường dị sự khắp Đại Nam, nhưng tuyệt đối không được lạm quyền xét xử thay pháp luật.</p>
-            <dl class="relic-specs">
-              <div><dt>CHỦ SỞ HỮU</dt><dd>Khâm Thiên Giám</dd></div>
-              <div><dt>CÔNG NĂNG</dt><dd>Mật lệnh điều tra · Trấn áp tà ma</dd></div>
-              <div><dt>NGŨ HÀNH</dt><dd>Ngọc · Hoàng Khí</dd></div>
-            </dl>
-            <button class="relic-inspect-btn" data-relic-open="3">SOI CHI TIẾT PHÁP KHÍ ↗</button>
-          </div>
-        </article>
-      </div>
-
-      <div class="relic-more-vault reveal">
-        <div class="relic-more-head">
-          <span class="eyebrow">KHO TÀNG DỊ VẬT CHƯA KHAI MỞ · CÒN RẤT NHIỀU PHÁP KHÍ TRONG CÁC HỒI TIẾP THEO</span>
-          <p>4 pháp khí trên chỉ là những dị vật đầu tiên lộ diện tại Làng Long Thọ &amp; Hổ Quyền (Chương I). Hành trình phía trước còn mở ra hàng loạt pháp khí gắn liền với từng nhân vật và thế lực:</p>
-        </div>
-        <div class="relic-more-grid">
-          <div class="relic-more-chip">
-            <small>ĐẠI SƠN · HỎA PHÙ PHÁI</small>
-            <strong>Trường Kiếm &amp; Hỏa Phù Chu Sa</strong>
-            <span>Kiếm sắt rèn cổ kết hợp bùa lửa bộc phát dương khí trấn áp Quỷ cấp cao.</span>
-          </div>
-          <div class="relic-more-chip">
-            <small>MÓT &amp; LINH · TÍN VẬT 1818</small>
-            <strong>Hai Nửa Vòng Ngọc Cổ Gia Tộc</strong>
-            <span>Tín vật định mệnh bị bẻ đôi trong đêm thảm án 18 năm trước tại Điện Voi Ré.</span>
-          </div>
-          <div class="relic-more-chip">
-            <small>KIM LAN · TRẤN PHÙ SƯ</small>
-            <strong>Cung Gỗ Sơn Son &amp; Tiễn Phù</strong>
-            <span>Cung chiến bắn tên gắn linh phù phong ấn từ xa và yểm trợ kết giới.</span>
-          </div>
-          <div class="relic-more-chip">
-            <small>KHÁNH VŨ · HỘI KÍN</small>
-            <strong>Quạt Xếp Xương Ngà &amp; Cổ Thư</strong>
-            <span>Pháp khí ngụy trang nho nhã của kẻ đứng sau thao túng long mạch Đế Đô.</span>
-          </div>
-          <div class="relic-more-chip">
-            <small>ÔNG AN · HỔ QUYỀN</small>
-            <strong>Trượng Tre Cổ &amp; Kim Bạc Thử Độc</strong>
-            <span>Đạo cụ nghiệm thi và trấn hồn của cựu y sư chiến trường ẩn cư ở Long Thọ.</span>
-          </div>
-          <div class="relic-more-chip">
-            <small>BÁCH TẠO ĐƯỜNG · KỲ NGHỆ</small>
-            <strong>Pháp Khí Cơ Khí &amp; Lò Luyện Linh Khí</strong>
-            <span>Hàng chục thiết bị bẫy ma, đèn soi âm ảnh và pháp khí chế tác riêng ở Thiên II &amp; III.</span>
-          </div>
+    <!-- SC05 -->
+    <section class="shot shot--right" data-shot="4" id="the-luc" aria-labelledby="h-factions">
+      <div class="card">
+        <p class="eyebrow">BẢN ĐỒ KINH ĐÔ PHÚ XUÂN</p>
+        <h2 id="h-factions" class="h-small">Sáu thế lực. <em>Một bàn cờ máu.</em></h2>
+        <div class="list" role="tablist" aria-label="Thế lực" data-list="4"></div>
+        <div class="detail" aria-live="polite">
+          <span class="detail-sub" data-bind="faction-sub"></span>
+          <h3 data-bind="faction-name"></h3>
+          <p data-bind="faction-desc"></p>
         </div>
       </div>
     </section>
 
-    <section class="quote section reveal">
-      <p class="eyebrow">BỐN PHƯƠNG PHÁP XỬ LÝ DỊ SỰ CỦA KHÂM THIÊN SỨ</p>
-      <blockquote>
-        “Chém một con ma chỉ cần một nhát kiếm;<br>
-        <em>chữa lành nỗi oan sinh ra nó<br>cần cả công lý.</em>”
-      </blockquote>
-      <div class="principles">
-        <div class="principle-item">
-          <span>GIẢI</span>
-          <small>Lắng nghe &amp; Tháo gỡ oan khuất</small>
-        </div>
-        <div class="principle-item">
-          <span>DIỆT</span>
-          <small>Tiêu trừ tà vật hại dân lành</small>
-        </div>
-        <div class="principle-item">
-          <span>TRẤN</span>
-          <small>Bùa chú &amp; Pháp khí phong ấn</small>
-        </div>
-        <div class="principle-item">
-          <span>AN</span>
-          <small>Khơi thông mạch Khí &amp; Lòng dân</small>
+    <!-- SC06 -->
+    <section class="shot shot--right" data-shot="5" id="dia-do" aria-labelledby="h-world">
+      <div class="card">
+        <p class="eyebrow">ĐỊA ĐỒ LINH DỊ PHÚ XUÂN 1836</p>
+        <h2 id="h-world" class="h-small">Một Đại Nam cổ kính. <em>Một cõi âm rình rập.</em></h2>
+        <div class="tabs" role="tablist" aria-label="Địa danh" data-list="5"></div>
+        <div class="detail" aria-live="polite">
+          <h3 data-bind="place-name"></h3>
+          <p data-bind="place-desc"></p>
         </div>
       </div>
     </section>
 
-    <!-- MỤC 05: TRÌNH CHIẾU KHUNG HÌNH (STILL FRAME TỪ H:\GEN NEW MOI NGAY\THIEN HA DI LUC\STILL FRAME) -->
-    <section id="gallery" class="section">
-      <div class="section-title gallery-header">
-        <div>
-          <p class="eyebrow">05 / TRÌNH CHIẾU KHUNG HÌNH · 12 STILL FRAMES 4K</p>
-          <h2>Dị sự, <em>hiện hình.</em></h2>
-          <p class="gallery-sub">Bộ 12 khung hình điện ảnh chuẩn màu linh dị trích xuất trực tiếp từ thư mục <code>STILL FRAME</code> của dự án.</p>
-        </div>
-        <div class="gallery-actions">
-          <button class="layout-toggle" id="toggle-gallery-view" aria-pressed="false">XEM DẠNG LƯỚI 12 ẢNH ⊞</button>
-          <button class="slideshow">TRÌNH CHIẾU TOÀN MÀN HÌNH ↗</button>
+    <!-- SC07 -->
+    <section class="shot shot--right" data-shot="6" id="phap-khi" aria-labelledby="h-relics">
+      <div class="card">
+        <p class="eyebrow">CÁC PHÁP KHÍ ĐẦU TIÊN · CHƯƠNG I</p>
+        <h2 id="h-relics" class="h-small">Vật hữu hình. <em>Quyền năng vô ảnh.</em></h2>
+        <div class="tabs" role="tablist" aria-label="Pháp khí" data-list="6"></div>
+        <div class="detail" aria-live="polite">
+          <span class="detail-sub" data-bind="relic-sub"></span>
+          <h3><span data-bind="relic-name"></span> <span class="seal" data-bind="relic-glyph"></span></h3>
+          <p data-bind="relic-desc"></p>
         </div>
       </div>
-
-      <div class="gallery" id="still-gallery" tabindex="0" aria-label="Thư viện 12 khung hình Still Frame, cuộn ngang hoặc chọn để phóng lớn">
-        <button data-image="assets/still-frame/01.webp" data-title="01 · Đấu Trường Hổ Quyền" data-caption="Toàn cảnh quan giám sát trước giờ khai cuộc lễ tế tại Hổ Quyền năm Minh Mạng thứ 17." aria-label="Xem khung hình 1">
-          <div class="frame-img-wrap"><img loading="lazy" src="assets/still-frame/01.webp" alt="01 · Đấu Trường Hổ Quyền"></div>
-          <div class="frame-meta">
-            <span>CẢNH 01 / 12 · MỞ KHUNG HÌNH ↗</span>
-            <strong>Đấu Trường Hổ Quyền</strong>
-            <small>Toàn cảnh quan giám sát trước giờ khai cuộc lễ tế.</small>
-          </div>
-        </button>
-
-        <button data-image="assets/still-frame/02.webp" data-title="02 · Uy Linh Tượng Chiến" data-caption="Voi chiến triều đình đối đầu mãnh hổ giữa lòng chảo gạch vồ Hổ Quyền." aria-label="Xem khung hình 2">
-          <div class="frame-img-wrap"><img loading="lazy" src="assets/still-frame/02.webp" alt="02 · Uy Linh Tượng Chiến"></div>
-          <div class="frame-meta">
-            <span>CẢNH 02 / 12 · MỞ KHUNG HÌNH ↗</span>
-            <strong>Uy Linh Tượng Chiến</strong>
-            <small>Voi chiến triều đình đối đầu mãnh hổ giữa lòng chảo gạch vồ.</small>
-          </div>
-        </button>
-
-        <button data-image="assets/still-frame/03.webp" data-title="03 · Đoạt Mệnh Sơn Quân" data-caption="Cú quật vòi và cặp ngà voi chiến húc tung mãnh hổ — khởi nguồn của nỗi oán hận." aria-label="Xem khung hình 3">
-          <div class="frame-img-wrap"><img loading="lazy" src="assets/still-frame/03.webp" alt="03 · Đoạt Mệnh Sơn Quân"></div>
-          <div class="frame-meta">
-            <span>CẢNH 03 / 12 · MỞ KHUNG HÌNH ↗</span>
-            <strong>Đoạt Mệnh Sơn Quân</strong>
-            <small>Cặp ngà voi chiến húc tung mãnh hổ — khởi nguồn oán niệm.</small>
-          </div>
-        </button>
-
-        <button data-image="assets/still-frame/04.webp" data-title="04 · Dấu Chân Khâm Thiên Sứ" data-caption="Hai huynh đệ Mót và Đại Sơn cưỡi ngựa tiến vào làng Long Thọ giữa buổi chiều tà." aria-label="Xem khung hình 4">
-          <div class="frame-img-wrap"><img loading="lazy" src="assets/still-frame/04.webp" alt="04 · Dấu Chân Khâm Thiên Sứ"></div>
-          <div class="frame-meta">
-            <span>CẢNH 04 / 12 · MỞ KHUNG HÌNH ↗</span>
-            <strong>Dấu Chân Khâm Thiên Sứ</strong>
-            <small>Mót và Đại Sơn cưỡi ngựa tiến vào làng Long Thọ điều tra dị sự.</small>
-          </div>
-        </button>
-
-        <button data-image="assets/still-frame/05.webp" data-title="05 · Điềm Báo Khí Suy" data-caption="Bông lúa vàng khô quắt trên tay lão nông, rỉ ra làn khói đen tà khí báo hiệu mạch đất suy tàn." aria-label="Xem khung hình 5">
-          <div class="frame-img-wrap"><img loading="lazy" src="assets/still-frame/05.webp" alt="05 · Điềm Báo Khí Suy"></div>
-          <div class="frame-meta">
-            <span>CẢNH 05 / 12 · MỞ KHUNG HÌNH ↗</span>
-            <strong>Điềm Báo Khí Suy</strong>
-            <small>Bông lúa khô quắt rỉ khói đen tà khí trên cánh đồng Long Thọ.</small>
-          </div>
-        </button>
-
-        <button data-image="assets/still-frame/06.webp" data-title="06 · Tiếng Khóc Trước Cổng Đình" data-caption="Nỗi tuyệt vọng của người dân Long Thọ bên thi hài nạn nhân phủ chiếu cói." aria-label="Xem khung hình 6">
-          <div class="frame-img-wrap"><img loading="lazy" src="assets/still-frame/06.webp" alt="06 · Tiếng Khóc Trước Cổng Đình"></div>
-          <div class="frame-meta">
-            <span>CẢNH 06 / 12 · MỞ KHUNG HÌNH ↗</span>
-            <strong>Tiếng Khóc Trước Cổng Đình</strong>
-            <small>Nỗi tuyệt vọng của dân lành bên thi hài nạn nhân xấu số.</small>
-          </div>
-        </button>
-
-        <button data-image="assets/still-frame/07.webp" data-title="07 · Vết Cào Tà Vật" data-caption="Tử khí đen kịt ăn sâu vào vết cào mãnh hổ trên lưng nạn nhân trong rừng." aria-label="Xem khung hình 7">
-          <div class="frame-img-wrap"><img loading="lazy" src="assets/still-frame/07.webp" alt="07 · Vết Cào Tà Vật"></div>
-          <div class="frame-meta">
-            <span>CẢNH 07 / 12 · MỞ KHUNG HÌNH ↗</span>
-            <strong>Vết Cào Tà Vật</strong>
-            <small>Tử khí đen kịt ăn sâu vào vết cào mãnh hổ trên lưng người chết.</small>
-          </div>
-        </button>
-
-        <button data-image="assets/still-frame/08.webp" data-title="08 · Kim Bạc Hóa Đen, La Bàn Định Oán" data-caption="Mót dùng kim bạc thử độc và La Bàn Tầm Khí phát hiện oán linh phát tác từ tử thi." aria-label="Xem khung hình 8">
-          <div class="frame-img-wrap"><img loading="lazy" src="assets/still-frame/08.webp" alt="08 · Kim Bạc Hóa Đen, La Bàn Định Oán"></div>
-          <div class="frame-meta">
-            <span>CẢNH 08 / 12 · MỞ KHUNG HÌNH ↗</span>
-            <strong>Kim Bạc Hóa Đen · La Bàn Định Oán</strong>
-            <small>Khám nghiệm tử thi nhiễm tà khí bằng kim bạc và cổ bàn bát quái.</small>
-          </div>
-        </button>
-
-        <button data-image="assets/still-frame/09.webp" data-title="09 · Huyết Phù Trấn Ngục" data-caption="Đại Sơn dán linh phù chu sa phong ấn cửa chuồng hổ số 3 giữa đêm Hổ Quyền." aria-label="Xem khung hình 9">
-          <div class="frame-img-wrap"><img loading="lazy" src="assets/still-frame/09.webp" alt="09 · Huyết Phù Trấn Ngục"></div>
-          <div class="frame-meta">
-            <span>CẢNH 09 / 12 · MỞ KHUNG HÌNH ↗</span>
-            <strong>Huyết Phù Trấn Ngục</strong>
-            <small>Dán linh phù chu sa phong ấn cửa chuồng hổ trong đêm tối.</small>
-          </div>
-        </button>
-
-        <button data-image="assets/still-frame/10.webp" data-title="10 · Oán Hồn Thức Giấc" data-caption="Đặc tả ánh mắt kinh hoàng phản chiếu ngọn lửa tà linh khi Đại Ma Hổ trỗi dậy." aria-label="Xem khung hình 10">
-          <div class="frame-img-wrap"><img loading="lazy" src="assets/still-frame/10.webp" alt="10 · Oán Hồn Thức Giấc"></div>
-          <div class="frame-meta">
-            <span>CẢNH 10 / 12 · MỞ KHUNG HÌNH ↗</span>
-            <strong>Oán Hồn Thức Giấc</strong>
-            <small>Ánh mắt kinh hoàng phản chiếu tà hỏa giữa đêm Hổ Quyền.</small>
-          </div>
-        </button>
-
-        <button data-image="assets/still-frame/11.webp" data-title="11 · Tàn Tro Sau Huyết Chiến" data-caption="Hai huynh đệ dìu nhau bước qua cổng vòm Hổ Quyền trong làn khói sương buổi sớm." aria-label="Xem khung hình 11">
-          <div class="frame-img-wrap"><img loading="lazy" src="assets/still-frame/11.webp" alt="11 · Tàn Tro Sau Huyết Chiến"></div>
-          <div class="frame-meta">
-            <span>CẢNH 11 / 12 · MỞ KHUNG HÌNH ↗</span>
-            <strong>Tàn Tro Sau Huyết Chiến</strong>
-            <small>Trở về qua cổng vòm Hổ Quyền giữa khói tàn và nắng sớm.</small>
-          </div>
-        </button>
-
-        <button data-image="assets/still-frame/12.webp" data-title="12 · Huyết Hương Trên Thành Cao" data-caption="Trên bờ thành Hổ Quyền cao vợi, thiếu nữ áo đen Huyền Uyên gánh lư hương khói đỏ lặng lẽ quan sát." aria-label="Xem khung hình 12">
-          <div class="frame-img-wrap"><img loading="lazy" src="assets/still-frame/12.webp" alt="12 · Huyết Hương Trên Thành Cao"></div>
-          <div class="frame-meta">
-            <span>CẢNH 12 / 12 · MỞ KHUNG HÌNH ↗</span>
-            <strong>Huyết Hương Trên Thành Cao</strong>
-            <small>Kẻ bí ẩn gánh lư hương khói đỏ đứng trên thành cao Hổ Quyền.</small>
-          </div>
-        </button>
-      </div>
-      <p class="small caption">BỘ 12 STILL FRAMES CHÍNH THỨC • SƠN HÀ DỊ LỤC (1836) • GOSU STUDIO</p>
     </section>
 
-    <section id="project" class="section project reveal">
-      <p class="eyebrow">GOSU CINEMA / HỒ SƠ DỰ ÁN ĐIỆN ẢNH</p>
-      <h2>Sơn hà còn đó.<br><em>Dị lục mới mở đầu.</em></h2>
-      <div class="facts facts-logos" aria-label="Đơn vị thực hiện dự án">
-        <div class="fact-logo-item">
-          <span>KỊCH BẢN</span>
-          <img class="fact-logo" src="assets/hyra-logo.png" alt="HYRA" height="36" style="height:36px;width:auto;display:block;margin:14px auto 0;object-fit:contain">
+    <!-- SC08 -->
+    <section class="shot shot--bottom" data-shot="7" id="thoi-gian" aria-labelledby="h-timeline">
+      <div class="card card--wide">
+        <div class="wide-head">
+          <div>
+            <p class="eyebrow">TRỤC THỜI GIAN ĐIỆN ẢNH</p>
+            <h2 id="h-timeline" class="h-small">1818 <em>→</em> Vĩ thanh</h2>
+          </div>
+          <div class="years" role="tablist" aria-label="Mốc thời gian" data-list="7"></div>
         </div>
-        <div class="fact-logo-item">
-          <span>ĐẠO DIỄN</span>
-          <img class="fact-logo" src="assets/gihot-logo.png" alt="GIHOT" height="40" style="height:40px;width:auto;display:block;margin:12px auto 0;object-fit:contain">
-        </div>
-        <div class="fact-logo-item">
-          <span>SẢN XUẤT</span>
-          <img class="fact-logo" src="assets/gosu-logo.png" alt="GOSU" height="36" style="height:36px;width:auto;display:block;margin:14px auto 0;object-fit:contain">
+        <div class="detail detail--row" aria-live="polite">
+          <span class="detail-sub" data-bind="tl-sub"></span>
+          <h3 data-bind="tl-title"></h3>
+          <p data-bind="tl-desc"></p>
         </div>
       </div>
-      <div class="facts">
-        <div>NIÊN ĐẠI &amp; BỐI CẢNH<strong>PHÚ XUÂN · MINH MẠNG 1836</strong></div>
-        <div>THỂ LOẠI<strong>CỔ TRANG · LINH DỊ · TRINH THÁM</strong></div>
-        <div>LỘ TRÌNH DỰ KIẾN<strong>2027</strong></div>
+    </section>
+
+    <!-- SC09 -->
+    <section class="shot shot--bottom" data-shot="8" id="khung-hinh" aria-labelledby="h-gallery">
+      <div class="card card--wide">
+        <div class="wide-head">
+          <div>
+            <p class="eyebrow">12 STILL FRAMES · DỊ SỰ HIỆN HÌNH</p>
+            <h2 id="h-gallery" class="h-small"><span data-bind="g-count">01 / 12</span> · <em data-bind="g-title"></em></h2>
+          </div>
+          <div class="gallery-ctrl">
+            <button type="button" class="icon-btn" data-gstep="-1" aria-label="Khung hình trước">←</button>
+            <button type="button" class="btn btn--ghost" id="g-zoom">Phóng lớn ↗</button>
+            <button type="button" class="icon-btn" data-gstep="1" aria-label="Khung hình tiếp">→</button>
+          </div>
+        </div>
+        <p class="detail-p" data-bind="g-caption" aria-live="polite"></p>
       </div>
-      <a href="#" class="button">Trở về đầu hành trình ↑</a>
+    </section>
+
+    <!-- SC10 -->
+    <section class="shot shot--center" data-shot="9" id="hoi-ket" aria-labelledby="h-credits">
+      <div class="card card--bare credits">
+        <p class="kicker">GOSU CINEMA / HỒ SƠ DỰ ÁN ĐIỆN ẢNH</p>
+        <h2 id="h-credits">Sơn hà còn đó. <em>Dị lục mới mở đầu.</em></h2>
+        <dl class="credit-roll">
+          <div><dt>KỊCH BẢN</dt><dd><img src="assets/hyra-logo.png" alt="HYRA" height="28"></dd></div>
+          <div><dt>ĐẠO DIỄN</dt><dd><img src="assets/gihot-logo.png" alt="GIHOT" height="30"></dd></div>
+          <div><dt>SẢN XUẤT</dt><dd><img src="assets/gosu-logo.png" alt="GOSU" height="26"></dd></div>
+        </dl>
+        <p class="facts">PHÚ XUÂN · MINH MẠNG 1836 &nbsp;✦&nbsp; CỔ TRANG · LINH DỊ · TRINH THÁM &nbsp;✦&nbsp; LỘ TRÌNH 2027</p>
+        <button type="button" class="btn btn--ghost" data-goto="0">Về cảnh mở màn ↑</button>
+        <p class="copy">© GOSU STUDIO · ALL RIGHTS RESERVED</p>
+      </div>
     </section>
   </main>
 
-  <footer>
-    <a class="brand" href="#"><img class="brand-logo" src="assets/gosu-logo.png" alt="GOSU" height="30" style="height:30px;width:auto"><span>CINEMA</span></a>
-    <p>SƠN HÀ DỊ LỤC (1836) — DỰ ÁN ĐIỆN ẢNH LINH DỊ CỔ TRANG CỦA GOSU STUDIO</p>
-    <span>© GOSU STUDIO · ALL RIGHTS RESERVED</span>
-    <div class="footer-word">SƠN HÀ DỊ LỤC</div>
-  </footer>
+  <nav class="strip" aria-label="Danh sách cảnh storyboard">
+    <div class="strip-track"><i id="strip-fill"></i></div>
+    <ol id="strip-list"></ol>
+  </nav>
 
-  <dialog id="lightbox">
-    <div class="lightbox-top">
-      <span class="lightbox-tag" id="lightbox-tag">STILL FRAME · 4K CINEMA</span>
-      <button class="close" aria-label="Đóng trình chiếu">ĐÓNG KHUNG HÌNH ×</button>
-    </div>
-    <div class="lightbox-stage">
-      <button class="nav-arrow previous" aria-label="Ảnh trước">←</button>
-      <figure class="lightbox-figure">
-        <img alt="Hình dự án phóng lớn">
-        <figcaption>
-          <strong id="lightbox-title"></strong>
-          <p id="lightbox-caption"></p>
-        </figcaption>
-      </figure>
-      <button class="nav-arrow next" aria-label="Ảnh tiếp">→</button>
-    </div>
-    <div class="slide-controls">
-      <span class="slide-count">01 / 12</span>
-      <button class="play-toggle" id="lightbox-play">TỰ ĐỘNG CHIẾU ▶</button>
-      <div class="thumb-strip" id="lightbox-thumbs" aria-label="Danh sách khung hình thu nhỏ"></div>
-    </div>
+  <!-- Thanh cuộn ảo: mỗi "beat" = một cảnh, scroll-snap từng cảnh -->
+  <div id="scroller" aria-hidden="true"></div>
+
+  <dialog id="lightbox" aria-label="Khung hình phóng lớn">
+    <button type="button" class="lb-close" aria-label="Đóng">ĐÓNG ×</button>
+    <figure>
+      <img alt="">
+      <figcaption><strong></strong><span></span></figcaption>
+    </figure>
+    <button type="button" class="lb-nav lb-prev" aria-label="Ảnh trước">←</button>
+    <button type="button" class="lb-nav lb-next" aria-label="Ảnh tiếp">→</button>
   </dialog>
 
-  <dialog id="trailer-dialog" class="trailer-dialog">
-    <div class="lightbox-top">
-      <span class="lightbox-tag" id="trailer-dialog-tag">TRAILER &amp; MOODBOARD DỰ ÁN · SƠN HÀ DỊ LỤC (1836)</span>
-      <button type="button" class="close" id="close-trailer-btn" aria-label="Đóng Trailer">ĐÓNG TRAILER ×</button>
-    </div>
-    <div class="trailer-stage" id="trailer-stage">
-      <video id="trailer-video" controls playsinline preload="metadata" poster="assets/still-frame/09.webp" hidden>
-        <source id="trailer-video-src" src="" type="video/mp4">
-      </video>
-      <iframe id="trailer-iframe" title="Trailer Moodboard Sơn Hà Dị Lục" allow="autoplay; fullscreen" allowfullscreen hidden></iframe>
-      <div class="trailer-placeholder" id="trailer-placeholder">
-        <span class="trailer-ph-seal" aria-hidden="true">預告</span>
-        <p class="eyebrow">GOSU CINEMA · HỒ SƠ THỊ GIÁC 1836</p>
-        <h3 id="trailer-ph-title">Trailer &amp; Moodboard Video Dự Án</h3>
-        <p id="trailer-ph-desc">Video Trailer &amp; Moodboard chính thức đang trong quá trình hậu kỳ âm thanh và chỉnh màu 4K. Vui lòng quay lại xem bản công chiếu sớm nhất.</p>
-        <div class="trailer-ph-actions">
-          <button type="button" class="button" id="trailer-watch-opening-btn">Xem trước trích đoạn Hồi Đầu (1836) ▶</button>
-        </div>
-      </div>
-    </div>
-  </dialog>
+  <audio id="bgm" src="assets/audio/soundtrack-1836.m4a" preload="none" loop></audio>
 
-  <!-- Nhạc nền toàn trang mặc định BẬT, cắt từ mốc 01:44 đến hết bài & tự động lặp lại (loop) -->
-  <audio id="bg-soundtrack" src="assets/audio/soundtrack-1836.m4a" autoplay loop preload="auto" playsinline></audio>
-
-  <script src="app.js?v=19"></script>
-  <script src="visual-editor.js?v=19"></script>
+  <script type="module" src="js/main.js?v=1"></script>
 </body>
 </html>
