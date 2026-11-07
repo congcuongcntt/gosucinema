@@ -203,17 +203,26 @@ videoSoundBtn.addEventListener('click', () => {
 });
 
 /* ============ Thắp hương (+1) — giữ bộ đếm chung của site gốc ============ */
-const INCENSE_GET = 'https://abacus.jasoncameron.dev/get/gosucinema.web.id/shdl_incense_1836';
-const INCENSE_HIT = 'https://abacus.jasoncameron.dev/hit/gosucinema.web.id/shdl_incense_1836';
+// Mỗi nơi triển khai có bộ đếm riêng: chỉ site gốc dùng bộ đếm gốc, bản fork/khác tên miền không cộng lẫn vào.
+// Máy local chỉ đọc, không ghi.
+const ORIGIN_HOSTS = ['gosucinema.web.id', 'www.gosucinema.web.id'];
+const IS_LOCAL = /^(localhost|127\.0\.0\.1|\[::1\])$|\.(localhost|test)$/.test(location.hostname);
+const COUNTER_NS = ORIGIN_HOSTS.includes(location.hostname) ? 'gosucinema.web.id' : (IS_LOCAL ? 'local.dev' : location.hostname);
+const INCENSE_GET = `https://abacus.jasoncameron.dev/get/${COUNTER_NS}/shdl_incense_1836`;
+const INCENSE_HIT = `https://abacus.jasoncameron.dev/hit/${COUNTER_NS}/shdl_incense_1836`;
 const incenseBtn = $('#incense-btn');
 const incenseCount = $('#incense-count');
 let incense = 0;
-const showIncense = () => (incenseCount.textContent = incense ? incense.toLocaleString('vi-VN') : '—');
-fetch(INCENSE_GET, { cache: 'no-store' }).then((r) => (r.ok ? r.json() : null)).then((d) => {
-  if (d && typeof d.value === 'number') { incense = Math.max(incense, d.value); showIncense(); }
+let incenseKnown = false;
+const showIncense = () => (incenseCount.textContent = incenseKnown || incense ? incense.toLocaleString('vi-VN') : '—');
+fetch(INCENSE_GET, { cache: 'no-store' }).then((r) => {
+  if (r.status === 404) { incenseKnown = true; showIncense(); return null; } // bộ đếm mới: chưa ai thắp
+  return r.ok ? r.json() : null;
+}).then((d) => {
+  if (d && typeof d.value === 'number') { incense = Math.max(incense, d.value); incenseKnown = true; showIncense(); }
 }).catch(() => {});
 // ?nocount — thử hiệu ứng mà không cộng vào bộ đếm thật
-const COUNT_ENABLED = !new URLSearchParams(location.search).has('nocount');
+const COUNT_ENABLED = !IS_LOCAL && !new URLSearchParams(location.search).has('nocount');
 const incenseAnchor = $('#incense-anchor');
 const iaLabel = $('#ia-label');
 
