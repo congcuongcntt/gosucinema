@@ -609,3 +609,153 @@ export function createCursorWisp({ scene, camera, pixelRatio }) {
     }
   };
 }
+
+/* ======================================================================
+   ÂM MÔN — chữ Hán khổng lồ lơ lửng giữa hai cảnh, máy quay bay xuyên qua.
+   Chữ hiện ra như mực loang rồi cháy tàn thành tro xanh ngọc.
+   ====================================================================== */
+function glyphTexture(ch) {
+  const S = 512;
+  const c = document.createElement('canvas');
+  c.width = c.height = S;
+  const g = c.getContext('2d');
+  g.textAlign = 'center';
+  g.textBaseline = 'middle';
+  g.font = '900 380px "Songti SC", "STSong", "Noto Serif SC", "Noto Serif CJK SC", "SimSun", serif';
+  g.shadowColor = '#fff';
+  g.shadowBlur = 10;
+  g.fillStyle = '#fff';
+  g.fillText(ch, S / 2, S / 2 + 10);
+  g.shadowBlur = 0;
+  // vòng ấn triện mảnh bao quanh
+  g.strokeStyle = 'rgba(255,255,255,.55)';
+  g.lineWidth = 3;
+  g.beginPath(); g.arc(S / 2, S / 2, S * 0.47, 0, Math.PI * 2); g.stroke();
+  g.lineWidth = 1.5;
+  g.beginPath(); g.arc(S / 2, S / 2, S * 0.445, 0, Math.PI * 2); g.stroke();
+  for (let i = 0; i < 64; i++) {
+    const a = (i / 64) * Math.PI * 2, r0 = S * 0.47, r1 = r0 + (i % 8 ? 7 : 18);
+    g.beginPath();
+    g.moveTo(S / 2 + Math.cos(a) * r0, S / 2 + Math.sin(a) * r0);
+    g.lineTo(S / 2 + Math.cos(a) * r1, S / 2 + Math.sin(a) * r1);
+    g.stroke();
+  }
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.NoColorSpace;
+  return t;
+}
+
+export function createGlyphGate({ scene, chars, sharedTime }) {
+  const textures = new Map();
+  const tex = (ch) => {
+    if (!textures.has(ch)) textures.set(ch, glyphTexture(ch));
+    return textures.get(ch);
+  };
+  const mat = new THREE.ShaderMaterial({
+    uniforms: { uTex: { value: null }, uTime: sharedTime, uAmt: { value: 0 }, uBurn: { value: 0 }, uSeed: { value: 0 } },
+    vertexShader: /* glsl */ `varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.); }`,
+    fragmentShader: /* glsl */ `
+uniform sampler2D uTex; uniform float uTime, uAmt, uBurn, uSeed;
+varying vec2 vUv;
+${NOISE}
+void main(){
+  vec2 uv = vUv;
+  float w = fbm(uv*3. + vec2(uSeed, uTime*.15));
+  uv += (w - .5)*.035;                         // nét mực run rẩy
+  float a = texture2D(uTex, uv).r;
+  float n = fbm(uv*4.5 + uSeed*3.);
+  // mực loang vào (uAmt) rồi cháy tàn (uBurn)
+  float on = smoothstep(n - .05, n + .05, uAmt*1.25 - .1);
+  float burn = uBurn*1.3 - .15;
+  float dead = smoothstep(burn - .04, burn + .02, n);
+  float rim = (1. - smoothstep(0., .07, abs(n - burn)))*step(.02, uBurn);
+  vec3 jade = vec3(.32, 1., .82), gold = vec3(1., .74, .36);
+  vec3 col = mix(jade, gold, smoothstep(.35, .75, w))*a*on*dead*.32;
+  col += vec3(1., .5, .18)*rim*a*.8;
+  float alpha = a*on*max(dead, rim);
+  if (alpha < .003) discard;
+  gl_FragColor = vec4(col*alpha, alpha);
+}`,
+    transparent: true, depthTest: false, depthWrite: false, blending: THREE.AdditiveBlending
+  });
+  const mesh = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), mat);
+  mesh.renderOrder = 20;
+  mesh.frustumCulled = false;
+  mesh.visible = false;
+  scene.add(mesh);
+  const fwd = new THREE.Vector3();
+  let cur = -1;
+
+  return {
+    /** i: đoạn chuyển cảnh (i → i+1), f: tiến trình 0..1, dir: chiều xoáy */
+    update(camera, i, f, dir) {
+      const g = (f - 0.08) / 0.8;
+      if (g <= 0 || g >= 1) { mesh.visible = false; return; }
+      if (i !== cur) { cur = i; mat.uniforms.uTex.value = tex(chars[i % chars.length]); mat.uniforms.uSeed.value = i * 1.37; }
+      mesh.visible = true;
+      // chữ lao về phía máy quay rồi vỡ tung qua ống kính
+      const d = THREE.MathUtils.lerp(18, 2.2, g * g * (3 - 2 * g));
+      camera.getWorldDirection(fwd);
+      mesh.position.copy(camera.position).addScaledVector(fwd, d);
+      mesh.quaternion.copy(camera.quaternion);
+      mesh.rotateZ(-dir * (g - 0.5) * 0.9);
+      const vh = 2 * d * Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2);
+      mesh.scale.setScalar(vh * THREE.MathUtils.lerp(0.55, 1.6, g));
+      mat.uniforms.uAmt.value = Math.min(1, g / 0.38);
+      mat.uniforms.uBurn.value = Math.max(0, (g - 0.55) / 0.4);
+    }
+  };
+}
+
+/* ======================================================================
+   VỆT HỒN — những sợi sáng xanh ngọc lao vút qua máy quay khi chuyển cảnh
+   ====================================================================== */
+export function createSpiritStreaks({ scene, count = 150 }) {
+  const pos = new Float32Array(count * 6);
+  const col = new Float32Array(count * 6);
+  const seeds = [];
+  for (let i = 0; i < count; i++) {
+    const a = Math.random() * Math.PI * 2;
+    const r = 1.6 + Math.pow(Math.random(), 0.7) * 7;
+    seeds.push({ x: Math.cos(a) * r, y: Math.sin(a) * r * 0.7, z: -Math.random() * 46, k: 0.6 + Math.random() * 0.8, gold: Math.random() < 0.18 });
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3).setUsage(THREE.DynamicDrawUsage));
+  geo.setAttribute('color', new THREE.BufferAttribute(col, 3).setUsage(THREE.DynamicDrawUsage));
+  const mat = new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, fog: false });
+  const lines = new THREE.LineSegments(geo, mat);
+  lines.frustumCulled = false;
+  lines.renderOrder = 15;
+  const rig = new THREE.Group();
+  rig.add(lines);
+  scene.add(rig);
+
+  return {
+    /** m: cường độ chuyển cảnh, v: vận tốc có dấu (shot/giây) */
+    update(camera, dt, m, v) {
+      rig.visible = m > 0.01;
+      if (!rig.visible) return;
+      rig.position.copy(camera.position);
+      rig.quaternion.copy(camera.quaternion);
+      const speed = THREE.MathUtils.clamp(v, -3, 3) * 34;
+      const len = 0.4 + Math.min(9, Math.abs(v) * 5.5);
+      for (let i = 0; i < count; i++) {
+        const s = seeds[i];
+        s.z += speed * s.k * dt;
+        if (s.z > 2) s.z -= 48;
+        else if (s.z < -46) s.z += 48;
+        const tail = s.z - Math.sign(speed || 1) * len * s.k;
+        const j = i * 6;
+        pos[j] = s.x; pos[j + 1] = s.y; pos[j + 2] = s.z;
+        pos[j + 3] = s.x; pos[j + 4] = s.y; pos[j + 5] = tail;
+        const near = 1 - Math.min(1, -s.z / 46);
+        const b = m * (0.25 + near * 0.9);
+        if (s.gold) { col[j] = b; col[j + 1] = b * 0.68; col[j + 2] = b * 0.32; }
+        else { col[j] = b * 0.3; col[j + 1] = b; col[j + 2] = b * 0.82; }
+        col[j + 3] = col[j + 4] = col[j + 5] = 0;
+      }
+      geo.attributes.position.needsUpdate = true;
+      geo.attributes.color.needsUpdate = true;
+    }
+  };
+}

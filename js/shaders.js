@@ -175,3 +175,56 @@ void main(){
   gl_FragColor = vec4(col, 1.);
 }`
 };
+
+/* ---------- Âm môn: pass riêng, chỉ bật khi đang chuyển cảnh (đứng yên không tốn GPU) ---------- */
+export const VeilShader = {
+  uniforms: {
+    tDiffuse: { value: null },
+    uTime: { value: 0 },
+    uRes: { value: [1, 1] },
+    uVeil: { value: 0 },
+    uDir: { value: 1 },
+    uSeed: { value: 0 }
+  },
+  vertexShader: /* glsl */ `varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.); }`,
+  fragmentShader: /* glsl */ `
+uniform sampler2D tDiffuse;
+uniform float uTime, uVeil, uDir, uSeed;
+uniform vec2 uRes;
+varying vec2 vUv;
+${NOISE}
+void main(){
+  float asp = uRes.x/uRes.y;
+  vec2 A = vec2(asp, 1.);
+  vec2 ca = (vUv - .5)*A;
+  float r = length(ca);
+  // không gian xoáy như bị hút vào cửa âm (mạnh dần ra rìa)
+  float ang = uVeil*uDir*.7*smoothstep(.05, .9, r);
+  float cs = cos(ang), sn = sin(ang);
+  vec2 uv = .5 + (mat2(cs, -sn, sn, cs)*ca)/A;
+  // nhoè hướng tâm: lao vút qua đường hầm, tách màu ở rìa
+  vec2 d = uv - .5;
+  vec3 col = vec3(0.);
+  for (int i = 0; i < 7; i++) {
+    float k = 1. - float(i)*.012*uVeil*smoothstep(0., .35, r);
+    vec2 p = .5 + d*k;
+    col += vec3(texture2D(tDiffuse, p + d*.012*uVeil).r, texture2D(tDiffuse, p).g, texture2D(tDiffuse, p - d*.012*uVeil).b);
+  }
+  col /= 7.;
+  // mất sắc, ngả xanh ma trơi
+  float l = dot(col, vec3(.299,.587,.114));
+  col = mix(col, vec3(l)*vec3(.62, 1.05, .95), uVeil*.5);
+  // màn mực âm giới loang từ mép khung khép lại thành mống mắt, rồi mở ra ở cảnh mới
+  vec2 flow = ca*2.6 - normalize(ca + 1e-4)*uTime*.35 + uSeed;
+  float n = fbm(flow);
+  float n2 = fbm(ca*7. + vec2(uTime*.2, -uTime*.5) + uSeed*2.);
+  float e = r + (n - .5)*.5 + (n2 - .5)*.08;
+  float R = mix(1.35, .3, uVeil);
+  float ink = smoothstep(R - .015, R + .07, e);
+  float rim = (1. - smoothstep(0., .045, abs(e - R)))*uVeil;
+  vec3 inkCol = vec3(.004, .012, .01) + vec3(.04, .14, .12)*smoothstep(.5, .85, n2)*uVeil;
+  col = mix(col, inkCol, ink*.96);
+  col += vec3(.2, .9, .74)*rim*.5 + vec3(1., .62, .25)*pow(rim, 3.)*.4;
+  gl_FragColor = vec4(col, 1.);
+}`
+};

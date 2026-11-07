@@ -244,6 +244,54 @@ function templeBell() {
   } catch (_) { /* không có WebAudio: bỏ qua */ }
 }
 
+// Âm phong: tiếng gió âm hút qua khi chuyển cảnh (chỉ khi người xem đã bật nhạc)
+let windBuf = null;
+function spiritWind(dir) {
+  try {
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    const t = actx.currentTime;
+    if (!windBuf) {
+      windBuf = actx.createBuffer(1, actx.sampleRate * 2, actx.sampleRate);
+      const d = windBuf.getChannelData(0);
+      let b = 0;
+      for (let i = 0; i < d.length; i++) { b = b * 0.97 + (Math.random() * 2 - 1) * 0.03; d[i] = b * 6; }
+    }
+    const src = actx.createBufferSource();
+    src.buffer = windBuf;
+    const bp = actx.createBiquadFilter();
+    bp.type = 'bandpass';
+    bp.Q.value = 2.2;
+    bp.frequency.setValueAtTime(260, t);
+    bp.frequency.exponentialRampToValueAtTime(1500, t + 0.55);
+    bp.frequency.exponentialRampToValueAtTime(320, t + 1.5);
+    const g = actx.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.32, t + 0.5);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 1.6);
+    const pan = actx.createStereoPanner ? actx.createStereoPanner() : null;
+    if (pan) {
+      pan.pan.setValueAtTime(-0.7 * dir, t);
+      pan.pan.linearRampToValueAtTime(0.7 * dir, t + 1.5);
+    }
+    let node = src.connect(bp).connect(g);
+    if (pan) node = node.connect(pan);
+    node.connect(actx.destination);
+    src.start(t);
+    src.stop(t + 1.7);
+    // tiếng ngân trầm thoảng qua
+    const o = actx.createOscillator(), og = actx.createGain();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(82, t);
+    o.frequency.exponentialRampToValueAtTime(61, t + 1.4);
+    og.gain.setValueAtTime(0.0001, t);
+    og.gain.exponentialRampToValueAtTime(0.09, t + 0.45);
+    og.gain.exponentialRampToValueAtTime(0.0001, t + 1.5);
+    o.connect(og).connect(actx.destination);
+    o.start(t);
+    o.stop(t + 1.6);
+  } catch (_) { /* bỏ qua */ }
+}
+
 let incenseLock = 0;
 function lightIncense() {
   const now = Date.now();
@@ -347,6 +395,7 @@ const codeEl = $('#vf-code');
 const moveEl = $('#vf-move');
 const stripFill = $('#strip-fill');
 let lastActive = -1;
+let lastGoal = -1;
 let shotStart = performance.now();
 
 function setActive(i) {
@@ -388,6 +437,11 @@ function frame(now) {
 
   const a = Math.round(current);
   if (a !== lastActive) { lastActive = a; setActive(a); }
+  const goal = Math.round(target);
+  if (goal !== lastGoal) {
+    if (!bgm.paused && !reduceMotion && Math.abs(goal - current) > 0.4) spiritWind(goal > current ? 1 : -1);
+    lastGoal = goal;
+  }
   html.classList.toggle('is-moving', Math.abs(target - current) > 0.03);
   stripFill.style.transform = `scaleX(${current / (N - 1)})`;
   if ((tcTick += dt) > 1 / 24) { tcTick = 0; tcEl.textContent = timecode(now); }

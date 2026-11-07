@@ -5,11 +5,12 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import {
-  panelVertex, panelFragment, emberVertex, emberFragment, smokeVertex, smokeFragment, FilmShader
+  panelVertex, panelFragment, emberVertex, emberFragment, smokeVertex, smokeFragment, FilmShader, VeilShader
 } from './shaders.js';
 import { SHOTS, CHARACTERS, PLACES, RELICS, TIMELINE, GALLERY, MEDIA } from './data.js';
 import {
-  createIncense, createSigil, createTalismans, createGhostFire, createGroundMist, createCursorWisp
+  createIncense, createSigil, createTalismans, createGhostFire, createGroundMist, createCursorWisp,
+  createGlyphGate, createSpiritStreaks
 } from './fx.js';
 
 const V = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z);
@@ -40,6 +41,9 @@ export function createWorld({ canvas, isMobile, reduceMotion, onPick, onLoadProg
   const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth / 2, innerHeight / 2), 0.6, 0.55, 0.82);
   composer.addPass(bloom);
   composer.addPass(new OutputPass());
+  const veil = new ShaderPass(VeilShader);
+  veil.enabled = false;
+  composer.addPass(veil);
   const film = new ShaderPass(FilmShader);
   composer.addPass(film);
 
@@ -563,6 +567,9 @@ export function createWorld({ canvas, isMobile, reduceMotion, onPick, onLoadProg
   const posCurve = new THREE.CatmullRomCurve3(shots.map((s) => s.camPos), false, 'centripetal');
   const tgtCurve = new THREE.CatmullRomCurve3(shots.map((s) => s.camTgt), false, 'centripetal');
   const P = V(), T = V();
+  const tan = V(), side = V(), UP = V(0, 1, 0);
+  // trạng thái chuyển cảnh: m = cường độ (0 khi dừng ở cảnh, 1 ở giữa hai cảnh)
+  const trans = { m: 0, f: 0, i: 0, dir: 1 };
   const pointer = { x: 0, y: 0, sx: 0, sy: 0 };
   let W = innerWidth, Hh = innerHeight;
 
@@ -596,8 +603,23 @@ export function createWorld({ canvas, isMobile, reduceMotion, onPick, onLoadProg
     }
 
     const a = shots[i0], b = shots[i0 + 1];
-    const roll = THREE.MathUtils.lerp(a.roll, b.roll, e);
+    let roll = THREE.MathUtils.lerp(a.roll, b.roll, e);
     let fov = THREE.MathUtils.lerp(a.fov, b.fov, e);
+
+    // Vũ đạo chuyển cảnh: máy quay vòng cung lệch sang một bên, xoắn trục (barrel roll),
+    // giãn FOV như bị hút qua cửa âm. Chiều xoáy đổi luân phiên giữa các cảnh.
+    const dir = i0 % 2 ? 1 : -1;
+    const m = reduceMotion ? 0 : Math.pow(Math.sin(Math.PI * f), 1.4);
+    trans.m = m; trans.f = f; trans.i = i0; trans.dir = dir;
+    if (m > 0.0005) {
+      posCurve.getTangent(u, tan);
+      side.crossVectors(tan, UP);
+      if (side.lengthSq() > 1e-4) P.addScaledVector(side.normalize(), dir * m * 3.2);
+      P.y += m * 1.6;
+      P.addScaledVector(tan, -m * 2.5);
+      roll += dir * (m * 0.26 + Math.sin(Math.PI * 2 * f) * 0.07);
+      fov += m * 22;
+    }
     const [ax, ay] = frameShift(i0), [bx, by] = frameShift(i0 + 1);
     const sx = THREE.MathUtils.lerp(ax, bx, e), sy = THREE.MathUtils.lerp(ay, by, e);
 
@@ -676,6 +698,7 @@ export function createWorld({ canvas, isMobile, reduceMotion, onPick, onLoadProg
     composer.setSize(W, Hh);
     bloom.setSize(W / 2, Hh / 2);
     film.uniforms.uRes.value = [W * DPR, Hh * DPR];
+    veil.uniforms.uRes.value = [W, Hh];
   }
   addEventListener('resize', resize);
   resize();
@@ -722,8 +745,11 @@ export function createWorld({ canvas, isMobile, reduceMotion, onPick, onLoadProg
       camera.position.y += Math.sin(t * 53 + 1) * kick * 0.03;
     }
 
-    const vel = dt > 0 ? Math.abs(current - prev) / dt : 0;
+    const sv = dt > 0 ? (current - prev) / dt : 0;
+    const vel = Math.abs(sv);
     prev = current;
+    gate.update(camera, trans.i, trans.f, trans.dir);
+    streaks?.update(camera, dt, trans.m, sv);
     const u = film.uniforms;
     u.uTime.value = t;
     u.uAberration.value = damp(u.uAberration.value, Math.min(1, vel * 0.9 + inc.state.flare * 0.5), 6, dt);
@@ -734,12 +760,25 @@ export function createWorld({ canvas, isMobile, reduceMotion, onPick, onLoadProg
     // "hồn lướt qua": thỉnh thoảng một bóng nhân đôi xanh ngọc vụt qua khung hình
     if (!reduceMotion && t > nextGhost) { ghostAt = t; nextGhost = t + 9 + Math.random() * 12; }
     const ga = t - ghostAt;
-    u.uGhost.value = ga >= 0 && ga < 0.5 ? Math.sin((ga / 0.5) * Math.PI) : 0;
+    u.uGhost.value = Math.max(ga >= 0 && ga < 0.5 ? Math.sin((ga / 0.5) * Math.PI) : 0, trans.m * 0.7);
+    veil.enabled = trans.m > 0.002;
+    if (veil.enabled) {
+      const vu = veil.uniforms;
+      vu.uTime.value = t;
+      vu.uVeil.value = trans.m;
+      vu.uDir.value = trans.dir;
+      vu.uSeed.value = trans.i * 2.31;
+    }
 
-    bloom.strength = 0.6 + inc.state.flare * 0.35;
+    bloom.strength = 0.6 + inc.state.flare * 0.35 + trans.m * 0.35;
 
     composer.render(dt);
   }
+
+  // chữ Hán của cảnh sắp tới: 源 khởi nguồn · 影 bản dựng · 魂 nhân vật · 勢 thế lực · 域 địa đồ
+  // 器 pháp khí · 時 thời gian · 夢 khung hình · 終 hồi kết
+  const gate = createGlyphGate({ scene, chars: ['源', '影', '魂', '勢', '域', '器', '時', '夢', '終'], sharedTime });
+  const streaks = reduceMotion ? null : createSpiritStreaks({ scene, count: isMobile ? 80 : 160 });
 
   let kick = 0;
   let ghostAt = -100;
