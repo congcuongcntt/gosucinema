@@ -670,7 +670,7 @@ export function createGroundMist({ scene, anchors, sharedTime, fog }) {
 export function createCursorFlame({ scene, camera, canvas, pixelRatio, reduceMotion }) {
   const D = 6;                         // khoảng cách ngọn lửa trước máy quay
   // Khung vẽ rộng hơn thân lửa để lưỡi lửa có chỗ uốn, tách ngọn
-  const FH = 0.22, FW = 0.136, BASE = 0.1; // BASE: phần khung dưới chân lửa (cho đáy tròn mềm)
+  const FH = 0.14, FW = 0.087, BASE = 0.1; // BASE: phần khung dưới chân lửa (cho đáy tròn mềm)
   const geo = new THREE.PlaneGeometry(FW, FH, 6, 24);
   geo.translate(0, FH * 0.5 - FH * BASE, 0); // chân lửa nằm ngay điểm con trỏ
   const u = {
@@ -703,9 +703,9 @@ export function createCursorFlame({ scene, camera, canvas, pixelRatio, reduceMot
         float x = (vUv.x - .5)*2.;                          // -1..1
         float t = uTime;
         // nhiễu cuộn lên trên (hai lớp, tốc độ khác nhau) + uốn miền theo chiều cao
-        float n1 = fbm(vec2(x*1.6, y*2.2 - t*2.6));
-        float n2 = vnoise(vec2(x*3.4 + 7., y*4.5 - t*4.3));
-        float warp = (n1 - .5)*.55*smoothstep(0., 1., y) + (n2 - .5)*.18*y;
+        float n1 = fbm(vec2(x*1.2, y*1.6 - t*1.5));
+        float n2 = vnoise(vec2(x*2.2 + 7., y*2.8 - t*2.4));
+        float warp = (n1 - .5)*.42*smoothstep(0., 1., y) + (n2 - .5)*.1*y;
         float xx = x + warp;
         // mặt cắt giọt nước: đáy tròn, thắt dần về ngọn
         float yb = clamp(y, -.12, 1.);
@@ -713,7 +713,7 @@ export function createCursorFlame({ scene, camera, canvas, pixelRatio, reduceMot
         float d = abs(xx)/max(wid, .001);
         // mật độ: lõi đặc, càng lên cao nhiễu càng ăn mòn → lưỡi lửa tách, đứt ngọn
         float dens = 1. - d;
-        dens -= (n1*1.1 + n2*.35 - .6)*smoothstep(.15, 1., y)*1.1;
+        dens -= (n1*1.1 + n2*.25 - .55)*smoothstep(.2, 1., y)*.8;
         dens -= smoothstep(.55, 1.05, y)*.55;
         dens = clamp(dens, 0., 1.);
         dens *= smoothstep(-.14, .02, y);                   // đáy mềm
@@ -757,7 +757,7 @@ export function createCursorFlame({ scene, camera, canvas, pixelRatio, reduceMot
     uniforms: { uPR: { value: pixelRatio }, uAlpha: u.uAlpha },
     vertexShader: `attribute float aLife; uniform float uPR; varying float vK;
       void main(){ vK = aLife; vec4 mv = modelViewMatrix*vec4(position,1.); gl_Position = projectionMatrix*mv;
-        gl_PointSize = aLife >= 1. ? 0. : (6.*(1. - aLife) + 1.5)*uPR*6./max(.5, -mv.z); }`,
+        gl_PointSize = aLife >= 1. ? 0. : (4.*(1. - aLife) + 1.)*uPR*6./max(.5, -mv.z); }`,
     fragmentShader: `uniform float uAlpha; varying float vK;
       void main(){ float d = length(gl_PointCoord - .5); float a = smoothstep(.5, 0., d);
         vec3 c = mix(vec3(3.,1.9,.8), vec3(1.8,.35,.08), vK);
@@ -796,8 +796,8 @@ export function createCursorFlame({ scene, camera, canvas, pixelRatio, reduceMot
       const o = i * 3;
       const tx = bend.x * FH * 0.8, ty = FH * 0.62;
       pos[o] = cur.x + up.x * ty + right.x * tx; pos[o + 1] = cur.y + up.y * ty + right.y * tx; pos[o + 2] = cur.z + up.z * ty + right.z * tx;
-      const side = (Math.random() - 0.5) * 0.2 * speed;
-      const rise = (0.15 + Math.random() * 0.3) * speed;
+      const side = (Math.random() - 0.5) * 0.12 * speed;
+      const rise = (0.1 + Math.random() * 0.2) * speed;
       vel[o] = up.x * rise + right.x * side; vel[o + 1] = up.y * rise + right.y * side; vel[o + 2] = up.z * rise + right.z * side;
       life[i] = 0;
       dur[i] = 0.5 + Math.random() * 0.8;
@@ -811,8 +811,8 @@ export function createCursorFlame({ scene, camera, canvas, pixelRatio, reduceMot
     flare(k = 1) { flare = Math.max(flare, k); },
     inspect: 1, // debug: phóng to để soi hình dạng lửa
     update(dt, t) {
-      sm.x = damp(sm.x, ndc.x, 28, dt);
-      sm.y = damp(sm.y, ndc.y, 28, dt);
+      sm.x = damp(sm.x, ndc.x, 22, dt);
+      sm.y = damp(sm.y, ndc.y, 22, dt);
       const vx = dt > 0 ? (sm.x - prevSm.x) / dt : 0;
       const vy = dt > 0 ? (sm.y - prevSm.y) / dt : 0;
       prevSm.copy(sm);
@@ -829,19 +829,19 @@ export function createCursorFlame({ scene, camera, canvas, pixelRatio, reduceMot
       const halfH = D * Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2);
       const wx = vx * halfH * camera.aspect, wy = vy * halfH;
       // ngọn lửa bị gió kéo ngược hướng di chuyển; đứng yên thì lay nhẹ như có gió lùa
-      const idle = reduceMotion ? 0 : Math.sin(t * 1.1) * 0.05 + Math.sin(t * 2.7 + 1.3) * 0.03 + Math.sin(t * 5.9) * 0.012;
+      const idle = reduceMotion ? 0 : Math.sin(t * 0.9) * 0.05 + Math.sin(t * 1.9 + 1.3) * 0.025;
       bendT.set(
         Math.tanh(-wx * 0.32) * 0.72 + idle,
         THREE.MathUtils.clamp(-wy * 0.35, -0.45, 0.6) + Math.min(0.35, Math.abs(wx) * 0.12)
       );
       // lò xo thiếu giảm chấn: dừng đột ngột thì ngọn lửa vẫy qua lại rồi mới đứng
-      const K = 70, C = 7.5, h = Math.min(dt, 1 / 30);
+      const K = 38, C = 10, h = Math.min(dt, 1 / 30);
       bendV.x += ((bendT.x - bend.x) * K - bendV.x * C) * h;
       bendV.y += ((bendT.y - bend.y) * K - bendV.y * C) * h;
       bend.x += bendV.x * h; bend.y += bendV.y * h;
       // nhịp thở chiều cao theo nhiễu (không đều như sin)
-      const b = reduceMotion ? 1 : 1 + (Math.sin(t * 3.1) * 0.5 + Math.sin(t * 7.3 + 2) * 0.3 + Math.sin(t * 13.7) * 0.2) * 0.07;
-      breathe = damp(breathe, b + flare * 0.35, 10, dt);
+      const b = reduceMotion ? 1 : 1 + (Math.sin(t * 2.3) * 0.6 + Math.sin(t * 4.1 + 2) * 0.4) * 0.05;
+      breathe = damp(breathe, b + flare * 0.35, 5, dt);
       flare = damp(flare, 0, 2.2, dt);
       alpha = damp(alpha, active ? 1 : 0, 4, dt);
 
@@ -855,10 +855,10 @@ export function createCursorFlame({ scene, camera, canvas, pixelRatio, reduceMot
       u.uFlare.value = flare;
       halo.position.copy(cur).addScaledVector(up, FH * 0.3).addScaledVector(right, bend.x * FH * 0.3);
       halo.material.opacity = alpha * (0.42 + flare * 0.4) * (0.85 + (breathe - 1) * 1.5);
-      halo.scale.setScalar(0.45 + flare * 0.5);
+      halo.scale.setScalar(0.3 + flare * 0.35);
 
       if (alpha > 0.05 && !reduceMotion) {
-        spawnAcc += dt * (1.2 + speed * 9 + flare * 30);
+        spawnAcc += dt * (0.6 + speed * 5 + flare * 24);
         const n = Math.floor(spawnAcc);
         if (n) { spawnAcc -= n; emit(n, 1 + flare); }
       }
