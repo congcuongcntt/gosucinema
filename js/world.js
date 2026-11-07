@@ -337,24 +337,57 @@ export function createWorld({ canvas, isMobile, reduceMotion, onPick, onLoadProg
     const C = V(0, 0, 13);
     const R = 13;
     s.wide = false;
+    // xếp theo bề rộng THẬT của từng ảnh (có ảnh ngang, ảnh 3 mặt/bảng thiết kế rất rộng) + khe hở,
+    // tính lại liên tục nên không tấm nào đè lên tấm nào khi ảnh tải xong hoặc đổi chế độ xem
+    const GAP = 0.8;
+    const PW = 5.2 * (716 / 960);
+    const angs = CHARACTERS.map((_, k) => (k - (CHARACTERS.length - 1) / 2) * ((PW + GAP) / R));
+    const goalAngs = angs.slice();
+    function layout() {
+      const ws = s.items.map((p) => p.mesh.scale.x);
+      let acc = 0;
+      goalAngs[0] = 0;
+      for (let i = 1; i < ws.length; i++) { acc += (ws[i - 1] / 2 + ws[i] / 2 + GAP) / R; goalAngs[i] = acc; }
+      const mid = acc / 2;
+      for (let i = 0; i < ws.length; i++) goalAngs[i] -= mid;
+    }
     CHARACTERS.forEach((c, k) => {
-      const a = -0.62 + k * (1.24 / (CHARACTERS.length - 1));
+      const a = angs[k];
       const pos = C.clone().add(V(R * Math.sin(a), 0, -R * Math.cos(a)));
       const p = addPanel(s, { src: c.avatar, aspect: 716 / 960, height: 5.2 }, pos, -a);
       p.home = pos.clone();
       p.normal = V(-Math.sin(a), 0, Math.cos(a));
+      p.push = 0;
+      p.ang = a;
       makeInteractive(s, p, k);
       s.items.push(p);
     });
+    // máy quay xoay quanh tâm vòng cung (không đi tắt dây cung), hãm hai lớp cho êm đầu êm cuối
+    const orbit = { a: angs[0], a1: angs[0], tgt: angs[0], out: 0.35, dist: 9.8 };
+    const oDir = V(), oP = V(), oC = V();
+    function aimCamera(a) {
+      oDir.set(Math.sin(a), 0, -Math.cos(a));
+      oP.copy(C).addScaledVector(oDir, R - orbit.out).add(s.anchor);
+      oC.copy(C).addScaledVector(oDir, R - orbit.out - orbit.dist).add(s.anchor);
+      oC.y += 0.1;
+      s.wTgt.copy(oP).sub(s.camTgt);
+      s.wPos.copy(oC).sub(s.camPos);
+    }
+    function applyOrder() {
+      // thứ tự vẽ cố định: tấm đang chọn luôn trên cùng, càng xa càng nằm dưới (hết nhảy che nhau khi lia)
+      s.items.forEach((p, j) => { p.mesh.renderOrder = -Math.abs(j - s.sel); }); // ≤ 0: hạt sáng vẫn vẽ đè lên được
+    }
     s.select = (k) => {
       s.sel = k;
       s.items.forEach((p, j) => (p.focusTarget = j === k ? 1 : 0.28));
+      applyOrder();
       s.refocus();
     };
     s.refocus = () => {
-      const p = s.items[s.sel];
-      const wp = p.home.clone().addScaledVector(p.normal, s.wide ? 2 : 0).add(s.anchor);
-      focusOn(s, wp, p.normal, s.wide ? 13 : 9.8, 0.1);
+      orbit.tgt = angs[s.sel];
+      orbit.out = s.wide ? 2 : 0.35;
+      orbit.dist = s.wide ? 13 : 9.8;
+      if (!s.orbitInit) { s.orbitInit = true; orbit.a = orbit.a1 = orbit.tgt; aimCamera(orbit.a); }
     };
     s.setView = (mode) => {
       const p = s.items[s.sel];
@@ -365,10 +398,26 @@ export function createWorld({ canvas, isMobile, reduceMotion, onPick, onLoadProg
       s.refocus();
     };
     s.update = (dt) => {
+      layout();
       s.items.forEach((p, j) => {
-        const out = j === s.sel && s.wide ? 2 : 0;
-        const target = p.home.clone().addScaledVector(p.normal, out);
-        p.mesh.position.lerp(target, 1 - Math.exp(-dt * 4));
+        angs[j] = s.orbitInit && p.loaded ? damp(angs[j], goalAngs[j], 4, dt) : goalAngs[j];
+        const a = angs[j];
+        p.home.set(C.x + R * Math.sin(a), C.y, C.z - R * Math.cos(a));
+        p.normal.set(-Math.sin(a), 0, Math.cos(a));
+        p.mesh.rotation.y = -a;
+      });
+      orbit.tgt = angs[s.sel];
+      const k1 = reduceMotion ? 30 : 4.2;
+      orbit.a1 = damp(orbit.a1, orbit.tgt, k1, dt);
+      orbit.a = damp(orbit.a, orbit.a1, k1, dt);
+      aimCamera(orbit.a);
+      s.fPos.copy(s.wPos);
+      s.fTgt.copy(s.wTgt);
+      s.items.forEach((p, j) => {
+        // tấm đang chọn tiến lên một chút, các tấm khác lùi lại (tách lớp, không chạm nhau)
+        const goal = j === s.sel ? (s.wide ? 2 : 0.35) : -0.45;
+        p.push = damp(p.push, goal, 5, dt);
+        p.mesh.position.copy(p.home).addScaledVector(p.normal, p.push);
       });
     };
     s.pick = (k) => onPick(3, k);
