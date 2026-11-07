@@ -827,7 +827,7 @@ export function createWorld({ canvas, isMobile, reduceMotion, onPick, onLoadProg
     select(shotIndex, k) { shots[shotIndex].select(k); },
     setCharView(mode) { shots[3].setView(mode); },
     resize,
-    debug: { scene, camera, shots, renderer, talismans },
+    debug: { scene, camera, shots, renderer, talismans, flame },
     /** Thắp hương: nhang dài lại, tia lửa, sóng xung kích, pháp trận bừng sáng, máy quay rung nhẹ */
     lightIncense() {
       const s = shots[0];

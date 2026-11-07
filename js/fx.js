@@ -669,37 +669,66 @@ export function createGroundMist({ scene, anchors, sharedTime, fog }) {
    ====================================================================== */
 export function createCursorFlame({ scene, camera, canvas, pixelRatio, reduceMotion }) {
   const D = 6;                         // khoảng cách ngọn lửa trước máy quay
-  const FH = 0.3, FW = 0.17;
-  const geo = new THREE.PlaneGeometry(FW, FH, 1, 8);
-  geo.translate(0, FH * 0.5 - 0.03, 0); // chân lửa nằm ngay điểm con trỏ
-  const u = { uTime: { value: 0 }, uLean: { value: 0 }, uAlpha: { value: 0 }, uFlare: { value: 0 }, uStretch: { value: 0 } };
+  // Khung vẽ rộng hơn thân lửa để lưỡi lửa có chỗ uốn, tách ngọn
+  const FH = 0.42, FW = 0.26, BASE = 0.1; // BASE: phần khung dưới chân lửa (cho đáy tròn mềm)
+  const geo = new THREE.PlaneGeometry(FW, FH, 6, 24);
+  geo.translate(0, FH * 0.5 - FH * BASE, 0); // chân lửa nằm ngay điểm con trỏ
+  const u = {
+    uTime: { value: 0 }, uAlpha: { value: 0 }, uFlare: { value: 0 },
+    uBend: { value: new THREE.Vector2() }, uH: { value: 1 }, uFH: { value: FH }, uBaseK: { value: BASE }
+  };
   const flame = new THREE.Mesh(geo, new THREE.ShaderMaterial({
     uniforms: u,
     vertexShader: /* glsl */ `
-      uniform float uLean, uStretch; varying vec2 vUv;
+      uniform vec2 uBend; uniform float uH, uFH, uBaseK; varying vec2 vUv;
       void main(){
         vUv = uv;
         vec3 p = position;
-        p.y = (p.y + .03)*(1. + uStretch*.7) - .03;
-        p.x += uLean*uv.y*uv.y*.16;
+        float y = max(0., (uv.y - uBaseK)/(1. - uBaseK));   // 0 ở chân, 1 ở đỉnh
+        p.y = (p.y)*mix(1., uH, step(0., p.y));             // thở: chỉ kéo phần trên chân
+        // thân lửa uốn theo lò xo: chân bám con trỏ, ngọn trễ lại và lắc lư
+        // uốn cong bằng cách xoay dần quanh chân (giữ chiều dài, không bị kéo thành vệt)
+        float w = y*(1.6 - .6*y);
+        float a = -uBend.x*w;
+        float c = cos(a), sn = sin(a);
+        p.y *= 1. + uBend.y*.6*y;
+        p.xy = mat2(c, sn, -sn, c)*p.xy;
         gl_Position = projectionMatrix*modelViewMatrix*vec4(p,1.);
       }`,
     fragmentShader: /* glsl */ `
-      uniform float uTime, uAlpha, uFlare; varying vec2 vUv;
+      uniform float uTime, uAlpha, uFlare, uBaseK; varying vec2 vUv;
       ${NOISE}
       void main(){
-        float y = vUv.y;
-        float n = vnoise(vec2(vUv.x*4., y*5. - uTime*8.));
-        float x = vUv.x - .5 + (n - .5)*.18*y;
-        float w = .44*pow(max(0., 1. - y), .62)*smoothstep(0., .2, y + .03);
-        float body = 1. - smoothstep(w*.4, w, abs(x));
-        body *= 1. - smoothstep(.5, .98, y + (n - .5)*.25);
-        float core = (1. - smoothstep(0., w*.55, abs(x)))*(1. - smoothstep(.1, .5, y));
-        float foot = 1. - smoothstep(0., .2, y);
-        vec3 col = mix(vec3(.95,.22,.05), vec3(1.,.6,.16), body);
-        col = mix(col, vec3(1.,.95,.8), core);
-        col = mix(col, vec3(.2,.9,.85), foot*.75);
-        gl_FragColor = vec4(col*(1.5 + uFlare*1.6), body*uAlpha);
+        float y = (vUv.y - uBaseK)/(1. - uBaseK);          // <0 dưới chân
+        float x = (vUv.x - .5)*2.;                          // -1..1
+        float t = uTime;
+        // nhiễu cuộn lên trên (hai lớp, tốc độ khác nhau) + uốn miền theo chiều cao
+        float n1 = fbm(vec2(x*1.6, y*2.2 - t*2.6));
+        float n2 = vnoise(vec2(x*3.4 + 7., y*4.5 - t*4.3));
+        float warp = (n1 - .5)*.55*smoothstep(0., 1., y) + (n2 - .5)*.18*y;
+        float xx = x + warp;
+        // mặt cắt giọt nước: đáy tròn, thắt dần về ngọn
+        float yb = clamp(y, -.12, 1.);
+        float wid = .62*pow(max(0., 1. - yb), .55)*sqrt(clamp((yb + .12)/.3, 0., 1.));
+        float d = abs(xx)/max(wid, .001);
+        // mật độ: lõi đặc, càng lên cao nhiễu càng ăn mòn → lưỡi lửa tách, đứt ngọn
+        float dens = 1. - d;
+        dens -= (n1*1.1 + n2*.35 - .6)*smoothstep(.15, 1., y)*1.1;
+        dens -= smoothstep(.55, 1.05, y)*.55;
+        dens = clamp(dens, 0., 1.);
+        dens *= smoothstep(-.14, .02, y);                   // đáy mềm
+        float heat = pow(dens, 1.35)*(1. - .55*y)*(1. - .4*smoothstep(.0, .35, abs(xx)/max(wid, .001)));
+        // dải màu vật đen: đỏ thẫm → cam → vàng → trắng ngà
+        vec3 col = vec3(.55,.05,.01);
+        col = mix(col, vec3(1.,.32,.05), smoothstep(.05, .35, heat));
+        col = mix(col, vec3(1.,.66,.2), smoothstep(.3, .62, heat));
+        col = mix(col, vec3(1.,.93,.72), smoothstep(.62, .92, heat));
+        // chân lửa xanh ngọc mờ (hồn đăng), chỉ ở mép đáy
+        float foot = (1. - smoothstep(-.02, .2, y))*smoothstep(.0, .5, dens)*(1. - smoothstep(.55, .95, heat));
+        col = mix(col, vec3(.15,.75,.8), foot*.8);
+        float a = smoothstep(0., .6, dens);
+        a *= a;
+        gl_FragColor = vec4(col*(1.05 + uFlare*1.4), a*uAlpha*.9);
       }`,
     transparent: true, depthWrite: false, depthTest: false, blending: THREE.AdditiveBlending
   }));
@@ -747,7 +776,10 @@ export function createCursorFlame({ scene, camera, canvas, pixelRatio, reduceMot
   const up = new THREE.Vector3();
   const right = new THREE.Vector3();
   const screen = { x: -1e4, y: -1e4 };
-  let active = false, alpha = 0, init = false, lean = 0, stretch = 0, flare = 0, spawnAcc = 0, next = 0;
+  let active = false, alpha = 0, init = false, flare = 0, spawnAcc = 0, next = 0;
+  // lò xo cho ngọn lửa (đơn vị: chiều cao ngọn lửa)
+  const bend = new THREE.Vector2(), bendV = new THREE.Vector2(), bendT = new THREE.Vector2();
+  let breathe = 1;
   addEventListener('pointermove', (e) => {
     if (e.pointerType !== 'mouse') return;
     ndc.set((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
@@ -762,7 +794,8 @@ export function createCursorFlame({ scene, camera, canvas, pixelRatio, reduceMot
     for (let k = 0; k < n; k++) {
       const i = next; next = (next + 1) % N;
       const o = i * 3;
-      pos[o] = cur.x + up.x * 0.17; pos[o + 1] = cur.y + up.y * 0.17; pos[o + 2] = cur.z + up.z * 0.17;
+      const tx = bend.x * FH * 0.8, ty = FH * 0.62;
+      pos[o] = cur.x + up.x * ty + right.x * tx; pos[o + 1] = cur.y + up.y * ty + right.y * tx; pos[o + 2] = cur.z + up.z * ty + right.z * tx;
       const side = (Math.random() - 0.5) * 0.35 * speed;
       const rise = (0.25 + Math.random() * 0.45) * speed;
       vel[o] = up.x * rise + right.x * side; vel[o + 1] = up.y * rise + right.y * side; vel[o + 2] = up.z * rise + right.z * side;
@@ -776,9 +809,10 @@ export function createCursorFlame({ scene, camera, canvas, pixelRatio, reduceMot
     screen,
     get active() { return alpha > 0.4; },
     flare(k = 1) { flare = Math.max(flare, k); },
+    inspect: 1, // debug: phóng to để soi hình dạng lửa
     update(dt, t) {
-      sm.x = damp(sm.x, ndc.x, 16, dt);
-      sm.y = damp(sm.y, ndc.y, 16, dt);
+      sm.x = damp(sm.x, ndc.x, 28, dt);
+      sm.y = damp(sm.y, ndc.y, 28, dt);
       const vx = dt > 0 ? (sm.x - prevSm.x) / dt : 0;
       const vy = dt > 0 ? (sm.y - prevSm.y) / dt : 0;
       prevSm.copy(sm);
@@ -791,26 +825,40 @@ export function createCursorFlame({ scene, camera, canvas, pixelRatio, reduceMot
       right.set(1, 0, 0).applyQuaternion(camera.quaternion);
 
       const speed = Math.hypot(vx * camera.aspect, vy);
-      lean = damp(lean, THREE.MathUtils.clamp(-vx * 0.9, -1.4, 1.4), 9, dt);
-      stretch = damp(stretch, Math.min(1, Math.max(0, -vy) * 0.5 + speed * 0.15), 8, dt);
+      // vận tốc con trỏ quy ra đơn vị thế giới ở mặt phẳng ngọn lửa
+      const halfH = D * Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2);
+      const wx = vx * halfH * camera.aspect, wy = vy * halfH;
+      // ngọn lửa bị gió kéo ngược hướng di chuyển; đứng yên thì lay nhẹ như có gió lùa
+      const idle = reduceMotion ? 0 : Math.sin(t * 1.1) * 0.05 + Math.sin(t * 2.7 + 1.3) * 0.03 + Math.sin(t * 5.9) * 0.012;
+      bendT.set(
+        Math.tanh(-wx * 0.32) * 0.72 + idle,
+        THREE.MathUtils.clamp(-wy * 0.35, -0.45, 0.6) + Math.min(0.35, Math.abs(wx) * 0.12)
+      );
+      // lò xo thiếu giảm chấn: dừng đột ngột thì ngọn lửa vẫy qua lại rồi mới đứng
+      const K = 70, C = 7.5, h = Math.min(dt, 1 / 30);
+      bendV.x += ((bendT.x - bend.x) * K - bendV.x * C) * h;
+      bendV.y += ((bendT.y - bend.y) * K - bendV.y * C) * h;
+      bend.x += bendV.x * h; bend.y += bendV.y * h;
+      // nhịp thở chiều cao theo nhiễu (không đều như sin)
+      const b = reduceMotion ? 1 : 1 + (Math.sin(t * 3.1) * 0.5 + Math.sin(t * 7.3 + 2) * 0.3 + Math.sin(t * 13.7) * 0.2) * 0.07;
+      breathe = damp(breathe, b + flare * 0.35, 10, dt);
       flare = damp(flare, 0, 2.2, dt);
       alpha = damp(alpha, active ? 1 : 0, 4, dt);
-      const flick = reduceMotion ? 1 : 0.9 + Math.sin(t * 17) * 0.06 + Math.sin(t * 31.3) * 0.04;
 
       flame.position.copy(cur);
       flame.quaternion.copy(camera.quaternion);
-      flame.scale.setScalar((1 + flare * 0.45) * flick);
+      flame.scale.setScalar((1 + flare * 0.25) * this.inspect);
       u.uTime.value = t;
-      u.uLean.value = lean;
-      u.uStretch.value = stretch;
+      u.uBend.value.copy(bend);
+      u.uH.value = breathe;
       u.uAlpha.value = alpha;
       u.uFlare.value = flare;
-      halo.position.copy(cur).addScaledVector(up, 0.08);
-      halo.material.opacity = alpha * (0.55 + flare * 0.4) * flick;
-      halo.scale.setScalar(0.8 + flare * 0.8);
+      halo.position.copy(cur).addScaledVector(up, FH * 0.3).addScaledVector(right, bend.x * FH * 0.3);
+      halo.material.opacity = alpha * (0.42 + flare * 0.4) * (0.85 + (breathe - 1) * 1.5);
+      halo.scale.setScalar(0.85 + flare * 0.8);
 
       if (alpha > 0.05 && !reduceMotion) {
-        spawnAcc += dt * (5 + speed * 14 + flare * 30);
+        spawnAcc += dt * (1.2 + speed * 9 + flare * 30);
         const n = Math.floor(spawnAcc);
         if (n) { spawnAcc -= n; emit(n, 1 + flare); }
       }
