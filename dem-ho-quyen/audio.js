@@ -273,3 +273,138 @@ export function setListener(cam) {
 }
 
 export function fadeMaster(v, sec) { if (ctx) master.gain.setTargetAtTime(v, now(), sec / 3); }
+
+/* ================= Bổ sung cho bản đủ 6 hồi ================= */
+export const audioCtx = () => ctx;
+
+/** kèn bầu (giả lập): sóng răng cưa qua bộ lọc dải, rung nhẹ, luyến lên nốt */
+export function kenNote(freq, len = 0.5, loud = 0.16) {
+  if (!ctx) return;
+  const t = now();
+  const o = ctx.createOscillator(); o.type = 'sawtooth';
+  o.frequency.setValueAtTime(freq * 0.94, t); o.frequency.exponentialRampToValueAtTime(freq, t + 0.06);
+  const vib = ctx.createOscillator(); vib.frequency.value = 5.6; const vg = ctx.createGain(); vg.gain.value = freq * 0.012;
+  vib.connect(vg).connect(o.frequency);
+  const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = freq * 2.2; bp.Q.value = 1.4;
+  const bp2 = ctx.createBiquadFilter(); bp2.type = 'peaking'; bp2.frequency.value = 1400; bp2.gain.value = 6;
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(loud, t + 0.04);
+  g.gain.setValueAtTime(loud, t + len * 0.7); g.gain.exponentialRampToValueAtTime(0.0001, t + len);
+  o.connect(bp).connect(bp2).connect(g).connect(master);
+  o.start(t); vib.start(t); o.stop(t + len + 0.05); vib.stop(t + len + 0.05);
+}
+/** trống nhỏ, phách gỗ cho nhịp nhã nhạc */
+export function phach() {
+  if (!ctx) return;
+  const t = now();
+  const o = ctx.createOscillator(); o.type = 'square'; o.frequency.value = 1900;
+  const g = ctx.createGain(); env(g, t, 0.001, 0.12, 0.05);
+  const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 2200; bp.Q.value = 3;
+  o.connect(bp).connect(g).connect(master); o.start(t); o.stop(t + 0.08);
+}
+
+let crowdG = null, cicadaG = null, flyG = null, flyF = null;
+/** đám đông xa và ve sầu giờ Ngọ */
+export function startDay() {
+  if (!ctx || crowdG) return;
+  const n = noiseSrc(true); const lp = ctx.createBiquadFilter(); lp.type = 'bandpass'; lp.frequency.value = 520; lp.Q.value = 0.6;
+  crowdG = ctx.createGain(); crowdG.gain.value = 0;
+  const am = ctx.createGain(); am.gain.value = 0.7; const lfo = ctx.createOscillator(); lfo.frequency.value = 0.4; const lg = ctx.createGain(); lg.gain.value = 0.3;
+  lfo.connect(lg).connect(am.gain); lfo.start();
+  n.connect(lp).connect(am).connect(crowdG).connect(master); n.start(0, 0.5);
+  cicadaG = ctx.createGain(); cicadaG.gain.value = 0;
+  const c = ctx.createOscillator(); c.frequency.value = 5200; const cam = ctx.createGain(); cam.gain.value = 0;
+  const cl = ctx.createOscillator(); cl.frequency.value = 64; const cg = ctx.createGain(); cg.gain.value = 1;
+  cl.connect(cg).connect(cam.gain); c.connect(cam).connect(cicadaG).connect(master); c.start(); cl.start();
+  crowdG.gain.setTargetAtTime(0.12, now(), 1); cicadaG.gain.setTargetAtTime(0.008, now(), 1);
+}
+export function dayLevel(v) { if (crowdG) { crowdG.gain.setTargetAtTime(0.12 * v, now(), 0.08); cicadaG.gain.setTargetAtTime(0.008 * v, now(), 0.08); } }
+export function stopDay() { dayLevel(0); }
+
+/** ruồi vo ve quanh rương: tần số rung nhanh, to dần khi lại gần */
+export function startFlies() {
+  if (!ctx || flyG) return;
+  flyG = ctx.createGain(); flyG.gain.value = 0;
+  [[212, 0], [236, 0.4], [198, -0.4]].forEach(([f, p]) => {
+    const o = ctx.createOscillator(); o.type = 'sawtooth'; o.frequency.value = f;
+    const wob = ctx.createOscillator(); wob.frequency.value = 3 + Math.random() * 4; const wg = ctx.createGain(); wg.gain.value = 18;
+    wob.connect(wg).connect(o.frequency);
+    const pan = ctx.createStereoPanner(); pan.pan.value = p;
+    const og = ctx.createGain(); og.gain.value = 0.04;
+    o.connect(og).connect(pan).connect(flyG); o.start(); wob.start();
+  });
+  flyF = ctx.createBiquadFilter(); flyF.type = 'lowpass'; flyF.frequency.value = 900;
+  flyG.connect(flyF).connect(master);
+}
+export function fliesLevel(v) { if (flyG) { flyG.gain.setTargetAtTime(v, now(), 0.15); flyF.frequency.setTargetAtTime(600 + v * 2400, now(), 0.15); } }
+
+/** nắp gỗ bị cạy: tiếng kẽo kẹt rồi bật */
+export function creak() {
+  if (!ctx) return;
+  const t = now();
+  const o = ctx.createOscillator(); o.type = 'sawtooth';
+  o.frequency.setValueAtTime(140, t); o.frequency.linearRampToValueAtTime(90, t + 0.5); o.frequency.linearRampToValueAtTime(170, t + 0.7);
+  const am = ctx.createGain(); am.gain.value = 0; const lfo = ctx.createOscillator(); lfo.type = 'square'; lfo.frequency.setValueAtTime(28, t); lfo.frequency.linearRampToValueAtTime(14, t + 0.7);
+  lfo.connect(am.gain);
+  const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 800; bp.Q.value = 4;
+  const g = ctx.createGain(); env(g, t, 0.05, 0.25, 0.7);
+  o.connect(am).connect(bp).connect(g).connect(master); o.start(t); lfo.start(t); o.stop(t + 0.85); lfo.stop(t + 0.85);
+  // tiếng nắp bật
+  const n = noiseSrc(), lp = ctx.createBiquadFilter(), ng = ctx.createGain();
+  lp.type = 'lowpass'; lp.frequency.value = 700; env(ng, t + 0.72, 0.002, 0.8, 0.25);
+  n.connect(lp).connect(ng).connect(master); n.start(t + 0.72, Math.random()); n.stop(t + 1.1);
+}
+/** chổi châu phê quệt qua khung hình */
+export function brush() {
+  if (!ctx) return;
+  const t = now();
+  const n = noiseSrc(), bp = ctx.createBiquadFilter(), g = ctx.createGain(), pan = ctx.createStereoPanner();
+  bp.type = 'bandpass'; bp.Q.value = 0.9; bp.frequency.setValueAtTime(900, t); bp.frequency.exponentialRampToValueAtTime(2600, t + 0.5);
+  env(g, t, 0.12, 0.45, 0.5); pan.pan.setValueAtTime(-0.8, t); pan.pan.linearRampToValueAtTime(0.8, t + 0.6);
+  n.connect(bp).connect(g).connect(pan).connect(master); n.start(t, Math.random()); n.stop(t + 0.8);
+}
+/** cắt lặng toàn bộ trong một khoảnh khắc */
+export function cut(sec = 1.2) {
+  if (!ctx) return;
+  const t = now();
+  master.gain.cancelScheduledValues(t);
+  master.gain.setValueAtTime(0.0001, t);
+  master.gain.setTargetAtTime(0.9, t + sec, 0.3);
+}
+/** tiếng vỡ, nứt */
+export function crack() {
+  if (!ctx) return;
+  const t = now();
+  const n = noiseSrc(), hp = ctx.createBiquadFilter(), g = ctx.createGain();
+  hp.type = 'highpass'; hp.frequency.value = 1800; env(g, t, 0.001, 0.9, 0.35);
+  n.connect(hp).connect(g).connect(master); n.start(t, Math.random()); n.stop(t + 0.4);
+  const o = ctx.createOscillator(), og = ctx.createGain(); o.frequency.setValueAtTime(90, t); o.frequency.exponentialRampToValueAtTime(30, t + 0.4);
+  env(og, t, 0.002, 0.6, 0.4); o.connect(og).connect(master); o.start(t); o.stop(t + 0.45);
+}
+/** ánh sáng hoa văn vòng tay bừng lên */
+export function shimmer() {
+  if (!ctx) return;
+  const t = now();
+  [523, 659, 784, 1046, 1318].forEach((f, i) => {
+    const o = ctx.createOscillator(), g = ctx.createGain(); o.type = 'triangle'; o.frequency.value = f;
+    env(g, t + i * 0.05, 0.01, 0.12, 2.4 - i * 0.2); o.connect(g).connect(master); o.start(t + i * 0.05); o.stop(t + 2.8);
+  });
+  const o = ctx.createOscillator(), g = ctx.createGain(); o.frequency.setValueAtTime(60, t); o.frequency.exponentialRampToValueAtTime(140, t + 1.2);
+  env(g, t, 0.05, 0.5, 1.6); o.connect(g).connect(master); o.start(t); o.stop(t + 1.8);
+}
+/** tiếng đinh nhỏ khi nối một dấu bùa / mầm lúa nhú */
+export function tick(f = 880, loud = 0.08) {
+  if (!ctx) return;
+  const t = now();
+  const o = ctx.createOscillator(), g = ctx.createGain(); o.frequency.value = f;
+  env(g, t, 0.003, loud, 0.5); o.connect(g).connect(master); o.start(t); o.stop(t + 0.55);
+}
+/** lửa bén vào đầu nhang */
+export function ignite() {
+  if (!ctx) return;
+  const t = now();
+  const n = noiseSrc(), bp = ctx.createBiquadFilter(), g = ctx.createGain();
+  bp.type = 'bandpass'; bp.frequency.value = 3000; bp.Q.value = 0.7; env(g, t, 0.02, 0.25, 0.6);
+  n.connect(bp).connect(g).connect(master); n.start(t, Math.random()); n.stop(t + 0.7);
+}
+export function setWorldLevel(v) { if (insectGain) insectGain.gain.setTargetAtTime(v, now(), 0.5); if (windGain) windGain.gain.setTargetAtTime(0.18 * v, now(), 0.5); }
