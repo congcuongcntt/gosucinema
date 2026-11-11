@@ -32,14 +32,23 @@ Mở http://localhost:5173 (ES modules cần chạy qua HTTP, không mở bằng
 
 Phiên bản trang dài trước đây (kèm Visual Editor và `site-overrides.json`) được giữ nguyên ở `classic.html`, có link từ nút "BẢN CỔ ĐIỂN" trên thanh HUD.
 
-## Bản thử "Mắt Âm" (`mat-am/`)
+## Đêm Hổ Quyền · 1836 (`dem-ho-quyen/`)
 
-Bản thử cho hướng redesign tương tác, ít chữ: một đêm ở đấu trường Hổ Quyền năm 1836, dựng theo số đo thật (lòng chảo 44 m, thành trong 5,9 m, thành ngoài 4,75 m, 5 chuồng cọp phía Nam, khán đài vua phía Bắc).
+Trải nghiệm tương tác 6 hồi cho hướng redesign ít chữ, kể bằng hành động và âm thanh. Bối cảnh là một ngày đêm ở đấu trường Hổ Quyền năm Minh Mạng thứ 17, dựng theo số đo thật (lòng chảo 44 m, thành trong 5,9 m, thành ngoài 4,75 m, 5 chuồng cọp phía Nam, khán đài vua phía Bắc). Chuyển hồi bằng một nét châu phê son đỏ quệt qua khung hình.
 
-- Đánh 3 hồi trống để vào (cũng là lúc trình duyệt cho phép phát âm thanh).
-- Nhấn giữ chuột / chạm giữ / giữ phím cách để mở **Mắt Âm** quanh con trỏ; giữ hơn 4 giây thì mở cả khung hình.
-- Năm bóng hổ khói lần lượt ra khỏi chuồng. Bị Mắt Âm nhìn trúng thì gần như đứng im; khuất mắt thì lao tới. Nhìn thẳng khi nó tới gần để giải oán; giải đủ 5 con thì trời sáng.
-- Âm thanh tổng hợp toàn bộ bằng Web Audio, tiếng hổ đặt trong không gian 3D (HRTF), nên đeo tai nghe.
+| Hồi | Cảnh | Thao tác |
+| --- | --- | --- |
+| 0 · Trống chầu | Màn đen, mặt trống | Nhấn 3 lần (cũng là lúc trình duyệt cho phát âm thanh) |
+| 1 · Giờ Ngọ | Trận voi hổ, nhìn từ khán đài vua | Lăn chuột / kéo lên / mũi tên lên để thời gian đi tiếp; mỗi nấc là một nốt kèn |
+| 2 · Những chiếc rương | Chạng vạng, đường sang Điện Voi Ré | Bấm vào từng rương: da hổ còn máu, lệnh bài dấu lệch, đĩnh vàng ký hiệu lạ |
+| 3 · Mắt Âm | Giờ Tý, lòng chảo | Nhấn giữ mở Mắt Âm; bóng hổ bị nhìn thì chậm lại, khuất mắt thì lao tới; nhìn thẳng khi nó tới gần để giải oán (5 con) |
+| 4 · Đại Ma Hổ | Canh Tư | Giữ và kéo nối 5 dấu bùa, rồi bấm khi vòng đỏ khớp vòng trong |
+| 5 · Bình minh | Sương sớm | Rê chuột để lúa hồi lại; hơ ngọn lửa vào đầu nhang để thắp; màn kết đếm số nén nhang |
+
+- Âm thanh tổng hợp toàn bộ bằng Web Audio, tiếng hổ đặt trong không gian 3D (HRTF), nên đeo tai nghe. Nhạc nền màn kết: `assets/audio/soundtrack-1836.m4a`.
 - Không dùng micro, webcam. Điện thoại dùng con quay hồi chuyển để nhìn quanh.
+- Bàn phím: phím cách / Enter thay cho nhấn, mũi tên thay cho lăn.
 
-Mở http://localhost:5173/mat-am/. Khi phát triển: `?debug` gắn `window.__matam`, `?debug&ts=8` tua nhanh thời gian.
+Khi phát triển: `?act=1..5` vào thẳng một hồi, `?debug` gắn `window.__dhq`, `?debug&ts=4` tua nhanh thời gian. Trên localhost bộ đếm nhang không cộng.
+
+Bản thử "Mắt Âm" cũ (`mat-am/`) nay chuyển thẳng sang hồi 3 của `dem-ho-quyen/`.
