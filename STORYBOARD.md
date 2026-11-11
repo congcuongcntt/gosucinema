@@ -31,3 +31,15 @@ Mở http://localhost:5173 (ES modules cần chạy qua HTTP, không mở bằng
 ## Trang cũ
 
 Phiên bản trang dài trước đây (kèm Visual Editor và `site-overrides.json`) được giữ nguyên ở `classic.html`, có link từ nút "BẢN CỔ ĐIỂN" trên thanh HUD.
+
+## Bản thử "Mắt Âm" (`mat-am/`)
+
+Bản thử cho hướng redesign tương tác, ít chữ: một đêm ở đấu trường Hổ Quyền năm 1836, dựng theo số đo thật (lòng chảo 44 m, thành trong 5,9 m, thành ngoài 4,75 m, 5 chuồng cọp phía Nam, khán đài vua phía Bắc).
+
+- Đánh 3 hồi trống để vào (cũng là lúc trình duyệt cho phép phát âm thanh).
+- Nhấn giữ chuột / chạm giữ / giữ phím cách để mở **Mắt Âm** quanh con trỏ; giữ hơn 4 giây thì mở cả khung hình.
+- Năm bóng hổ khói lần lượt ra khỏi chuồng. Bị Mắt Âm nhìn trúng thì gần như đứng im; khuất mắt thì lao tới. Nhìn thẳng khi nó tới gần để giải oán; giải đủ 5 con thì trời sáng.
+- Âm thanh tổng hợp toàn bộ bằng Web Audio, tiếng hổ đặt trong không gian 3D (HRTF), nên đeo tai nghe.
+- Không dùng micro, webcam. Điện thoại dùng con quay hồi chuyển để nhìn quanh.
+
+Mở http://localhost:5173/mat-am/. Khi phát triển: `?debug` gắn `window.__matam`, `?debug&ts=8` tua nhanh thời gian.
