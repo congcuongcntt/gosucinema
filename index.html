@@ -3,281 +3,221 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <title>Sơn Hà Dị Lục · 1836 — Storyboard</title>
-  <meta name="description" content="Sơn Hà Dị Lục (1836) — storyboard điện ảnh tương tác: cổ trang, linh dị dân gian và trinh thám Việt Nam của GOSU Studio.">
-  <meta property="og:title" content="Sơn Hà Dị Lục · 1836 — Storyboard">
-  <meta property="og:description" content="Hồ sơ pitching dự án điện ảnh linh dị cổ trang Việt Nam của GOSU Studio.">
-  <meta property="og:image" content="https://gosucinema.web.id/assets/still-frame/09.webp">
-  <meta name="theme-color" content="#070505">
+  <title>Sơn Hà Dị Lục · 1836 — Hồ sơ dự án</title>
+  <meta name="description" content="Sơn Hà Dị Lục: dự án linh dị trinh thám lấy bối cảnh kinh đô Huế năm Minh Mạng thứ 17 (1836). Trailer, bối cảnh Hổ Quyền và Điện Voi Ré, nhân vật, tạo hình ingame, sáu thế lực và pháp khí.">
+  <meta property="og:title" content="Sơn Hà Dị Lục · 1836">
+  <meta property="og:description" content="Một nước Đại Nam, hai mặt thế gian. Hồ sơ giới thiệu dự án.">
+  <meta property="og:image" content="assets/v2/hq-overview.webp">
+  <meta name="theme-color" content="#070605">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preload" href="assets/uploads/1793703338122-1FTV-VIP-Queen-of-Silence.ttf" as="font" type="font/ttf" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Prata&family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
-  <link rel="preload" as="image" href="assets/son-ha-di-luc-title.webp?v=15" crossorigin>
-  <link rel="stylesheet" href="css/style.css?v=9">
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
+  <link rel="preload" as="image" href="assets/v2/hq-overview.webp">
+  <link rel="stylesheet" href="v2/site.css?v=1">
   <script type="importmap">
-    {
-      "imports": {
-        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
-      }
-    }
+    { "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    } }
   </script>
 </head>
 <body>
-  <canvas id="gl" aria-hidden="true"></canvas>
-  <div class="fallback-bg" aria-hidden="true"></div>
+  <!-- sân khấu hình: mọi hình nền lớn đều vẽ ở đây bằng WebGL -->
+  <div id="stage-fallback" aria-hidden="true"></div>
+  <canvas id="stage" aria-hidden="true"></canvas>
+  <div class="veil" aria-hidden="true"></div>
 
-  <div class="letterbox letterbox--top" aria-hidden="true"></div>
-  <div class="letterbox letterbox--bottom" aria-hidden="true"></div>
-
-  <!-- Clapperboard loader -->
-  <div id="loader" role="status" aria-live="polite">
-    <div class="clapper">
-      <div class="clapper-arm"></div>
-      <div class="clapper-board">
-        <div class="clapper-row"><span>PROD.</span><strong>SƠN HÀ DỊ LỤC</strong></div>
-        <div class="clapper-row clapper-grid">
-          <span>SCENE<b>01</b></span><span>TAKE<b>1</b></span><span>ROLL<b>1836</b></span>
-        </div>
-        <div class="clapper-row"><span>DIR.</span><strong>GIHOT · GOSU CINEMA</strong></div>
-      </div>
-    </div>
-    <div class="loader-bar"><i id="loader-fill"></i></div>
-    <p class="loader-text" id="loader-text">ĐANG CHUẨN BỊ PHIM TRƯỜNG…</p>
-  </div>
-
-  <header class="hud-top">
-    <a class="brand" href="#mo-man" data-goto="0">
-      <img src="assets/gosu-logo.png" alt="GOSU" width="66" height="22">
-      <span>CINEMA · ĐẠI NAM 1836</span>
-    </a>
-    <p class="hud-title">HỒ SƠ PITCHING · <b>STORYBOARD</b> — KHÔNG PHẢI WEBSITE CHÍNH THỨC</p>
-    <div class="hud-actions">
-      <a class="chip chip--link" href="dem-ho-quyen/" title="Trải nghiệm tương tác 6 hồi">ĐÊM HỔ QUYỀN</a>
-      <a class="chip chip--link" href="classic.html" title="Xem phiên bản trang dài trước đây">BẢN CỔ ĐIỂN</a>
-      <button type="button" class="chip" id="sound-btn" aria-pressed="false">
-        <span class="eq" aria-hidden="true"><i></i><i></i><i></i></span><span class="chip-label">NHẠC: TẮT</span>
-      </button>
-    </div>
+  <header class="top">
+    <a class="brand" href="#mo-man" aria-label="Về đầu trang"><img src="assets/gosu-logo.png" alt="GOSU" width="66" height="22"></a>
+    <p class="top-title">SƠN HÀ DỊ LỤC · <b>HỒ SƠ DỰ ÁN</b></p>
+    <button type="button" class="sound" id="sound" aria-pressed="false"><span class="eq" aria-hidden="true"><i></i><i></i><i></i></span><span id="sound-label">NHẠC: TẮT</span></button>
   </header>
 
-  <div class="viewfinder" aria-hidden="true">
-    <i class="vf-c tl"></i><i class="vf-c tr"></i><i class="vf-c bl"></i><i class="vf-c br"></i>
-    <i class="vf-cross"></i>
-    <div class="land-title" id="land-title" aria-hidden="true"><span class="lt-han" id="lt-han"></span><span class="lt-kicker">VÙNG ĐẤT <b id="lt-num"></b></span><span class="lt-name" id="lt-name"></span></div>
-    <div class="vf-meta vf-meta--left"><span class="rec">● REC</span> <span id="tc">TC 00:00:00:00</span></div>
-    <div class="vf-meta vf-meta--right"><span id="vf-code">SC 01</span> · <span id="vf-move">PUSH IN · 24mm</span></div>
-  </div>
+  <nav class="rail" id="rail" aria-label="Mục lục"></nav>
 
-  <!-- điểm chú thích bám theo vật thể 3D (bản đồ thế lực, địa đồ, pháp khí) -->
-  <div class="hotspots" id="hotspots" aria-hidden="true"></div>
-
-  <!-- Âm môn: cổng bước vào (mở khoá âm thanh bằng cú bấm đầu tiên) -->
-  <div class="gate" id="gate" hidden>
-    <div class="gate-veil" aria-hidden="true"></div>
-    <div class="gate-glow" aria-hidden="true"></div>
-    <div class="gate-ring" aria-hidden="true"></div>
-    <div class="gate-ring gate-ring--inner" aria-hidden="true"></div>
-    <div class="gate-body">
-      <p class="gate-kicker">SƠN HÀ DỊ LỤC · KINH ĐÔ PHÚ XUÂN · 1836</p>
-      <button type="button" class="gate-enter" id="gate-enter">
-        <span class="gate-han" aria-hidden="true">陰門</span>
-        <span class="gate-cta">BƯỚC QUA ÂM MÔN</span>
-      </button>
-      <p class="gate-note">Trải nghiệm có âm thanh · <button type="button" class="gate-silent" id="gate-silent">vào trong im lặng</button></p>
-    </div>
-  </div>
-
-  <main id="overlay">
-    <!-- SC01 -->
-    <section class="shot shot--center" data-shot="0" id="mo-man" aria-labelledby="h-open">
-      <!-- điểm chạm bám theo đầu nhang 3D -->
-      <button type="button" class="incense-anchor" id="incense-anchor" aria-label="Thắp một nén hương cho dự án (+1)">
-        <span class="ia-ring" aria-hidden="true"></span>
-        <span class="ia-label" id="ia-label">BẤM THẮP HƯƠNG (+1)</span>
-        <span class="ia-plus" aria-hidden="true">+1 NÉN HƯƠNG</span>
-      </button>
-      <div class="card card--bare">
-        <p class="kicker">MỘT TÁC PHẨM ĐIỆN ẢNH CỦA <b>GOSU CINEMA</b> · KINH ĐÔ PHÚ XUÂN</p>
-        <h1 id="h-open" class="sr-only">Sơn Hà Dị Lục 1836</h1>
-        <img class="fallback-title" src="assets/son-ha-di-luc-title.webp?v=15" alt="" width="366" height="416">
-        <p class="logline">“Ma quỷ không tự nhiên sinh ra để hủy diệt nhân gian — chính lòng tham, sự tàn nhẫn và nỗi oan khuất chưa được tháo gỡ của con người mới là mầm mống nuôi dưỡng tà vật.”</p>
+  <main>
+    <!-- 01 · Mở màn -->
+    <section class="sec sec--hero" id="mo-man" data-nav="Mở màn" data-plate="hq-overview">
+      <div class="hero">
+        <p class="kicker">ĐẠI NAM · NĂM MINH MẠNG THỨ MƯỜI BẢY</p>
+        <h1 class="sr">Sơn Hà Dị Lục 1836</h1>
+        <img class="hero-title" src="assets/son-ha-di-luc-title.webp?v=15" alt="" width="366" height="416">
+        <p class="hero-line">Một nước Đại Nam, hai mặt thế gian.</p>
         <div class="actions">
-          <button type="button" class="btn btn--primary" data-goto="1">Bắt đầu hành trình <span aria-hidden="true">↓</span></button>
-          <button type="button" class="btn btn--ghost incense-btn" id="incense-btn" title="Thắp một nén hương cho dự án (+1)">
-            <span class="incense-dot" aria-hidden="true"></span>
-            <span>Đã thắp <b id="incense-count">—</b> nén hương</span>
-            <span class="incense-cta" aria-hidden="true">✦ +1</span>
-          </button>
+          <a class="btn btn--red" href="#trailer">Xem trailer</a>
+          <a class="btn" href="#cau-chuyen">Vào hồ sơ <span aria-hidden="true">↓</span></a>
         </div>
-        <p class="scroll-hint" aria-hidden="true">CUỘN · VUỐT · PHÍM ↓ ĐỂ CHUYỂN CẢNH</p>
       </div>
+      <p class="scroll-cue" aria-hidden="true"><i></i>CUỘN XUỐNG</p>
     </section>
 
-    <!-- SC02 -->
-    <section class="shot shot--right" data-shot="1" id="khoi-nguon" aria-labelledby="h-story">
-      <div class="card">
-        <p class="eyebrow">CHƯƠNG I — KHỞI NGUỒN ÁN MẠNG LONG THỌ</p>
-        <h2 id="h-story">Có những nỗi oan <em>không thể ngủ yên.</em></h2>
-        <p>Năm Minh Mạng thứ 17 (1836). Làng Long Thọ ven bờ Nam sông Hương chìm trong chứng dịch kỳ quái: lúa khô quắt rỉ khói đen, dân lành ho ra máu, còn trong chuồng hổ số 3 tại Đấu trường Hổ Quyền xuất hiện những cái xác ngậm chùm năm chìa khóa sắt.</p>
-        <p class="long">Thiếu niên mang Mệnh Âm <strong>Mót</strong> cùng sư huynh <strong>Đại Sơn</strong> thuộc nhánh mật Khâm Thiên Sứ lần theo dấu tà khí. Càng đào sâu, họ càng nhận ra thứ đáng sợ hơn cả Đại Ma Hổ chính là khế ước máu của lòng người.</p>
-        <p class="note">↳ Truck trái theo bông lúa rỉ khói đen — điềm báo Khí suy.</p>
-      </div>
+    <!-- 02 · Câu chuyện -->
+    <section class="sec sec--beats" id="cau-chuyen" data-nav="Câu chuyện">
+      <article class="beat" data-plate="still-05">
+        <div class="card-title"><p class="ct-over">HUẾ · 1836</p><h2>Một vùng đất</h2><i></i><p class="ct-sub">đang chết dần</p></div>
+        <p class="beat-text">Làng Long Thọ ven sông Hương: lúa vàng hóa đen, mạch nước nhiễm độc, người dân ho ra máu trước cổng đình.</p>
+      </article>
+      <article class="beat beat--right" data-plate="still-08">
+        <div class="card-title"><p class="ct-over">KHÂM THIÊN SỨ</p><h2>Oán khí</h2><i></i><p class="ct-sub">chưa từng tan</p></div>
+        <p class="beat-text">Mót, thiếu niên mang Mệnh Âm, nhìn thấy điều mắt thường không thấy. Cùng sư huynh Đại Sơn, cậu được triều đình cử về khám nghiệm dị sự.</p>
+      </article>
+      <article class="beat" data-plate="still-09">
+        <div class="card-title"><p class="ct-over">ĐẤU TRƯỜNG HỔ QUYỀN</p><h2>Tội ác</h2><i></i><p class="ct-sub">chôn sâu trong đêm</p></div>
+        <p class="beat-text">Một khế ước trăm bộ da hổ. Những con mãnh thú bị giết lén trong chuồng kết tụ thành Đại Ma Hổ, và kẻ gieo oán vẫn là người sống.</p>
+      </article>
+      <blockquote class="logline" data-plate="still-12">
+        <p>“Ma quỷ không tự nhiên sinh ra để hủy diệt nhân gian. Chính lòng tham, sự tàn nhẫn và nỗi oan khuất chưa được tháo gỡ của con người mới nuôi dưỡng tà vật.”</p>
+      </blockquote>
     </section>
 
-    <!-- SC03 -->
-    <section class="shot shot--right" data-shot="2" id="ban-dung" aria-labelledby="h-render">
-      <div class="card">
-        <p class="eyebrow">MỞ ĐẦU PHIM · SCENE 01 RENDER</p>
-        <h2 id="h-render">Mạch đất rỉ máu <em>bên bờ Nam sông Hương.</em></h2>
-        <p class="long">Hai huynh đệ Khâm Thiên Sứ cưỡi ngựa trở về Long Thọ. Từ cuộc khám nghiệm tử thi bằng kim bạc đến đêm huyết chiến Đại Ma Hổ, thân thế từng người lần lượt lộ diện.</p>
-        <ol class="beats">
-          <li>Tiền truyện bẻ nanh hổ Hổ Quyền</li>
-          <li>Kỵ mã trở về làng Long Thọ</li>
-          <li>Kim bạc hóa đen &amp; 5 chìa khóa sắt</li>
-          <li>Nụ cười Kim Lan, 3 mũi tên</li>
-          <li>Chưởng Cổ Phù cứu Đại Sơn</li>
-          <li>Huyền Uyên trên bờ thành cao</li>
-        </ol>
-        <button type="button" class="btn btn--ghost" id="video-sound-btn" aria-pressed="false">🔈 Bật tiếng bản dựng</button>
-      </div>
-    </section>
-
-    <!-- SC04 -->
-    <section class="shot shot--right" data-shot="3" id="nhan-vat" aria-labelledby="h-chars">
-      <div class="card">
-        <p class="eyebrow">NHỮNG KẺ BƯỚC ĐI TRONG ĐÊM DÀI</p>
-        <h2 id="h-chars" class="h-small">Mỗi số phận. <em>Một nghiệp chướng.</em></h2>
-        <div class="tabs" role="tablist" aria-label="Nhân vật" data-list="3"></div>
-        <div class="detail" aria-live="polite">
-          <span class="detail-sub" data-bind="char-sub"></span>
-          <h3><span data-bind="char-name"></span> <span class="seal" data-bind="char-seal"></span></h3>
-          <p data-bind="char-bio"></p>
-          <blockquote data-bind="char-quote"></blockquote>
+    <!-- 03 · Trailer -->
+    <section class="sec sec--film" id="trailer" data-nav="Trailer" data-plate="bg-ne">
+      <div class="sec-head"><p class="num">03</p><h2>Trailer</h2></div>
+      <div class="film">
+        <div class="film-frame">
+          <video id="film" controls playsinline preload="none" poster="assets/v2/trailer-poster.jpg" src="assets/v2/trailer.mp4"></video>
         </div>
-        <div class="seg" role="group" aria-label="Chế độ xem tạo hình">
-          <button type="button" data-view="avatar" aria-pressed="true">Chân dung</button>
-          <button type="button" data-view="turnaround" aria-pressed="false">Full 3 mặt</button>
-          <button type="button" data-view="sheet" aria-pressed="false">Bảng thiết kế</button>
+        <div class="film-tabs" role="tablist" aria-label="Chọn video">
+          <button type="button" role="tab" aria-selected="true" data-src="assets/v2/trailer.mp4" data-poster="assets/v2/trailer-poster.jpg"><b>Trailer mood</b><span>1 phút 08 · có tiếng</span></button>
+          <button type="button" role="tab" aria-selected="false" data-src="assets/v2/scene-story.mp4" data-poster="assets/v2/scene-poster.jpg"><b>Scene story</b><span>25 giây · bản dựng cảnh</span></button>
         </div>
       </div>
     </section>
 
-    <!-- SC05 -->
-    <section class="shot shot--right" data-shot="4" id="the-luc" aria-labelledby="h-factions">
-      <div class="card">
-        <p class="eyebrow">BẢN ĐỒ KINH ĐÔ PHÚ XUÂN</p>
-        <h2 id="h-factions" class="h-small">Sáu thế lực. <em>Một bàn cờ máu.</em></h2>
-        <div class="list" role="tablist" aria-label="Thế lực" data-list="4"></div>
-        <div class="detail" aria-live="polite">
-          <span class="detail-sub" data-bind="faction-sub"></span>
-          <h3 data-bind="faction-name"></h3>
-          <p data-bind="faction-desc"></p>
-        </div>
-      </div>
-    </section>
-
-    <!-- SC06 -->
-    <section class="shot shot--right" data-shot="5" id="dia-do" aria-labelledby="h-world">
-      <div class="card">
-        <p class="eyebrow">ĐỊA ĐỒ LINH DỊ PHÚ XUÂN 1836</p>
-        <h2 id="h-world" class="h-small">Một Đại Nam cổ kính. <em>Một cõi âm rình rập.</em></h2>
-        <div class="tabs" role="tablist" aria-label="Địa danh" data-list="5"></div>
-        <div class="detail" aria-live="polite">
-          <h3 data-bind="place-name"></h3>
-          <p data-bind="place-desc"></p>
-        </div>
-      </div>
-    </section>
-
-    <!-- SC07 -->
-    <section class="shot shot--right" data-shot="6" id="phap-khi" aria-labelledby="h-relics">
-      <div class="card">
-        <p class="eyebrow">CÁC PHÁP KHÍ ĐẦU TIÊN · CHƯƠNG I</p>
-        <h2 id="h-relics" class="h-small">Vật hữu hình. <em>Quyền năng vô ảnh.</em></h2>
-        <div class="tabs" role="tablist" aria-label="Pháp khí" data-list="6"></div>
-        <div class="detail" aria-live="polite">
-          <span class="detail-sub" data-bind="relic-sub"></span>
-          <h3><span data-bind="relic-name"></span> <span class="seal" data-bind="relic-glyph"></span></h3>
-          <p data-bind="relic-desc"></p>
-        </div>
-      </div>
-    </section>
-
-    <!-- SC08 -->
-    <section class="shot shot--bottom" data-shot="7" id="thoi-gian" aria-labelledby="h-timeline">
-      <div class="card card--wide">
-        <div class="wide-head">
-          <div>
-            <p class="eyebrow">TRỤC THỜI GIAN ĐIỆN ẢNH</p>
-            <h2 id="h-timeline" class="h-small">1818 <em>→</em> Vĩ thanh</h2>
-          </div>
-          <div class="years" role="tablist" aria-label="Mốc thời gian" data-list="7"></div>
-        </div>
-        <div class="detail detail--row" aria-live="polite">
-          <span class="detail-sub" data-bind="tl-sub"></span>
-          <h3 data-bind="tl-title"></h3>
-          <p data-bind="tl-desc"></p>
-        </div>
-      </div>
-    </section>
-
-    <!-- SC09 -->
-    <section class="shot shot--bottom" data-shot="8" id="khung-hinh" aria-labelledby="h-gallery">
-      <div class="card card--wide">
-        <div class="wide-head">
-          <div>
-            <p class="eyebrow">12 STILL FRAMES · DỊ SỰ HIỆN HÌNH</p>
-            <h2 id="h-gallery" class="h-small"><span data-bind="g-count">01 / 12</span> · <em data-bind="g-title"></em></h2>
-          </div>
-          <div class="gallery-ctrl">
-            <button type="button" class="icon-btn" data-gstep="-1" aria-label="Khung hình trước">←</button>
-            <button type="button" class="btn btn--ghost" id="g-zoom">Phóng lớn ↗</button>
-            <button type="button" class="icon-btn" data-gstep="1" aria-label="Khung hình tiếp">→</button>
-          </div>
-        </div>
-        <p class="detail-p" data-bind="g-caption" aria-live="polite"></p>
-      </div>
-    </section>
-
-    <!-- SC10 -->
-    <section class="shot shot--center" data-shot="9" id="hoi-ket" aria-labelledby="h-credits">
-      <div class="card card--bare credits">
-        <p class="kicker">GOSU CINEMA / HỒ SƠ DỰ ÁN ĐIỆN ẢNH</p>
-        <h2 id="h-credits">Sơn hà còn đó. <em>Dị lục mới mở đầu.</em></h2>
-        <dl class="credit-roll">
-          <div><dt>KỊCH BẢN</dt><dd><img src="assets/hyra-logo.png" alt="HYRA" height="28"></dd></div>
-          <div><dt>ĐẠO DIỄN</dt><dd><img src="assets/gihot-logo.png" alt="GIHOT" height="30"></dd></div>
-          <div><dt>SẢN XUẤT</dt><dd><img src="assets/gosu-logo.png" alt="GOSU" height="26"></dd></div>
+    <!-- 04 · Hổ Quyền -->
+    <section class="sec sec--place" id="ho-quyen" data-nav="Hổ Quyền" data-plate="hq-top" data-alt="hq-top-am">
+      <div class="place-text">
+        <p class="num">04 · BỐI CẢNH</p>
+        <h2>Đấu trường Hổ Quyền</h2>
+        <p class="lead">Đấu trường voi hổ của triều Nguyễn ở Thủy Biều, phía tây kinh thành Huế. Ban ngày là lễ tế. Ban đêm là nơi mãnh hổ bị bẻ nanh, nhổ móng.</p>
+        <dl class="facts">
+          <div><dt>1830</dt><dd>năm xây</dd></div>
+          <div><dt>44 m</dt><dd>lòng chảo</dd></div>
+          <div><dt>5,9 m</dt><dd>thành trong</dd></div>
+          <div><dt>5</dt><dd>chuồng cọp</dd></div>
         </dl>
-        <p class="facts">PHÚ XUÂN · MINH MẠNG 1836 &nbsp;✦&nbsp; CỔ TRANG · LINH DỊ · TRINH THÁM &nbsp;✦&nbsp; LỘ TRÌNH 2027</p>
-        <button type="button" class="btn btn--ghost" data-goto="0">Về cảnh mở màn ↑</button>
-        <p class="copy">© GOSU STUDIO · ALL RIGHTS RESERVED</p>
+        <p class="lens-hint" data-lens-hint><i></i><span>Rê chuột hoặc chạm lên hình để nhìn bằng <b>Mệnh Âm</b></span></p>
+      </div>
+      <div class="cams" data-cams aria-label="Các góc máy Hổ Quyền">
+        <button type="button" class="on" data-plate="hq-top" data-alt="hq-top-am"><img src="assets/v2/hq-top.webp" alt="" loading="lazy"><span>CAM 01 · Từ trên cao</span></button>
+        <button type="button" data-plate="hq-overview"><img src="assets/v2/hq-overview.webp" alt="" loading="lazy"><span>CAM 02 · Toàn cảnh</span></button>
+        <button type="button" data-plate="hq-gate"><img src="assets/v2/hq-gate.webp" alt="" loading="lazy"><span>CAM 03 · Cổng vòm</span></button>
+        <button type="button" data-plate="hq-stand"><img src="assets/v2/hq-stand.webp" alt="" loading="lazy"><span>CAM 04 · Khán đài vua</span></button>
+        <button type="button" data-plate="hq-night" data-alt="hq-night-am"><img src="assets/v2/hq-night.webp" alt="" loading="lazy"><span>CAM 05 · Năm chuồng cọp</span></button>
+        <button type="button" data-plate="hq-wall"><img src="assets/v2/hq-wall.webp" alt="" loading="lazy"><span>CAM 06 · Mặt thành</span></button>
+        <button type="button" data-plate="hq-dawn"><img src="assets/v2/hq-dawn.webp" alt="" loading="lazy"><span>CAM 10 · Bình minh</span></button>
+      </div>
+    </section>
+
+    <!-- 05 · Điện Voi Ré -->
+    <section class="sec sec--place sec--place-r" id="voi-re" data-nav="Điện Voi Ré" data-plate="vr-day" data-alt="vr-aerial">
+      <div class="place-text">
+        <p class="num">05 · BỐI CẢNH</p>
+        <h2>Điện Voi Ré</h2>
+        <p class="lead">Long Châu Miếu, cổ miếu thờ voi chiến dưới bóng cây đa. Nơi Mót được tìm thấy trong chiếc bình gốm vỡ đêm mưa năm 1818, và cũng là nơi giấu mật thất một trăm bộ da hổ.</p>
+        <p class="lens-hint" data-lens-hint><i></i><span>Rê chuột hoặc chạm lên hình để thấy miếu <b>về đêm</b></span></p>
+      </div>
+      <div class="cams" data-cams aria-label="Các góc máy Điện Voi Ré">
+        <button type="button" class="on" data-plate="vr-day" data-alt="vr-aerial"><img src="assets/v2/vr-day.webp" alt="" loading="lazy"><span>CAM 01 · Toàn cảnh</span></button>
+        <button type="button" data-plate="vr-gate"><img src="assets/v2/vr-gate.webp" alt="" loading="lazy"><span>CAM 03 · Tam quan</span></button>
+        <button type="button" data-plate="vr-court"><img src="assets/v2/vr-court.webp" alt="" loading="lazy"><span>CAM 05 · Chính điện</span></button>
+        <button type="button" data-plate="vr-corridor"><img src="assets/v2/vr-corridor.webp" alt="" loading="lazy"><span>CAM 08 · Hành lang</span></button>
+        <button type="button" data-plate="vr-banyan"><img src="assets/v2/vr-banyan.webp" alt="" loading="lazy"><span>CAM 09 · Gốc đa</span></button>
+      </div>
+    </section>
+
+    <!-- 06 · Nhân vật -->
+    <section class="sec sec--cast" id="nhan-vat" data-nav="Nhân vật" data-plate="bg-ne">
+      <div class="sec-head"><p class="num">06</p><h2>Nhân vật</h2></div>
+      <div class="cast" id="cast">
+        <div class="cast-names" role="tablist" aria-label="Chọn nhân vật"></div>
+        <figure class="cast-art">
+          <img id="cast-img" alt="" width="1500" height="837">
+          <button type="button" class="chip" id="cast-toggle" aria-pressed="false">Xem bảng thiết kế</button>
+        </figure>
+        <div class="cast-info" aria-live="polite">
+          <p class="cast-sub" id="cast-sub"></p>
+          <h3 id="cast-name"></h3>
+          <p id="cast-bio"></p>
+          <p class="cast-quote" id="cast-quote"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 07 · Prototype -->
+    <section class="sec sec--proto" id="prototype" data-nav="Prototype" data-plate="hq-stand">
+      <div class="sec-head"><p class="num">07</p><h2>Prototype</h2><p class="sec-sub">Tạo hình ingame và mô hình 3D đang dựng cho dự án.</p></div>
+      <div class="proto">
+        <figure class="proto-3d">
+          <canvas id="relic3d" aria-label="Mô hình 3D Ngọc lệnh Khâm Thiên Giám, kéo để xoay"></canvas>
+          <figcaption><b>Ngọc lệnh Khâm Thiên Giám</b><span>Mô hình 3D · kéo để xoay</span></figcaption>
+        </figure>
+        <div class="proto-grid">
+          <button type="button" class="shot shot--wide" data-full="assets/v2/ig-hoquyen.webp"><img src="assets/v2/ig-hoquyen.webp" alt="Mô hình 3D đấu trường Hổ Quyền nhìn từ bốn góc" loading="lazy"><span>Hổ Quyền · mô hình 3D</span></button>
+          <button type="button" class="shot shot--wide" data-full="assets/v2/ig-voire.webp"><img src="assets/v2/ig-voire.webp" alt="Phối cảnh ingame Điện Voi Ré" loading="lazy"><span>Điện Voi Ré · phối cảnh ingame</span></button>
+          <button type="button" class="shot" data-full="assets/v2/ig-ktg.webp"><img src="assets/v2/ig-ktg.webp" alt="Bảng tạo hình ingame nhân vật Khâm Thiên Giám" loading="lazy"><span>Khâm Thiên Giám</span></button>
+          <button type="button" class="shot" data-full="assets/v2/ig-vanhoa.webp"><img src="assets/v2/ig-vanhoa.webp" alt="Bảng tạo hình ingame nhân vật Vân Hoa" loading="lazy"><span>Vân Hoa</span></button>
+          <button type="button" class="shot" data-full="assets/v2/ig-nu.webp"><img src="assets/v2/ig-nu.webp" alt="Bốn phương án trang phục nhân vật nữ" loading="lazy"><span>Thường dân · phương án trang phục</span></button>
+          <button type="button" class="shot" data-full="assets/v2/ig-quan.webp"><img src="assets/v2/ig-quan.webp" alt="Ba phương án áo quan" loading="lazy"><span>Quan viên · phương án áo</span></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 08 · Sáu thế lực -->
+    <section class="sec sec--map" id="the-luc" data-nav="Sáu thế lực" data-plate="map-base" data-alt="map-net">
+      <div class="map-text">
+        <p class="num">08 · KINH THÀNH HUẾ</p>
+        <h2>Sáu thế lực</h2>
+        <p class="lens-hint" data-lens-hint><i></i><span>Rê chuột hoặc chạm lên bản đồ để lộ <b>mạng lưới ngầm</b></span></p>
+        <ol class="factions" id="factions"></ol>
+      </div>
+    </section>
+
+    <!-- 09 · Pháp khí -->
+    <section class="sec sec--relics" id="phap-khi" data-nav="Pháp khí" data-plate="relic-3">
+      <div class="relic-text">
+        <p class="num">09</p>
+        <h2>Pháp khí</h2>
+        <div class="relic-info" aria-live="polite">
+          <h3 id="relic-name"></h3>
+          <p class="relic-owner" id="relic-owner"></p>
+          <p id="relic-desc"></p>
+        </div>
+        <div class="relic-tabs" id="relic-tabs" role="tablist" aria-label="Chọn pháp khí"></div>
+      </div>
+    </section>
+
+    <!-- 10 · Khung hình -->
+    <section class="sec sec--frames" id="khung-hinh" data-nav="Khung hình" data-plate="still-01">
+      <div class="frames-head">
+        <p class="num">10 · STILL FRAME</p>
+        <h2 id="frame-title"></h2>
+        <p id="frame-cap"></p>
+      </div>
+      <div class="frames" id="frames" aria-label="Mười hai khung hình"></div>
+    </section>
+
+    <!-- 11 · Kết -->
+    <section class="sec sec--end" id="ket" data-nav="Hồi kết" data-plate="hq-dawn">
+      <div class="end">
+        <img class="end-title" src="assets/son-ha-di-luc-title.webp?v=15" alt="Sơn Hà Dị Lục" width="366" height="416" loading="lazy">
+        <p class="end-status">DỰ ÁN ĐANG TRONG QUÁ TRÌNH SẢN XUẤT</p>
+        <dl class="credits">
+          <div><dt>KỊCH BẢN</dt><dd><img src="assets/hyra-logo.png" alt="HYRA" height="26" loading="lazy"></dd></div>
+          <div><dt>ĐẠO DIỄN</dt><dd><img src="assets/gihot-logo.png" alt="GIHOT" height="28" loading="lazy"></dd></div>
+          <div><dt>SẢN XUẤT</dt><dd><img src="assets/gosu-logo.png" alt="GOSU" height="24" loading="lazy"></dd></div>
+        </dl>
+        <p class="end-links"><a href="storyboard.html">Bản storyboard</a><a href="classic.html">Bản cổ điển</a></p>
       </div>
     </section>
   </main>
 
-  <nav class="strip" aria-label="Danh sách cảnh storyboard">
-    <div class="strip-track"><i id="strip-fill"></i></div>
-    <ol id="strip-list"></ol>
-  </nav>
+  <div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="Xem hình lớn">
+    <button type="button" class="lb-close" id="lb-close" aria-label="Đóng">×</button>
+    <img id="lb-img" alt="">
+  </div>
 
-  <!-- Thanh cuộn ảo: mỗi "beat" = một cảnh, scroll-snap từng cảnh -->
-  <div id="scroller" aria-hidden="true"></div>
-
-  <dialog id="lightbox" aria-label="Khung hình phóng lớn">
-    <button type="button" class="lb-close" aria-label="Đóng">ĐÓNG ×</button>
-    <figure>
-      <img alt="">
-      <figcaption><strong></strong><span></span></figcaption>
-    </figure>
-    <button type="button" class="lb-nav lb-prev" aria-label="Ảnh trước">←</button>
-    <button type="button" class="lb-nav lb-next" aria-label="Ảnh tiếp">→</button>
-  </dialog>
-
-  <audio id="bgm" src="assets/audio/soundtrack-1836.m4a" preload="none" loop></audio>
-
-  <script type="module" src="js/main.js?v=13"></script>
+  <audio id="bgm" src="assets/audio/soundtrack-1836.m4a" loop preload="none"></audio>
+  <script type="module" src="v2/site.js?v=1"></script>
 </body>
 </html>

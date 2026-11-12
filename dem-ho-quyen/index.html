@@ -2,77 +2,12 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <title>Đêm Hổ Quyền · 1836 — Sơn Hà Dị Lục</title>
-  <meta name="description" content="Một đêm ở đấu trường Hổ Quyền, Thủy Biều, năm Minh Mạng thứ 17. Trải nghiệm tương tác 6 hồi của Sơn Hà Dị Lục, kể bằng hành động và âm thanh.">
-  <meta property="og:title" content="Đêm Hổ Quyền · 1836 — Sơn Hà Dị Lục">
-  <meta property="og:description" content="Trải nghiệm tương tác 6 hồi: trận voi hổ giờ Ngọ, những chiếc rương, Mắt Âm, Đại Ma Hổ và bình minh.">
-  <meta name="theme-color" content="#050404">
-  <link rel="stylesheet" href="dhq.css?v=1">
-  <script type="importmap">
-    { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" } }
-  </script>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Sơn Hà Dị Lục · 1836</title>
+  <meta http-equiv="refresh" content="0; url=../">
+  <link rel="canonical" href="../">
 </head>
-<body>
-  <canvas id="gl" aria-hidden="true"></canvas>
-
-  <div class="sr">
-    <h1>Đêm Hổ Quyền · 1836</h1>
-    <p>Đấu trường Hổ Quyền ở làng Nguyệt Biều, phía tây Kinh thành Huế, xây năm 1830 thời vua Minh Mạng. Lòng chảo rộng 44 mét, thành trong cao 5,9 mét, năm chuồng cọp đối diện khán đài của vua ở phía Bắc.</p>
-    <ol>
-      <li>Trống chầu: nhấn ba lần để đánh trống và bước vào.</li>
-      <li>Giờ Ngọ: trận voi hổ dừng giữa chừng. Lăn chuột, kéo lên hoặc bấm mũi tên lên để thời gian đi tiếp.</li>
-      <li>Những chiếc rương: bấm vào từng chiếc rương để cạy nắp.</li>
-      <li>Mắt Âm: nhấn giữ để nhìn bằng Mệnh Âm. Bóng hổ chỉ đứng im khi bị nhìn thấy; nhìn thẳng khi nó tới gần để giải oán.</li>
-      <li>Đại Ma Hổ: nhấn giữ và kéo nối năm dấu bùa, rồi bấm đúng lúc vòng đỏ khớp vòng trong.</li>
-      <li>Bình minh: rê chuột trên nền đất để lúa hồi lại, rồi hơ ngọn lửa vào đầu nhang.</li>
-    </ol>
-  </div>
-
-  <!-- Hồi 0: trống chầu -->
-  <div id="gate" role="button" tabindex="0" aria-label="Nhấn ba lần để đánh trống và bước vào">
-    <div class="drum" id="drum"><i class="drum-ring"></i><i class="drum-ripple" id="ripple"></i></div>
-    <div class="beats" aria-hidden="true"><i></i><i></i><i></i></div>
-    <p class="gate-tip" aria-hidden="true">🎧</p>
-  </div>
-
-  <a class="brand" href="../index.html" aria-label="Về trang Sơn Hà Dị Lục"><img src="../assets/gosu-logo.png" alt="" width="66" height="22"></a>
-  <p class="stamp" id="stamp" aria-hidden="true"></p>
-  <p class="line" id="line" aria-hidden="true"></p>
-  <div class="souls" id="souls" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
-
-  <!-- ký hiệu cử chỉ vẽ bằng nét son: giữ, lăn, bấm, kéo nối, rê -->
-  <div class="hint" id="hint" aria-hidden="true">
-    <svg class="h-hold" viewBox="0 0 60 60"><circle class="dot" cx="30" cy="30" r="6"/><circle class="ring" cx="30" cy="30" r="22"/></svg>
-    <svg class="h-scroll" viewBox="0 0 60 60"><rect x="20" y="8" width="20" height="34" rx="10"/><line class="wheel" x1="30" y1="16" x2="30" y2="24"/><path d="M22 50 L30 56 L38 50"/></svg>
-    <svg class="h-click" viewBox="0 0 60 60"><circle class="dot" cx="30" cy="30" r="5"/><circle class="pulse" cx="30" cy="30" r="10"/></svg>
-    <svg class="h-drag" viewBox="0 0 60 60"><circle class="dot" cx="10" cy="44" r="4"/><circle class="dot" cx="30" cy="14" r="4"/><circle class="dot" cx="50" cy="44" r="4"/><path class="trace" d="M10 44 L30 14 L50 44"/></svg>
-    <svg class="h-move" viewBox="0 0 60 60"><path class="trace" d="M6 40 C 18 20, 30 52, 54 22"/><circle class="dot mover" cx="6" cy="40" r="4"/></svg>
-  </div>
-
-  <!-- đòn cuối: vòng đỏ thu lại, bấm khi khớp vòng trong -->
-  <div class="qte" id="qte" aria-hidden="true"><i class="q-target"></i><i class="q-ring"></i></div>
-  <!-- hoa văn vòng tay của Mót: mặt trời và vành như mặt trống đồng -->
-  <svg class="vong" id="vong" viewBox="-100 -100 200 200" aria-hidden="true"></svg>
-
-  <!-- chuyển cảnh: một nét châu phê son đỏ quệt qua khung hình -->
-  <svg class="brush" id="brush" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-    <defs><filter id="rough" filterUnits="userSpaceOnUse" x="-60" y="-60" width="220" height="220"><feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="3" seed="4"/><feDisplacementMap in="SourceGraphic" scale="9"/></filter></defs>
-    <path filter="url(#rough)" pathLength="100" d="M-30 70 C 10 40, 40 80, 70 45 S 120 30, 140 20"/>
-  </svg>
-
-  <div class="flashlayer" aria-hidden="true"></div>
-
-  <section class="end" id="end" aria-label="Kết thúc">
-    <img src="../assets/son-ha-di-luc-title.webp" alt="Sơn Hà Dị Lục" width="520">
-    <p class="end-count" aria-label="Số nén nhang đã thắp"><span aria-hidden="true">🕯</span> <b id="end-count">—</b></p>
-    <nav>
-      <a href="../index.html">HỒ SƠ DỰ ÁN</a>
-      <a href="./">XEM LẠI</a>
-    </nav>
-  </section>
-
-  <p class="sr" id="live" aria-live="polite"></p>
-  <script type="module" src="main.js?v=1"></script>
+<body style="background:#070605;color:#e9dfcf;font-family:serif">
+  <p><a href="../" style="color:inherit">Về trang giới thiệu Sơn Hà Dị Lục</a></p>
 </body>
 </html>
