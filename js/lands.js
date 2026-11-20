@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { NOISE } from './shaders.js';
 import { radialTexture } from './fx.js';
+import { createBambooGrove } from './bamboo.js';
 
 export const LANDS = [
   { name: 'Ngàn Sơn Mù Sương', han: '霧', key: 'peaks' },
@@ -276,10 +277,22 @@ export function createLands({ scene, shots, fog, sharedTime, isMobile, pixelRati
       light(x, heightAt(x, z) + 2.4, z, AMBER, 3);
     },
     bamboo(i) {
-      const g = new THREE.CylinderGeometry(0.09, 0.13, 1, 5, 1).translate(0, 0.5, 0);
-      instanced(g, sil, scatter(i, isMobile ? 220 : 480, 3.2, 34, (x, y, z) => ({ x, y: y - 0.3, z, sy: 8 + rand() * 11, rx: (rand() - 0.5) * 0.14, rz: (rand() - 0.5) * 0.14 })));
-      const leaf = new THREE.PlaneGeometry(1, 0.22);
-      instanced(leaf, sil, scatter(i, isMobile ? 160 : 360, 3, 30, (x, y, z) => ({ x, y: y + 6 + rand() * 11, z, ry: rand() * 6, rz: (rand() - 0.5) * 1.4, sx: 0.8 + rand() * 0.7 })));
+      // rừng trúc thật: thân có đốt, cành lá, gió lùa (js/bamboo.js), dưới ánh trăng xanh ngọc
+      const list = scatter(i, isMobile ? 280 : 720, 3.2, 30, (x, y, z) => {
+        const d = Math.abs(x - xcAt(z));
+        const pl = { x, y, z, h: 9 + rand() * 9, near: d < 9 };
+        if (d < 7 && rand() < 0.8) { pl.leanDir = x < xcAt(z) ? 0 : Math.PI; pl.tilt = 0.03 + rand() * 0.08; }
+        return pl;
+      });
+      const zm = lerp(camZ[i], camZ[i + 1], 0.65);
+      createBambooGrove(scene, list, {
+        time: sharedTime, isMobile, seed: 31, leafDensity: isMobile ? 0.45 : 0.6,
+        sunDir: [-0.35, 0.8, -0.5], sunCol: [0.36, 0.5, 0.47], skyCol: [0.035, 0.06, 0.055], gndCol: [0.01, 0.012, 0.01],
+        fogLinear: true, fogColor: fog.color, fogNearU: fog.nearU, fogFarU: fog.farU, fogSunCol: [0.06, 0.12, 0.1],
+        groundY: gyAt(zm), canopyY: gyAt(zm) + 12, wind: 0.9, dapple: 0.8
+      });
+      // điểm nhìn để kiểm thử (?debug): đứng giữa rừng nhìn dọc trục bay
+      scene.userData.bambooView = { x: xcAt(zm), y: gyAt(zm) + 3.2, z: zm, tx: xcAt(zm - 12), ty: gyAt(zm) + 6, tz: zm - 12 };
       scatter(i, 18, 3, 20, (x, y, z) => light(x, y + 1 + rand() * 4, z, JADE, 1.4));
     },
     graves(i) {
