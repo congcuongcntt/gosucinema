@@ -20,6 +20,7 @@ Mở http://localhost:5173 (ES modules cần chạy qua HTTP, không mở bằng
 | `js/world.js` | Scene three.js: 10 cảnh đặt dọc một spline, camera rig, panel shader, tàn nhang, khói, hậu kỳ |
 | `js/fx.js` | Hiệu ứng linh dị: nén nhang 3D (chưa thắp cho tới khi hơ lửa vào đầu nhang + bấm; cháy ngắn dần, khói, tia lửa, sóng xung kích), pháp trận Bát quái, bùa chú bay (chạm lửa thì cháy lan, rơi tro, rồi tụ lại), ma trơi, sương đất, ngọn lửa theo con trỏ, chuyển cảnh "âm môn" (chữ Hán bay xuyên qua, vệt hồn lướt); "hồn tụ hồn tán" — chữ Hán vùng đất kết từ hạt rồi tan khi máy quay bay xuyên qua; bokeh độ sâu trường ảnh cho mọi hệ hạt |
 | `js/lands.js` | Địa hình âm giới dọc hành trình và 9 vùng đất giữa các cảnh (núi sương, rừng trúc, bãi tha ma, thành quách, sông hồn, lối tam quan, rừng cây chết, hồ sen, bậc đá lên trời); đường bay của máy quay giữa hai cảnh |
+| `js/bamboo.js` | Rừng trúc dựng thủ tục, hướng tới chân thực: thân có đốt (gờ mắt, vòng phấn trắng, địa y), cành và chùm lá vẽ bằng canvas, lá xuyên sáng, gió lắc theo cơn, sương theo độ cao. Chia ô để bỏ qua phần ngoài khung hình. Dùng cho `rung-truc/` và vùng Rừng Trúc Âm của storyboard |
 | `js/shaders.js` | GLSL: hiện ảnh kiểu giấy bén lửa, hạt tàn hương, khói fbm, film pass (grain, vignette, quang sai) |
 | `js/main.js` | Cuộn → tiến trình camera, trạng thái chọn, lightbox, âm thanh, loader, fallback khi không có WebGL |
 
@@ -42,3 +43,9 @@ Trang chủ hiện tại là trang giới thiệu dự án, dựng từ tư li�
 - Hình trong `assets/v2/` xuất từ thư mục tư liệu "SƠN HÀ DỊ LỤC" (webp, cạnh dài tối đa 1920). Video nén lại 720p.
 - Nội dung chữ (nhân vật, thế lực, pháp khí, khung hình) dùng chung `js/data.js` với bản storyboard.
 - Không có WebGL thì hình nền rơi về ảnh CSS (`#stage-fallback`).
+
+## Rừng Trúc Âm (`rung-truc/`)
+
+Cảnh 3D riêng: đi chậm theo lối mòn giữa rừng trúc lúc chiều tà, sương lam, nắng xiên ngược. Rê chuột để ngó, lăn chuột để đi, nút GIÓ bật tiếng gió lùa lá và tiếng thân trúc va nhau (Web Audio, không cần file âm thanh). Máy yếu sẽ tự hạ độ phân giải sau vài giây.
+
+Tham số kiểm thử: `?debug&t=12` khoá thời gian và in số tam giác; `&view=macro` (đứng sát thân trúc), `&view=up` (ngước nhìn tán), `&view=culm`.
